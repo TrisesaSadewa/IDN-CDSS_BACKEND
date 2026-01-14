@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 
 # --- CONFIGURATION ---
-SUPABASE_URL = "https://wasadrygnoevtkckqqrv.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indhc2Fkcnlnbm9ldnRrY2txcXJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODM5NzI4MCwiZXhwIjoyMDgzOTczMjgwfQ.TN83oe-OR0k9KzZRsVi23sRSjuLqemjAStTRDmAgR4I" 
+SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ" 
 
 app = FastAPI(title="Doctor's Module API", version="2.0")
 
@@ -238,4 +238,5 @@ async def submit_consultation(data: ConsultationSubmit):
         print(e)
 
         raise HTTPException(status_code=500, detail="Submission Failed")
+
 
