@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+supabase
+python-multipart
+requests
+fuzzywuzzy
+python-Levenshtein
+pydantic
