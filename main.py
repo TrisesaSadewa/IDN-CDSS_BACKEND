@@ -2,16 +2,24 @@ import os
 import json
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
+
+# --- IMPORT LOCAL MODULES ---
+# This enables the Bulk Insert logic using your existing NER Parser
+try:
+    import ner_parser
+except ImportError:
+    print("WARNING: ner_parser.py not found. Bulk insert will fail.")
+    ner_parser = None
 
 # --- CONFIGURATION ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="4.2 - EMR Complete")
+app = FastAPI(title="Smart HIS Backend", version="4.3 - Bulk Insert")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,6 +36,9 @@ except Exception as e:
     supabase = None
 
 # --- MODELS ---
+class ParseRequest(BaseModel):
+    text: str
+
 class ConsultationData(BaseModel):
     doctor_id: str
     appointment_id: str
@@ -36,7 +47,7 @@ class ConsultationData(BaseModel):
     history_illness: str
     primary_diagnosis: str
     icd10_code: str
-    secondary_diagnoses: List[str] # New field for comorbidities
+    secondary_diagnoses: List[str]
     clinical_notes: str
     therapy_instructions: str
     prescription_items: List[Dict[str, Any]]
@@ -47,7 +58,25 @@ class AppointmentBooking(BaseModel):
     date: str
     time: str
 
-# --- ENDPOINTS ---
+# --- BULK INSERT / NER ENDPOINT ---
+@app.post("/api/parse-prescription")
+async def parse_prescription_endpoint(payload: ParseRequest):
+    """
+    Takes raw prescription text (e.g. 'Paracetamol 500mg 3x1') 
+    and returns structured JSON using ner_parser.py
+    """
+    if not ner_parser:
+        raise HTTPException(status_code=500, detail="NER Parser module not loaded on server.")
+    
+    try:
+        # Calls your existing logic in ner_parser.py
+        parsed_data = ner_parser.parse_prescription_text(payload.text)
+        return parsed_data
+    except Exception as e:
+        print(f"NER Parsing Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Parsing failed: {str(e)}")
+
+# --- CORE ENDPOINTS ---
 
 @app.get("/")
 def read_root():
@@ -55,29 +84,17 @@ def read_root():
 
 @app.get("/api/icd/search")
 async def search_icd10(q: str):
-    """Real-time search for ICD-10 codes"""
     if not supabase: return []
     try:
-        # ILIKE search for autocomplete
-        res = supabase.table("icd10_dictionary")\
-            .select("code, symptoms")\
-            .ilike("symptoms", f"%{q}%")\
-            .limit(8)\
-            .execute()
+        res = supabase.table("icd10_dictionary").select("code, symptoms").ilike("symptoms", f"%{q}%").limit(8).execute()
         return [{"code": r['code'], "description": r['symptoms']} for r in res.data]
-    except Exception as e:
-        print(f"Search Error: {e}")
-        return []
+    except Exception: return []
 
 @app.get("/doctor/appointment/{appt_id}")
 async def get_appointment_detail(appt_id: str):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        res = supabase.table("appointments")\
-            .select("*, patients(*), triage_notes(*)")\
-            .eq("id", appt_id)\
-            .single()\
-            .execute()
+        res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -86,16 +103,9 @@ async def get_appointment_detail(appt_id: str):
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # Format Complex Data into SOAP Columns
         subjective_text = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
-        
-        # Build Assessment String
         comorbidities_str = ", ".join(data.secondary_diagnoses) if data.secondary_diagnoses else "None"
-        assessment_text = (
-            f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\n"
-            f"SECONDARY: {comorbidities_str}\n"
-            f"NOTES: {data.clinical_notes}"
-        )
+        assessment_text = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nSECONDARY: {comorbidities_str}\nNOTES: {data.clinical_notes}"
 
         consult_res = supabase.table("consultations").insert({
             "appointment_id": data.appointment_id,
@@ -127,7 +137,6 @@ async def submit_consultation(data: ConsultationData):
         print(f"Submit Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ... (Retain queue, booking, profile endpoints from previous versions)
 @app.get("/doctor/queue")
 async def get_doctor_queue(doctor_id: str):
     if not supabase: return []
