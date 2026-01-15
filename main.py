@@ -10,8 +10,8 @@ from supabase import create_client, Client
 
 # --- CONFIGURATION ---
 # Use environment variables in production!
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://wasadrygnoevtkckqqrv.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indhc2Fkcnlnbm9ldnRrY2txcXJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODM5NzI4MCwiZXhwIjoyMDgzOTczMjgwfQ.TN83oe-OR0k9KzZRsVi23sRSjuLqemjAStTRDmAgR4I")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://crywwqleinnwoacithmw.supabase.co")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ")
 
 app = FastAPI(title="Smart HIS Backend", version="2.5")
 
@@ -178,3 +178,4 @@ async def get_patient_history(patient_id: str):
     except Exception as e:
         print(f"History Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
