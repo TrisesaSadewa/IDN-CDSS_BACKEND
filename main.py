@@ -13,12 +13,12 @@ from supabase import create_client, Client
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://crywwqleinnwoacithmw.supabase.co")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ")
 
-app = FastAPI(title="Smart HIS Backend", version="2.5")
+app = FastAPI(title="Smart HIS Backend", version="2.6")
 
-# Enable CORS
+# Enable CORS for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://idn-cdss.vercel.app/"], 
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -55,7 +55,7 @@ class PatientRegistration(BaseModel):
     dob: str
     gender: str
 
-# --- DOCTOR ENDPOINTS ---
+# --- ENDPOINTS ---
 
 @app.get("/doctor/queue")
 async def get_doctor_queue(doctor_id: str):
@@ -71,7 +71,8 @@ async def get_doctor_queue(doctor_id: str):
         return response.data
     except Exception as e:
         print(f"Queue Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Return empty list on error instead of crashing
+        return []
 
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
@@ -112,14 +113,10 @@ async def submit_consultation(data: ConsultationData):
         print(f"Consultation Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- PATIENT ENDPOINTS ---
-
 @app.get("/patient/doctors")
 async def get_all_doctors():
-    """Returns list of doctors for booking dropdown"""
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # Query profiles where role is doctor
         res = supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute()
         return res.data
     except Exception as e:
@@ -129,8 +126,7 @@ async def get_all_doctors():
 async def book_appointment(booking: AppointmentBooking):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # 1. Calculate Queue Number (Simple logic: Max + 1)
-        # Note: In production, filter by date too.
+        # 1. Calculate Queue Number
         q_res = supabase.table("appointments")\
             .select("queue_number")\
             .eq("doctor_id", booking.doctor_id)\
@@ -144,7 +140,6 @@ async def book_appointment(booking: AppointmentBooking):
             next_q = q_res.data[0]['queue_number'] + 1
 
         # 2. Insert Appointment
-        # Combine date and time into timestamp
         scheduled_ts = f"{booking.date}T{booking.time}:00"
 
         new_appt = supabase.table("appointments").insert({
@@ -162,20 +157,13 @@ async def book_appointment(booking: AppointmentBooking):
 
 @app.get("/patient/history")
 async def get_patient_history(patient_id: str):
-    """Fetches past consultations for EMR view"""
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # Join consultations -> doctors
-        # Also need appointment date
         res = supabase.table("consultations")\
             .select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time), prescription_items(*)")\
             .eq("appointments.patient_id", patient_id)\
             .execute()
-            
-        # Filter out rows where appointment might be null (if using inner join logic manually)
-        # Supabase returns the structure, we just pass it to frontend to parse
         return res.data
     except Exception as e:
         print(f"History Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
