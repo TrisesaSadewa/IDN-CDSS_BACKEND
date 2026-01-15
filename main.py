@@ -9,13 +9,14 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 
 # --- CONFIGURATION ---
-# Use environment variables in production!
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://crywwqleinnwoacithmw.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ")
+# UPDATED: Correct Service Key for 'crywwqleinnwoacithmw'
+SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
+# Key ending in ...PNPQ is the correct new Service Key
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="2.6")
+app = FastAPI(title="Smart HIS Backend", version="2.8")
 
-# Enable CORS for local development
+# Enable CORS (Allows both Localhost and Production)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -46,22 +47,42 @@ class AppointmentBooking(BaseModel):
     doctor_id: str
     date: str
     time: str
-    
-class PatientRegistration(BaseModel):
-    email: str
-    password: str
-    full_name: str
-    nik: str
-    dob: str
-    gender: str
 
 # --- ENDPOINTS ---
+
+@app.get("/")
+def read_root():
+    return {"status": "active", "service": "Smart HIS Backend"}
+
+@app.get("/patient/profile")
+async def get_patient_profile(user_id: str):
+    """Fetches MRN and details for the dashboard"""
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        res = supabase.table("patients").select("*").eq("id", user_id).execute()
+        if res.data and len(res.data) > 0:
+            return res.data[0]
+        else:
+            return {"full_name": "Profile Error", "mrn": "MISSING_ROW"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/patient/doctors")
+async def get_all_doctors():
+    """Fetches list of doctors for booking"""
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        # Fetch profiles with role 'doctor'
+        res = supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute()
+        return res.data
+    except Exception as e:
+        print(f"Fetch Doctors Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/doctor/queue")
 async def get_doctor_queue(doctor_id: str):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # Fetch active appointments
         response = supabase.table("appointments")\
             .select("*, patients(*), triage_notes(*)")\
             .eq("doctor_id", doctor_id)\
@@ -71,56 +92,7 @@ async def get_doctor_queue(doctor_id: str):
         return response.data
     except Exception as e:
         print(f"Queue Error: {e}")
-        # Return empty list on error instead of crashing
         return []
-
-@app.post("/doctor/submit-consultation")
-async def submit_consultation(data: ConsultationData):
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        # 1. Save Consultation
-        consult_res = supabase.table("consultations").insert({
-            "appointment_id": data.appointment_id,
-            "doctor_id": data.doctor_id,
-            "subjective": data.subjective,
-            "objective": data.objective,
-            "assessment": data.assessment,
-            "plan": data.plan,
-            "prescription_raw_text": "; ".join([f"{d['name']} {d['dosage']}" for d in data.prescription_items])
-        }).execute()
-        
-        consult_id = consult_res.data[0]['id']
-
-        # 2. Save Prescription Items
-        items_payload = []
-        for item in data.prescription_items:
-            items_payload.append({
-                "consultation_id": consult_id,
-                "drug_name_snapshot": item['name'],
-                "quantity": 10,
-                "dosage_instruction": f"{item['dosage']} {item['frequency']} - {item.get('instructions','')}",
-                "status": "pending"
-            })
-        
-        if items_payload:
-            supabase.table("prescription_items").insert(items_payload).execute()
-
-        # 3. Update Status
-        supabase.table("appointments").update({"status": "pharmacy"}).eq("id", data.appointment_id).execute()
-
-        return {"status": "success", "consultation_id": consult_id}
-    except Exception as e:
-        print(f"Consultation Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/patient/doctors")
-async def get_all_doctors():
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        res = supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute()
-        return res.data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/patient/book-appointment")
 async def book_appointment(booking: AppointmentBooking):
@@ -153,6 +125,43 @@ async def book_appointment(booking: AppointmentBooking):
         return {"status": "success", "data": new_appt.data}
     except Exception as e:
         print(f"Booking Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/doctor/submit-consultation")
+async def submit_consultation(data: ConsultationData):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        # Transactional insert logic
+        consult_res = supabase.table("consultations").insert({
+            "appointment_id": data.appointment_id,
+            "doctor_id": data.doctor_id,
+            "subjective": data.subjective,
+            "objective": data.objective,
+            "assessment": data.assessment,
+            "plan": data.plan,
+            "prescription_raw_text": "; ".join([f"{d['name']} {d['dosage']}" for d in data.prescription_items])
+        }).execute()
+        
+        if not consult_res.data: raise Exception("Consultation insert failed")
+        consult_id = consult_res.data[0]['id']
+
+        items_payload = []
+        for item in data.prescription_items:
+            items_payload.append({
+                "consultation_id": consult_id,
+                "drug_name_snapshot": item['name'],
+                "quantity": 10,
+                "dosage_instruction": f"{item['dosage']} {item['frequency']} - {item.get('instructions','')}",
+                "status": "pending"
+            })
+        
+        if items_payload:
+            supabase.table("prescription_items").insert(items_payload).execute()
+
+        supabase.table("appointments").update({"status": "pharmacy"}).eq("id", data.appointment_id).execute()
+        return {"status": "success", "consultation_id": consult_id}
+    except Exception as e:
+        print(f"Consultation Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/patient/history")
