@@ -9,14 +9,13 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 
 # --- CONFIGURATION ---
-# UPDATED: Correct Service Key for 'crywwqleinnwoacithmw'
+# 1. SUPABASE CREDENTIALS (SERVICE_ROLE KEY for Backend)
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
-# Key ending in ...PNPQ is the correct new Service Key
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="2.8")
+app = FastAPI(title="Smart HIS Backend", version="3.0 - Prod")
 
-# Enable CORS (Allows both Localhost and Production)
+# 2. CORS SETTINGS (Allowing all for smooth deployment testing)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -25,14 +24,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Client
+# Initialize Supabase Client
 try:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 except Exception as e:
     print(f"Supabase Connection Failed: {e}")
     supabase = None
 
-# --- MODELS ---
+# --- PYDANTIC MODELS ---
 class ConsultationData(BaseModel):
     doctor_id: str
     appointment_id: str
@@ -52,7 +51,7 @@ class AppointmentBooking(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"status": "active", "service": "Smart HIS Backend"}
+    return {"status": "active", "service": "Smart HIS Backend", "db": "Connected" if supabase else "Disconnected"}
 
 @app.get("/patient/profile")
 async def get_patient_profile(user_id: str):
@@ -79,23 +78,9 @@ async def get_all_doctors():
         print(f"Fetch Doctors Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/doctor/queue")
-async def get_doctor_queue(doctor_id: str):
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        response = supabase.table("appointments")\
-            .select("*, patients(*), triage_notes(*)")\
-            .eq("doctor_id", doctor_id)\
-            .in_("status", ["scheduled", "checked_in", "triage", "consultation"])\
-            .order("queue_number")\
-            .execute()
-        return response.data
-    except Exception as e:
-        print(f"Queue Error: {e}")
-        return []
-
 @app.post("/patient/book-appointment")
 async def book_appointment(booking: AppointmentBooking):
+    """Allows patient to book, syncing with Doctor's Queue"""
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
         # 1. Calculate Queue Number
@@ -126,6 +111,22 @@ async def book_appointment(booking: AppointmentBooking):
     except Exception as e:
         print(f"Booking Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/doctor/queue")
+async def get_doctor_queue(doctor_id: str):
+    """Fetches Doctor's Schedule"""
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        response = supabase.table("appointments")\
+            .select("*, patients(*), triage_notes(*)")\
+            .eq("doctor_id", doctor_id)\
+            .in_("status", ["scheduled", "checked_in", "triage", "consultation"])\
+            .order("queue_number")\
+            .execute()
+        return response.data
+    except Exception as e:
+        print(f"Queue Error: {e}")
+        return []
 
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
