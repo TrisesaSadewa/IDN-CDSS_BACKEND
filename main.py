@@ -9,11 +9,10 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 
 # --- CONFIGURATION ---
-# Service Key for 'crywwqleinnwoacithmw'
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="3.2 - Appt Fix")
+app = FastAPI(title="Smart HIS Backend", version="3.4 - EMR Live")
 
 app.add_middleware(
     CORSMiddleware,
@@ -49,79 +48,50 @@ class AppointmentBooking(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"status": "active", "db": "Connected" if supabase else "Disconnected"}
+    return {"status": "active", "service": "Smart HIS Backend"}
 
-@app.get("/patient/profile")
-async def get_patient_profile(user_id: str):
+# --- NEW: Get Single Appointment Details for EMR ---
+@app.get("/doctor/appointment/{appt_id}")
+async def get_appointment_detail(appt_id: str):
+    """Fetches full context for the EMR page: Patient Info + Triage Notes"""
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        res = supabase.table("patients").select("*").eq("id", user_id).execute()
-        if res.data: return res.data[0]
-        return {"full_name": "Profile Error", "mrn": "MISSING_ROW"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/patient/doctors")
-async def get_all_doctors():
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        res = supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute()
+        # Fetch Appointment joined with Patient and Triage Notes
+        res = supabase.table("appointments")\
+            .select("*, patients(*), triage_notes(*)")\
+            .eq("id", appt_id)\
+            .single()\
+            .execute()
+        
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+            
         return res.data
     except Exception as e:
+        print(f"EMR Fetch Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- NEW ENDPOINT: Get Upcoming Appointments ---
-@app.get("/patient/appointments")
-async def get_patient_appointments(patient_id: str):
-    """Fetches upcoming appointments for the patient"""
+@app.get("/patient/history")
+async def get_patient_history(patient_id: str):
+    """Fetches past medical history for the patient"""
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # Fetch scheduled appointments and join with doctor profile
-        res = supabase.table("appointments")\
-            .select("*, doctor:profiles!doctor_id(full_name, specialization)")\
-            .eq("patient_id", patient_id)\
-            .eq("status", "scheduled")\
-            .order("scheduled_time")\
+        # Join consultations -> doctors
+        res = supabase.table("consultations")\
+            .select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time), prescription_items(*)")\
+            .eq("appointments.patient_id", patient_id)\
+            .order("created_at", desc=True)\
             .execute()
         return res.data
     except Exception as e:
-        print(f"Fetch Appointments Error: {e}")
-        return []
-
-@app.post("/patient/book-appointment")
-async def book_appointment(booking: AppointmentBooking):
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        q_res = supabase.table("appointments").select("queue_number").eq("doctor_id", booking.doctor_id).eq("status", "scheduled").order("queue_number", desc=True).limit(1).execute()
-        next_q = 1
-        if q_res.data: next_q = q_res.data[0]['queue_number'] + 1
-
-        scheduled_ts = f"{booking.date}T{booking.time}:00"
-        new_appt = supabase.table("appointments").insert({
-            "patient_id": booking.patient_id,
-            "doctor_id": booking.doctor_id,
-            "status": "scheduled",
-            "queue_number": next_q,
-            "scheduled_time": scheduled_ts
-        }).execute()
-        return {"status": "success", "data": new_appt.data}
-    except Exception as e:
-        print(f"Booking Error: {e}")
+        print(f"History Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/doctor/queue")
-async def get_doctor_queue(doctor_id: str):
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        response = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("doctor_id", doctor_id).in_("status", ["scheduled", "checked_in", "triage", "consultation"]).order("queue_number").execute()
-        return response.data
-    except Exception as e:
-        return []
 
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
+        # 1. Insert Consultation
         consult_res = supabase.table("consultations").insert({
             "appointment_id": data.appointment_id,
             "doctor_id": data.doctor_id,
@@ -135,27 +105,75 @@ async def submit_consultation(data: ConsultationData):
         if not consult_res.data: raise Exception("Insert failed")
         consult_id = consult_res.data[0]['id']
 
+        # 2. Insert Prescriptions
         items_payload = []
         for item in data.prescription_items:
             items_payload.append({
                 "consultation_id": consult_id,
                 "drug_name_snapshot": item['name'],
-                "quantity": 10,
+                "quantity": 10, # Default logic
                 "dosage_instruction": f"{item['dosage']} {item['frequency']} - {item.get('instructions','')}",
                 "status": "pending"
             })
-        if items_payload: supabase.table("prescription_items").insert(items_payload).execute()
+        
+        if items_payload:
+            supabase.table("prescription_items").insert(items_payload).execute()
+
+        # 3. Mark Appointment as Completed (or Pharmacy)
         supabase.table("appointments").update({"status": "pharmacy"}).eq("id", data.appointment_id).execute()
+
         return {"status": "success", "consultation_id": consult_id}
+    except Exception as e:
+        print(f"Submit Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ... (Include other existing endpoints: queue, profile, booking, doctors) ...
+# For brevity, I'm including the essential EMR ones above.
+# Ensure get_doctor_queue, get_patient_profile etc. are kept in the file.
+
+@app.get("/doctor/queue")
+async def get_doctor_queue(doctor_id: str):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        response = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("doctor_id", doctor_id).in_("status", ["scheduled", "checked_in", "triage", "consultation"]).order("queue_number").execute()
+        return response.data
+    except Exception as e:
+        return []
+
+@app.get("/patient/doctors")
+async def get_all_doctors():
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        res = supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute()
+        return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/patient/history")
-async def get_patient_history(patient_id: str):
+@app.get("/patient/profile")
+async def get_patient_profile(user_id: str):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        res = supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time), prescription_items(*)").eq("appointments.patient_id", patient_id).execute()
-        return res.data
+        res = supabase.table("patients").select("*").eq("id", user_id).execute()
+        if res.data: return res.data[0]
+        return {"full_name": "Profile Error", "mrn": "MISSING_ROW"}
     except Exception as e:
-        print(f"History Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/patient/book-appointment")
+async def book_appointment(booking: AppointmentBooking):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        q_res = supabase.table("appointments").select("queue_number").eq("doctor_id", booking.doctor_id).eq("status", "scheduled").order("queue_number", desc=True).limit(1).execute()
+        next_q = 1
+        if q_res.data: next_q = q_res.data[0]['queue_number'] + 1
+        scheduled_ts = f"{booking.date}T{booking.time}:00"
+        new_appt = supabase.table("appointments").insert({
+            "patient_id": booking.patient_id,
+            "doctor_id": booking.doctor_id,
+            "status": "scheduled",
+            "queue_number": next_q,
+            "scheduled_time": scheduled_ts
+        }).execute()
+        return {"status": "success", "data": new_appt.data}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
