@@ -19,11 +19,19 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="5.0 - Connected")
+app = FastAPI(title="Smart HIS Backend", version="5.1 - CORS Fix")
+
+# --- CORS CONFIGURATION (CRITICAL FIX) ---
+origins = [
+    "https://idn-cdss.vercel.app",  # Your Production Frontend
+    "http://localhost:5500",        # Local Development
+    "http://127.0.0.1:5500",        # Local Development (IP)
+    "*"                             # Fallback for other environments
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=origins, 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -90,9 +98,15 @@ async def search_icd10(q: str):
 async def get_appointment_detail(appt_id: str):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
+        res = supabase.table("appointments").select("*, patients(*), triage_notes(*)")\
+            .eq("id", appt_id)\
+            .single()\
+            .execute()
         return res.data
     except Exception as e:
+        # Return 404 if not found specifically, or 500 for other errors
+        if "JSON object must be str" in str(e) or "0 rows" in str(e): # Supabase specific errors
+             raise HTTPException(status_code=404, detail="Appointment not found")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/doctor/submit-consultation")
@@ -173,4 +187,13 @@ async def book_appointment(booking: AppointmentBooking):
 @app.get("/patient/history")
 async def get_patient_history(patient_id: str):
     if not supabase: return []
-    return supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time)").eq("appointments.patient_id", patient_id).order("created_at", desc=True).execute().data
+    try:
+        # Use proper order by to get latest first
+        return supabase.table("consultations")\
+            .select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time)")\
+            .eq("appointments.patient_id", patient_id)\
+            .order("created_at", desc=True)\
+            .execute().data
+    except Exception as e:
+        print(f"History Fetch Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
