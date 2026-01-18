@@ -56980,19 +56980,6 @@ EQUIPMENT = [
 ]
 
 
-# Efficient lookup dictionaries
-DRUG_BY_NAME = {drug.name.lower(): drug for drug in DRUGS}
-DRUG_BY_GENERIC = {}
-for drug in DRUGS:
-    for gen in drug.generic.lower().split(','):
-        gen = gen.strip()
-        if gen:
-            DRUG_BY_GENERIC.setdefault(gen, []).append(drug)
-
-EQUIPMENT_BY_NAME = {eq.name.lower(): eq for eq in EQUIPMENT}
-
-VACCINE_BY_NAME = {v.name.lower(): v for v in VACCINE}
-
 # --- OPTIMIZED LOOKUP INDICES (The Secret to Speed) ---
 # Create dictionaries for O(1) instant access
 DRUG_INDEX = {d.name.lower(): d for d in DRUGS}
