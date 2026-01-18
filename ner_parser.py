@@ -15,7 +15,6 @@ def parse_prescription_text(text):
     if not text:
         return {"separate_drugs": [], "racikan": [], "equipment": []}
 
-    # Normalize delimiters
     text = text.replace('\n', ';')
     entries = [e.strip() for e in text.split(';') if e.strip()]
     
@@ -33,7 +32,7 @@ def parse_prescription_text(text):
                 parsed_data["equipment"].append({"name": eq_name, "original": entry})
                 continue
 
-        # 2. Racikan/Compound Check (m.f., racikan, etc)
+        # 2. Racikan Check
         is_racikan = bool(re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', entry, re.IGNORECASE))
         if is_racikan:
             racikan_data = _parse_racikan_entry(entry)
@@ -41,7 +40,7 @@ def parse_prescription_text(text):
                 parsed_data["racikan"].append(racikan_data)
             continue
 
-        # 3. Drug Parsing (Colon format or Unstructured)
+        # 3. Drug Parsing
         if ":" in entry:
             fast_drug = _parse_colon_drug(entry)
             if fast_drug:
@@ -70,7 +69,7 @@ def _parse_colon_drug(entry):
     qty = parts[1].strip() if len(parts) > 1 else "0"
     freq = parts[2].strip() if len(parts) > 2 else ""
 
-    # Extract Dosage from name
+    # Extract Dosage
     dosage = ""
     dose_match = re.search(r'(\d+([.,]\d+)?\s*(?:MG|G|ML|IU|MCG|%))', raw_name, re.IGNORECASE)
     
@@ -81,7 +80,6 @@ def _parse_colon_drug(entry):
 
     final_name = _clean_drug_name(clean_source)
 
-    # Database Lookup (Optional Enhancement)
     if DB_AVAILABLE:
         db_match = structured_drug_db.find_drug_match(final_name)
         if db_match: final_name = db_match
@@ -99,11 +97,7 @@ def _parse_colon_drug(entry):
     }
 
 def _extract_ingredients(recipe_text):
-    """
-    Extracts ingredients from compound recipe string.
-    """
     ingredients = []
-    # Pattern to find dosage: "1/5 tablet", "0.8mg", "10mg"
     dose_pat = re.compile(r'((?:\d+\s*/\s*\d+|\d+(?:[.,]\d+)?)\s*(?:mg|g|ml|mcg|iu|%|tab|cap|tablet|kapsul|bungkus|sachet)?)', re.IGNORECASE)
     
     parts = dose_pat.split(recipe_text)
@@ -125,7 +119,6 @@ def _parse_racikan_entry(entry):
     parts = entry.split(':')
     full_recipe = parts[0].strip()
     
-    # Split Ingredients vs Instructions
     split_match = re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', full_recipe, re.IGNORECASE)
     if split_match:
         ingredients_text = full_recipe[:split_match.start()].strip()
