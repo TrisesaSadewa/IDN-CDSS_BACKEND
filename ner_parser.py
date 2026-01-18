@@ -1,4 +1,6 @@
 import re
+
+# Safe Import
 try:
     import structured_drug_db
 except ImportError:
@@ -6,73 +8,83 @@ except ImportError:
 
 def parse_prescription_text(text):
     """
-    High-Performance Parser using Regex and Hash Map Lookups.
+    Parses prescription text into drugs, compounds, and equipment.
+    Optimized for speed.
     """
     if not text:
-        return {"separate_drugs": [], "racikan": []}
+        return {"separate_drugs": [], "racikan": [], "equipment": []}
 
     # Normalize delimiters
     normalized = text.replace('\n', ';').replace(',', ';')
     items = [x.strip() for x in normalized.split(';') if x.strip()]
     
-    parsed_drugs = []
+    parsed_data = {
+        "separate_drugs": [],
+        "racikan": [],
+        "equipment": []
+    }
     
     for item in items:
-        drug_data = _parse_item_fast(item)
-        if drug_data:
-            parsed_drugs.append(drug_data)
-            
-    return {"separate_drugs": parsed_drugs, "racikan": []}
+        # 1. Check for Equipment first (if DB available)
+        if structured_drug_db:
+            eq_name = structured_drug_db.find_equipment_match(item)
+            if eq_name:
+                parsed_data["equipment"].append({"name": eq_name, "original": item})
+                continue
 
-def _parse_item_fast(item):
-    """
-    Splits a string like 'Amox 500mg 3x1' and identifies parts instantly.
-    """
-    parts = item.split()
+        # 2. Check for Racikan (Compound) keywords
+        if "mf" in item.lower() or "racikan" in item.lower():
+            parsed_data["racikan"].append(parse_racikan(item))
+            continue
+            
+        # 3. Parse as Drug
+        drug_data = _parse_drug_item(item)
+        if drug_data:
+            parsed_data["separate_drugs"].append(drug_data)
+            
+    return parsed_data
+
+def _parse_drug_item(item):
+    # Try to identify Drug Name via DB (Fast Lookup)
+    drug_name = None
+    if structured_drug_db:
+        drug_name = structured_drug_db.find_drug_fast(item)
     
-    drug_name_parts = []
+    # Heuristic Parsing for Dosage/Freq
+    parts = item.split()
     dosage = ""
     frequency = ""
     
-    # Pre-compile regex for speed
     freq_pattern = re.compile(r'(\d+x\d+|\d+-\d+-\d+|\d+\s*x)', re.IGNORECASE)
     dosage_pattern = re.compile(r'(\d+\s*(mg|g|ml|mcg|iu|%))', re.IGNORECASE)
     
-    identified_drug_name = None
-
-    # Single Pass Loop O(N)
+    name_parts = []
+    
     for part in parts:
-        # 1. Check if this part is a Drug Name in our DB
-        if structured_drug_db:
-            # Check the single word
-            match = structured_drug_db.find_drug_fast(part)
-            if match:
-                identified_drug_name = match
-                continue
-                
-        # 2. Check Frequency
         if freq_pattern.search(part):
             frequency = part
-            continue
-            
-        # 3. Check Dosage
-        if dosage_pattern.search(part):
+        elif dosage_pattern.search(part):
             dosage = part
-            continue
-        
-        # 4. Accumulate potential name parts
-        drug_name_parts.append(part)
-    
-    # Logic to assemble the final name
-    if identified_drug_name:
-        final_name = identified_drug_name
-    elif drug_name_parts:
-        final_name = " ".join(drug_name_parts)
-    else:
-        final_name = "Unknown"
+        elif not drug_name:
+            name_parts.append(part)
+            
+    if not drug_name and name_parts:
+        drug_name = " ".join(name_parts)
+    elif not drug_name:
+        drug_name = "Unknown"
 
     return {
-        "drugName": final_name,
+        "drugName": drug_name,
         "dosage": dosage,
         "frequency": frequency
+    }
+
+def parse_racikan(text):
+    """
+    Simple parser for compound drugs.
+    """
+    return {
+        "components": text,
+        "frequency": "See instructions",
+        "quantity": 1
     }
