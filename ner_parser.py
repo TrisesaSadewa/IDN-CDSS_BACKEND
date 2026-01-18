@@ -37,6 +37,7 @@ def parse_prescription_text(text):
                 continue
 
         # 2. Check for Racikan/Compound Keywords (m.f., dtd, racikan)
+        # We check this BEFORE colon parsing because racikan names are complex
         is_racikan = bool(re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', entry, re.IGNORECASE))
 
         if is_racikan:
@@ -62,35 +63,54 @@ def parse_prescription_text(text):
 def _clean_drug_name(name):
     """
     Aggressively cleans drug names by removing forms, codes, and noise.
+    Input: "ANS OMEPRAZOLE 20 MG CAPSUL**"
+    Output: "OMEPRAZOLE"
     """
     if not name: return ""
     
     # 1. Remove specific words (Case Insensitive)
+    # ANS = Hospital code?, TAB/CAPSUL = Form, MG/ML = Units inside name
     noise_pattern = r'\b(ANS|TAB|TABLET|KAPSUL|CAPSUL|CAPS|INJ|INJEKSI|SYR|DROPS|VIAL|AMPUL|SACHET|BTL|TUB|GR|GRAM|MG|ML|IU|MCG)\b'
     name = re.sub(noise_pattern, ' ', name, flags=re.IGNORECASE)
     
     # 2. Remove symbols (*, -, numbers at start)
-    name = re.sub(r'[*]+', '', name) 
-    name = re.sub(r'^\d+\s+', '', name) 
+    name = re.sub(r'[*]+', '', name) # Remove asterisks
+    name = re.sub(r'^\d+\s+', '', name) # Remove leading numbers like "1. "
     
+    # 3. Remove extra whitespace
     return " ".join(name.split())
 
 def _parse_colon_drug(entry):
+    """
+    Parses: "ANS OMEPRAZOLE 20 MG CAPSUL :10.00:2 dd caps 1"
+    """
     parts = entry.split(':')
+    
+    # Name part is everything before the first colon
     raw_name_part = parts[0].strip()
+    
+    # Quantity is usually the second part
     qty = parts[1].strip() if len(parts) > 1 else "0"
+    
+    # Frequency is usually the third part
     freq = parts[2].strip() if len(parts) > 2 else ""
 
+    # --- Extract Dosage from Name Part ---
+    # Matches: 500 MG, 0,8 mg, 1.5 G
     dosage = ""
     dosage_match = re.search(r'(\d+([.,]\d+)?\s*(?:MG|G|ML|IU|MCG|%))', raw_name_part, re.IGNORECASE)
     
-    clean_name_source = raw_name_part
     if dosage_match:
         dosage = dosage_match.group(1)
+        # Remove dosage from name to clean it up
         clean_name_source = raw_name_part.replace(dosage, "")
+    else:
+        clean_name_source = raw_name_part
 
+    # --- Clean Name ---
     final_name = _clean_drug_name(clean_name_source)
 
+    # Cleanup Qty (remove .00)
     try:
         if "." in qty: qty = str(int(float(qty)))
     except: pass
@@ -144,11 +164,11 @@ def _extract_ingredients(recipe_text):
 
 def _parse_racikan_entry(entry):
     """
-    Parses: "Tremenza 1/5 tablet... m.f.pulv... :10.00:3 dd 1"
+    Parses: "Tremenza 1/5... m.f.pulv... :10.00:3 dd 1"
     """
     parts = entry.split(':')
     
-    # The whole first part contains ingredients + compounding instructions
+    # The whole first part is the "Recipe" (ingredients + instructions)
     full_recipe = parts[0].strip()
     
     # Separate Ingredients from Instructions (look for m.f., racikan, etc)
@@ -181,8 +201,11 @@ def _parse_racikan_entry(entry):
     }
 
 def _parse_unstructured(entry):
+    """Fallback for lines without colons"""
     parts = entry.split()
     if not parts: return None
+    
+    # Heuristic: First word is name
     return {
         "drugName": _clean_drug_name(parts[0]),
         "dosage": "",
