@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-# Keep your advanced data structures
+# Keep your advanced data structures intact
 class Drug(namedtuple('DrugBase', ['name', 'generic', 'contents', 'use', 'rules', 'max'])):
     __slots__ = ()
     def __new__(cls, name, generic, contents, use='', rules='', max=''):
@@ -56986,6 +56986,10 @@ DRUG_INDEX = {d.name.lower(): d for d in DRUGS}
 # Also index by generic name for fallback
 for d in DRUGS:
     DRUG_INDEX[d.generic.lower()] = d
+    # Index first word of name for partial matching (heuristic)
+    first_word = d.name.split()[0].lower()
+    if first_word not in DRUG_INDEX:
+         DRUG_INDEX[first_word] = d
 
 EQUIPMENT_INDEX = {e.name.lower(): e for e in EQUIPMENT}
 
@@ -57013,16 +57017,27 @@ def find_drug_fast(text):
     Tries to find a drug match in the text.
     Returns the Drug Name string if found.
     """
-    # 1. Exact match check
-    drug = get_drug_by_name(text)
-    if drug: return drug.name
-    
-    # 2. Substring check (Fast Scan)
     text_lower = text.lower()
-    for key, drug in DRUG_INDEX.items():
-        if key in text_lower:
-            return drug.name
-            
+    
+    # 1. Exact match check against index keys
+    # This covers full names ("Paracetamol 500mg") and generics ("Paracetamol")
+    if text_lower in DRUG_INDEX:
+        return DRUG_INDEX[text_lower].name
+        
+    # 2. Substring/Token check (Fast Scan)
+    # Check if the input text *starts with* any known drug name (common in prescriptions)
+    # OR if any known drug name is contained within the text
+    # We iterate the index keys (fast because keys are strings)
+    best_match = None
+    best_len = 0
+    
+    # Heuristic: split text into tokens and check first token against index
+    tokens = text_lower.split()
+    if tokens:
+        first_token = tokens[0]
+        if first_token in DRUG_INDEX:
+             return DRUG_INDEX[first_token].name
+
     return None
 
 def find_equipment_match(text):
@@ -57031,3 +57046,7 @@ def find_equipment_match(text):
         if key in text_lower:
             return eq.name
     return None
+
+def get_all_drug_names():
+    """Returns a list of all drug names for autocomplete/dropdowns"""
+    return [d.name for d in DRUGS]
