@@ -1,7 +1,6 @@
 import re
 
 # 1. OPTIONAL DATABASE IMPORT
-# We make this optional so the parser works even if the DB file is missing or slow.
 try:
     import structured_drug_db
     DB_AVAILABLE = True
@@ -11,17 +10,16 @@ except ImportError:
 
 def parse_prescription_text(text):
     """
-    Parses prescription text. 
-    PRIORITY: Checks for 'Name :Qty:Sig' format first (Instant).
-    FALLBACK: Uses simple heuristics if format is unstructured.
+    Parses prescription text into structured data.
+    Handles Single Drugs, Racikan (Compounds), and Equipment.
     """
     if not text:
         return {"separate_drugs": [], "racikan": [], "equipment": []}
 
-    # Normalize delimiters (newlines to semicolons)
+    # Normalize delimiters: Newlines -> Semicolons
     text = text.replace('\n', ';')
     
-    # Split into entries
+    # Split into individual entries
     entries = [e.strip() for e in text.split(';') if e.strip()]
     
     parsed_data = {
@@ -31,16 +29,30 @@ def parse_prescription_text(text):
     }
     
     for entry in entries:
-        # 1. FAST PATH: Check for Colon Format (e.g., "Drug :Qty:Sig")
-        # This is O(1) and skips the heavy database lookups
-        if ":" in entry:
-            fast_drug = _parse_fast_colon_format(entry)
-            if fast_drug:
-                parsed_data["separate_drugs"].append(fast_drug)
+        # 1. Check for Equipment (using DB if available)
+        if DB_AVAILABLE:
+            eq_name = structured_drug_db.find_equipment_match(entry)
+            if eq_name:
+                parsed_data["equipment"].append({"name": eq_name, "original": entry})
                 continue
 
-        # 2. SLOW PATH: Fallback for unstructured text
-        # (Only runs if the line doesn't match the fast format)
+        # 2. Check for Racikan/Compound Keywords (m.f., dtd, racikan)
+        is_racikan = bool(re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', entry, re.IGNORECASE))
+
+        if is_racikan:
+            racikan_data = _parse_racikan_entry(entry)
+            if racikan_data:
+                parsed_data["racikan"].append(racikan_data)
+            continue
+
+        # 3. FAST PATH: Colon Format (Name : Qty : Sig)
+        if ":" in entry:
+            fast_drug = _parse_colon_drug(entry)
+            if fast_drug:
+                parsed_data["separate_drugs"].append(fast_drug)
+            continue
+
+        # 4. FALLBACK: Unstructured
         fallback_drug = _parse_unstructured(entry)
         if fallback_drug:
              parsed_data["separate_drugs"].append(fallback_drug)
@@ -48,86 +60,132 @@ def parse_prescription_text(text):
     return parsed_data
 
 def _clean_drug_name(name):
-    """Removes specific noise words from the drug name."""
-    if not name:
-        return ""
-    # Remove specific noise words
-    cleaned_name = re.sub(r'\b(SYR|TAB|SACHET|TABLET|KAPSUL|INJEKSI|MG|ML|CC|\*|ANS|DROPS|M\.F\.|PULV|DTD|NO\.)\b', '', name, flags=re.IGNORECASE).strip()
-    return cleaned_name
-
-def _parse_fast_colon_format(entry):
     """
-    Parses formats like: 'METRONIDAZOL 500 MG TAB :45.00:3 dd tab 1 pc'
-    Returns structured drug object or None.
+    Aggressively cleans drug names by removing forms, codes, and noise.
+    """
+    if not name: return ""
+    
+    # 1. Remove specific words (Case Insensitive)
+    noise_pattern = r'\b(ANS|TAB|TABLET|KAPSUL|CAPSUL|CAPS|INJ|INJEKSI|SYR|DROPS|VIAL|AMPUL|SACHET|BTL|TUB|GR|GRAM|MG|ML|IU|MCG)\b'
+    name = re.sub(noise_pattern, ' ', name, flags=re.IGNORECASE)
+    
+    # 2. Remove symbols (*, -, numbers at start)
+    name = re.sub(r'[*]+', '', name) 
+    name = re.sub(r'^\d+\s+', '', name) 
+    
+    return " ".join(name.split())
+
+def _parse_colon_drug(entry):
+    parts = entry.split(':')
+    raw_name_part = parts[0].strip()
+    qty = parts[1].strip() if len(parts) > 1 else "0"
+    freq = parts[2].strip() if len(parts) > 2 else ""
+
+    dosage = ""
+    dosage_match = re.search(r'(\d+([.,]\d+)?\s*(?:MG|G|ML|IU|MCG|%))', raw_name_part, re.IGNORECASE)
+    
+    clean_name_source = raw_name_part
+    if dosage_match:
+        dosage = dosage_match.group(1)
+        clean_name_source = raw_name_part.replace(dosage, "")
+
+    final_name = _clean_drug_name(clean_name_source)
+
+    try:
+        if "." in qty: qty = str(int(float(qty)))
+    except: pass
+
+    return {
+        "drugName": final_name,
+        "dosage": dosage,
+        "frequency": freq,
+        "quantity": qty
+    }
+
+def _extract_ingredients(recipe_text):
+    """
+    Extracts individual ingredients from a racikan string.
+    Example: "Tremenza 1/5 tablet Lasal 0,8mg"
+    Returns: [{'name': 'Tremenza', 'dose': '1/5 tablet'}, {'name': 'Lasal', 'dose': '0,8mg'}]
+    """
+    ingredients = []
+    
+    # Regex to find Dosage/Amount patterns
+    # Matches: fractions (1/5), decimals (0,8), integers (10) followed by optional units/forms
+    # Group 1 captures the whole dosage string
+    dosage_pattern = re.compile(
+        r'((?:\d+\s*/\s*\d+|\d+(?:[.,]\d+)?)\s*(?:mg|g|ml|mcg|iu|%|tab|cap|tablet|kapsul|bungkus|sachet)?)', 
+        re.IGNORECASE
+    )
+    
+    # Split text by these dosage patterns
+    # re.split with capturing group returns: [Name, Dosage, Name, Dosage...]
+    parts = dosage_pattern.split(recipe_text)
+    
+    current_name = ""
+    
+    for i in range(0, len(parts) - 1, 2):
+        name_part = parts[i].strip()
+        dosage_part = parts[i+1].strip()
+        
+        # If this is the first item or previous loop set the name
+        if name_part:
+            current_name = _clean_drug_name(name_part)
+        
+        if current_name:
+            ingredients.append({
+                "name": current_name,
+                "strength": dosage_part
+            })
+            # Reset name for next iteration (unless the next part is just another dosage for same drug)
+            current_name = "" 
+            
+    return ingredients
+
+def _parse_racikan_entry(entry):
+    """
+    Parses: "Tremenza 1/5 tablet... m.f.pulv... :10.00:3 dd 1"
     """
     parts = entry.split(':')
     
-    # We expect at least 3 parts: [Name+Dose, Qty, Freq]
-    # Sometimes Qty might be missing or format varies slightly, handle gracefully
-    if len(parts) < 2:
-        return None
-        
-    # Part 0: Name + Dosage + Form ("METRONIDAZOL 500 MG TAB ")
-    drug_part = parts[0].strip()
+    # The whole first part contains ingredients + compounding instructions
+    full_recipe = parts[0].strip()
     
-    # Part 1: Quantity ("45.00")
-    qty_part = parts[1].strip() if len(parts) > 1 else ""
+    # Separate Ingredients from Instructions (look for m.f., racikan, etc)
+    split_match = re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', full_recipe, re.IGNORECASE)
     
-    # Part 2: Frequency/Sig ("3 dd tab 1 pc")
-    freq_part = parts[2].strip() if len(parts) > 2 else ""
-    
-    # Extract Dosage from drug_part (e.g. 500 MG) using Regex
-    # Looks for number followed by unit
-    dosage_match = re.search(r'(\d+\s*(?:MG|G|ML|IU|MCG|%))', drug_part, re.IGNORECASE)
-    
-    if dosage_match:
-        dosage = dosage_match.group(1)
-        # Name is typically everything before the dosage
-        # e.g. "METRONIDAZOL " from "METRONIDAZOL 500 MG TAB"
-        name = drug_part[:dosage_match.start()].strip()
+    if split_match:
+        ingredients_text = full_recipe[:split_match.start()].strip()
+        compounding_instr = full_recipe[split_match.start():].strip()
     else:
-        dosage = ""
-        name = drug_part
-        
-    # Clean up the name (remove TAB, CAPSUL, etc.)
-    name = _clean_drug_name(name)
-        
-    # Clean up Qty (remove .00)
+        ingredients_text = full_recipe
+        compounding_instr = ""
+
+    # Extract structured ingredients
+    ingredients_list = _extract_ingredients(ingredients_text)
+    
+    qty = parts[1].strip() if len(parts) > 1 else "1"
+    freq = parts[2].strip() if len(parts) > 2 else "See instructions"
+
     try:
-        qty_float = float(qty_part)
-        qty = int(qty_float) if qty_float.is_integer() else qty_float
-    except ValueError:
-        qty = qty_part
+        if "." in qty: qty = str(int(float(qty)))
+    except: pass
 
     return {
-        "drugName": name,
-        "dosage": dosage,
-        "quantity": str(qty),
-        "frequency": freq_part,
-        "original": entry
+        "is_compound": True,
+        "ingredients": ingredients_list, # Structured list
+        "recipe_text": full_recipe,      # Full original text
+        "compounding_instruction": compounding_instr,
+        "frequency": freq,
+        "quantity": qty
     }
 
 def _parse_unstructured(entry):
-    """
-    Fallback for text without colons.
-    Simple heuristic to avoid slow fuzzy matching.
-    """
-    # 1. Check for Equipment (if DB available)
-    if DB_AVAILABLE:
-        eq_name = structured_drug_db.find_equipment_match(entry)
-        if eq_name:
-            return {"drugName": eq_name, "type": "equipment", "original": entry}
-
-    # 2. Simple Splitter
     parts = entry.split()
     if not parts: return None
-    
-    # Guessing: First word is name, rest is details
-    name = _clean_drug_name(parts[0])
-    
     return {
-        "drugName": name,
-        "dosage": " ".join(parts[1:]) if len(parts)>1 else "",
-        "frequency": "",
-        "original": entry
+        "drugName": _clean_drug_name(parts[0]),
+        "dosage": "",
+        "frequency": " ".join(parts[1:]) if len(parts)>1 else "",
+        "quantity": "1"
     }
