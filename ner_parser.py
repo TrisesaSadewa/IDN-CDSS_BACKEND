@@ -47,6 +47,14 @@ def parse_prescription_text(text):
 
     return parsed_data
 
+def _clean_drug_name(name):
+    """Removes specific noise words from the drug name."""
+    if not name:
+        return ""
+    # Remove specific noise words
+    cleaned_name = re.sub(r'\b(SYR|TAB|SACHET|TABLET|KAPSUL|INJEKSI|MG|ML|CC|\*|ANS|DROPS|M\.F\.|PULV|DTD|NO\.)\b', '', name, flags=re.IGNORECASE).strip()
+    return cleaned_name
+
 def _parse_fast_colon_format(entry):
     """
     Parses formats like: 'METRONIDAZOL 500 MG TAB :45.00:3 dd tab 1 pc'
@@ -81,6 +89,9 @@ def _parse_fast_colon_format(entry):
         dosage = ""
         name = drug_part
         
+    # Clean up the name (remove TAB, CAPSUL, etc.)
+    name = _clean_drug_name(name)
+        
     # Clean up Qty (remove .00)
     try:
         qty_float = float(qty_part)
@@ -105,15 +116,17 @@ def _parse_unstructured(entry):
     if DB_AVAILABLE:
         eq_name = structured_drug_db.find_equipment_match(entry)
         if eq_name:
-            return {"name": eq_name, "type": "equipment", "original": entry}
+            return {"drugName": eq_name, "type": "equipment", "original": entry}
 
     # 2. Simple Splitter
     parts = entry.split()
     if not parts: return None
     
     # Guessing: First word is name, rest is details
+    name = _clean_drug_name(parts[0])
+    
     return {
-        "drugName": parts[0],
+        "drugName": name,
         "dosage": " ".join(parts[1:]) if len(parts)>1 else "",
         "frequency": "",
         "original": entry
