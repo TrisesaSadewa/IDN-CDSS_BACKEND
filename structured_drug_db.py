@@ -1,20 +1,25 @@
 from collections import namedtuple
+from fuzzywuzzy import process
 
-# Keep your advanced data structures intact
+# Drugs
 class Drug(namedtuple('DrugBase', ['name', 'generic', 'contents', 'use', 'rules', 'max'])):
     __slots__ = ()
     def __new__(cls, name, generic, contents, use='', rules='', max=''):
         return super(Drug, cls).__new__(cls, name, generic, contents, use, rules, max)
 
+# Vaccines
 class Vaccine(namedtuple('VaccineBase', ['name', 'type', 'contents'])):
     __slots__ = ()
     @property
-    def generic(self): return self.name 
+    def generic(self):
+        return self.name 
 
+# Equipment
 class Equipment(namedtuple('EquipmentBase', ['name', 'type', 'contents'])):
     __slots__ = ()
     @property
-    def generic(self): return self.name
+    def generic(self):
+        return self.name
 
 # List of all drugs and brands (single source of truth)
 DRUGS = [
@@ -56979,85 +56984,75 @@ EQUIPMENT = [
     Equipment(name='Pangan Olahan untuk Keperluan Medis Khusus (PKMK) untuk bayi prematur', type='Unknown Class', contents='cairan'),  
 ]
 
+# Efficient lookup dictionaries
+DRUG_BY_NAME = {drug.name.lower(): drug for drug in DRUGS}
+DRUG_BY_GENERIC = {}
+for drug in DRUGS:
+    for gen in drug.generic.lower().split(','):
+        gen = gen.strip()
+        if gen:
+            DRUG_BY_GENERIC.setdefault(gen, []).append(drug)
 
-# --- OPTIMIZED LOOKUP INDICES (The Secret to Speed) ---
-# Create dictionaries for O(1) instant access
-DRUG_INDEX = {}
+EQUIPMENT_BY_NAME = {eq.name.lower(): eq for eq in EQUIPMENT}
 
-# Populate index safely
-for d in DRUGS:
-    if not d.name or not d.name.strip(): continue # Skip invalid entries
+VACCINE_BY_NAME = {v.name.lower(): v for v in VACCINE}
 
-    # Index by full name
-    DRUG_INDEX[d.name.lower()] = d
-    
-    # Index by generic name
-    if d.generic:
-        DRUG_INDEX[d.generic.lower()] = d
-        
-    # Index first word of name for partial matching (heuristic)
-    parts = d.name.split()
-    if parts:
-        first_word = parts[0].lower()
-        # Only set if not already set (prefer full matches or generics if collision)
-        if first_word not in DRUG_INDEX:
-             DRUG_INDEX[first_word] = d
-
-EQUIPMENT_INDEX = {}
-for e in EQUIPMENT:
-    if e.name:
-        EQUIPMENT_INDEX[e.name.lower()] = e
-
-# --- FAST QUERY FUNCTIONS ---
+# Query functions
 
 def get_drug_by_name(name):
-    """
-    O(1) Lookup. Instant.
-    """
-    if not name: return None
-    key = name.lower().strip()
-    return DRUG_INDEX.get(key)
+    """Return the Drug object for a given name, or None if not found."""
+    # First try exact match (for specific entries like 'Amoxan 500')
+    exact_match = DRUG_BY_NAME.get(name.lower())
+    if exact_match:
+        return exact_match
+    
+    # Use fuzzy match for slightly misformatted names
+    from fuzzywuzzy import process
+    best_match_key = _fuzzy_match_name(name, DRUG_BY_NAME)
+    if best_match_key:
+        return DRUG_BY_NAME[best_match_key]
+    return None
 
 def get_equipment_by_name(name):
-    """
-    O(1) Lookup. Instant.
-    """
-    if not name: return None
-    key = name.lower().strip()
-    return EQUIPMENT_INDEX.get(key)
-
-# Used by ner_parser.py alias
-def find_drug_fast(text):
-    """
-    Tries to find a drug match in the text.
-    Returns the Drug Name string if found.
-    """
-    if not text: return None
-    text_lower = text.lower()
+    """Return the Equipment object for a given name, or None if not found."""
+    # First try exact match
+    exact_match = EQUIPMENT_BY_NAME.get(name.lower())
+    if exact_match:
+        return exact_match
     
-    # 1. Exact match check against index keys
-    # This covers full names ("Paracetamol 500mg") and generics ("Paracetamol")
-    if text_lower in DRUG_INDEX:
-        return DRUG_INDEX[text_lower].name
-        
-    # 2. Substring/Token check (Fast Scan)
-    # Check if the input text *starts with* any known drug name
-    tokens = text_lower.split()
-    if tokens:
-        first_token = tokens[0]
-        if first_token in DRUG_INDEX:
-             return DRUG_INDEX[first_token].name
-
+    # Use fuzzy match
+    from fuzzywuzzy import process
+    best_match_key = _fuzzy_match_name(name, EQUIPMENT_BY_NAME)
+    if best_match_key:
+        return EQUIPMENT_BY_NAME[best_match_key]
     return None
 
-def find_equipment_match(text):
-    if not text: return None
-    text_lower = text.lower()
-    for key, eq in EQUIPMENT_INDEX.items():
-        if key in text_lower:
-            return eq.name
+def _fuzzy_match_name(name, db_dict, threshold=80):
+    """
+    Helper function to find the best fuzzy match key in a dictionary.
+    Assumes fuzzywuzzy is imported.
+    """
+    if not name or not db_dict:
+        return None
+    
+    # Process the name against all keys in the dictionary
+    best_match = process.extractOne(name, db_dict.keys())
+    
+    if best_match and best_match[1] >= threshold:
+        return best_match[0]
     return None
 
-def get_all_drug_names():
-    """Returns a list of all drug names for autocomplete/dropdowns"""
-    return [d.name for d in DRUGS]
+def get_drugs_by_generic(generic):
+    """Return a list of Drug objects for a given generic name (case-insensitive substring match)."""
+    g = generic.lower()
+    return [drug for key, drugs in DRUG_BY_GENERIC.items() if g in key for drug in drugs]
+
+def search_drugs(query):
+    """Return a list of Drug objects whose name or generic matches the query (case-insensitive substring)."""
+    q = query.lower()
+    return [drug for drug in DRUGS if q in drug.name.lower() or q in drug.generic.lower()]
+
+def get_brand_contents(name):
+    """Return the contents list for a given brand name, or None if not found or not a combination drug."""
+    drug = get_drug_by_name(name)
+    return drug.contents if drug else None
