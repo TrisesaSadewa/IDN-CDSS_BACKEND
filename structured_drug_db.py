@@ -56982,16 +56982,31 @@ EQUIPMENT = [
 
 # --- OPTIMIZED LOOKUP INDICES (The Secret to Speed) ---
 # Create dictionaries for O(1) instant access
-DRUG_INDEX = {d.name.lower(): d for d in DRUGS}
-# Also index by generic name for fallback
-for d in DRUGS:
-    DRUG_INDEX[d.generic.lower()] = d
-    # Index first word of name for partial matching (heuristic)
-    first_word = d.name.split()[0].lower()
-    if first_word not in DRUG_INDEX:
-         DRUG_INDEX[first_word] = d
+DRUG_INDEX = {}
 
-EQUIPMENT_INDEX = {e.name.lower(): e for e in EQUIPMENT}
+# Populate index safely
+for d in DRUGS:
+    if not d.name or not d.name.strip(): continue # Skip invalid entries
+
+    # Index by full name
+    DRUG_INDEX[d.name.lower()] = d
+    
+    # Index by generic name
+    if d.generic:
+        DRUG_INDEX[d.generic.lower()] = d
+        
+    # Index first word of name for partial matching (heuristic)
+    parts = d.name.split()
+    if parts:
+        first_word = parts[0].lower()
+        # Only set if not already set (prefer full matches or generics if collision)
+        if first_word not in DRUG_INDEX:
+             DRUG_INDEX[first_word] = d
+
+EQUIPMENT_INDEX = {}
+for e in EQUIPMENT:
+    if e.name:
+        EQUIPMENT_INDEX[e.name.lower()] = e
 
 # --- FAST QUERY FUNCTIONS ---
 
@@ -57017,6 +57032,7 @@ def find_drug_fast(text):
     Tries to find a drug match in the text.
     Returns the Drug Name string if found.
     """
+    if not text: return None
     text_lower = text.lower()
     
     # 1. Exact match check against index keys
@@ -57025,13 +57041,7 @@ def find_drug_fast(text):
         return DRUG_INDEX[text_lower].name
         
     # 2. Substring/Token check (Fast Scan)
-    # Check if the input text *starts with* any known drug name (common in prescriptions)
-    # OR if any known drug name is contained within the text
-    # We iterate the index keys (fast because keys are strings)
-    best_match = None
-    best_len = 0
-    
-    # Heuristic: split text into tokens and check first token against index
+    # Check if the input text *starts with* any known drug name
     tokens = text_lower.split()
     if tokens:
         first_token = tokens[0]
@@ -57041,6 +57051,7 @@ def find_drug_fast(text):
     return None
 
 def find_equipment_match(text):
+    if not text: return None
     text_lower = text.lower()
     for key, eq in EQUIPMENT_INDEX.items():
         if key in text_lower:
