@@ -1,7 +1,7 @@
 import os
 import json
 import re
-import aiohttp
+import aiohttp 
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
@@ -21,19 +21,12 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="5.3 - Fix History & DDI")
+app = FastAPI(title="Smart HIS Backend", version="5.5 - DDI Ingredients")
 
 # --- CORS CONFIGURATION ---
-origins = [
-    "https://idn-cdss.vercel.app",
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
-    "*"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins, 
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,19 +66,33 @@ class AppointmentBooking(BaseModel):
 # --- OPENFDA HELPER ---
 async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
     """
-    Checks OpenFDA for adverse events where the listed drugs are concomitant.
+    Checks OpenFDA for adverse events.
+    Filters out invalid names and checks unique pairs.
     """
-    if len(drug_list) < 2:
+    # 1. Clean and Deduplicate
+    unique_drugs = set()
+    for d in drug_list:
+        clean = d.strip()
+        # Ignore structural labels if they sneak in
+        if clean and "compound" not in clean.lower() and "racikan" not in clean.lower():
+            unique_drugs.add(clean)
+            
+    drug_list_clean = list(unique_drugs)
+    
+    if len(drug_list_clean) < 2:
         return []
 
     warnings = []
     
     async with aiohttp.ClientSession() as session:
-        for i in range(len(drug_list)):
-            for j in range(i + 1, len(drug_list)):
-                drug_a = drug_list[i].split()[0]
-                drug_b = drug_list[j].split()[0]
+        for i in range(len(drug_list_clean)):
+            for j in range(i + 1, len(drug_list_clean)):
+                # Take first word for API query to increase hit rate (e.g. "Amox 500" -> "Amox")
+                drug_a = drug_list_clean[i].split()[0]
+                drug_b = drug_list_clean[j].split()[0]
                 
+                if drug_a.lower() == drug_b.lower(): continue
+
                 query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
                 url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
                 
@@ -94,8 +101,8 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
                         if resp.status == 200:
                             data = await resp.json()
                             total = data.get('meta', {}).get('results', {}).get('total', 0)
-                            if total > 50: # Threshold for report significance
-                                warnings.append(f"INTERACTION ALERT: {drug_a} + {drug_b} ({total} FDA reports)")
+                            if total > 50: 
+                                warnings.append(f"INTERACTION: {drug_a} + {drug_b} ({total} reports)")
                 except Exception as e:
                     print(f"OpenFDA Error: {e}")
                     
@@ -105,55 +112,41 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
 
 @app.post("/api/check-ddi")
 async def check_ddi_endpoint(payload: DDIRequest):
+    print(f"Checking DDI for: {payload.drugs}")
     warnings = await check_openfda_interactions(payload.drugs)
     return {"warnings": warnings, "safe": len(warnings) == 0}
 
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
-    if not ner_parser:
-        raise HTTPException(status_code=500, detail="NER Parser module not loaded.")
+    if not ner_parser: raise HTTPException(status_code=500, detail="NER Parser module not loaded.")
     try:
         return ner_parser.parse_prescription_text(payload.text)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/")
-def read_root():
-    return {"status": "active", "service": "Smart HIS Backend"}
-
-@app.get("/api/icd/search")
-async def search_icd10(q: str):
-    if not supabase: return []
-    try:
-        res = supabase.table("icd10_dictionary").select("code, symptoms").ilike("symptoms", f"%{q}%").limit(8).execute()
-        return [{"code": r['code'], "description": r['symptoms']} for r in res.data]
-    except Exception: return []
-
-@app.get("/doctor/appointment/{appt_id}")
-async def get_appointment_detail(appt_id: str):
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        res = supabase.table("appointments").select("*, patients(*), triage_notes(*)")\
-            .eq("id", appt_id).single().execute()
-        return res.data
-    except Exception as e:
-        if "0 rows" in str(e): raise HTTPException(status_code=404, detail="Not Found")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # 1. Automatic DDI Check
-        drug_names = [d['name'] for d in data.prescription_items]
-        ddi_warnings = await check_openfda_interactions(drug_names)
+        # 1. FLATTEN INGREDIENTS FOR DDI CHECK
+        # This ensures we check the actual drugs inside a "Racikan"
+        check_list = []
+        for item in data.prescription_items:
+            # If item has nested ingredients (from parser), use those
+            if item.get('ingredients') and isinstance(item['ingredients'], list):
+                for ing in item['ingredients']:
+                    if isinstance(ing, dict) and 'name' in ing:
+                        check_list.append(ing['name'])
+            else:
+                check_list.append(item['name'])
+
+        ddi_warnings = await check_openfda_interactions(check_list)
 
         # 2. Save Consultation
         subjective_text = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
         comorbidities = ", ".join(data.secondary_diagnoses) if data.secondary_diagnoses else "None"
         assessment_text = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nSECONDARY: {comorbidities}\nNOTES: {data.clinical_notes}"
 
-        # Append DDI warnings to the plan if any found
         plan_text = data.therapy_instructions
         if ddi_warnings:
             plan_text += "\n\n[SYSTEM ALERTS]\n" + "\n".join(ddi_warnings)
@@ -192,53 +185,48 @@ async def submit_consultation(data: ConsultationData):
         print(f"Submit Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ... (Standard Getters - Kept for file completeness) ...
+@app.get("/")
+def read_root(): return {"status": "active"}
+
+@app.get("/api/icd/search")
+async def search_icd10(q: str):
+    if not supabase: return []
+    res = supabase.table("icd10_dictionary").select("code, symptoms").ilike("symptoms", f"%{q}%").limit(8).execute()
+    return [{"code": r['code'], "description": r['symptoms']} for r in res.data]
+
+@app.get("/doctor/appointment/{appt_id}")
+async def get_appointment_detail(appt_id: str):
+    res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
+    return res.data
+
 @app.get("/doctor/queue")
 async def get_doctor_queue(doctor_id: str):
-    if not supabase: return []
-    try:
-        return supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("doctor_id", doctor_id).in_("status", ["scheduled", "checked_in", "triage", "consultation"]).order("queue_number").execute().data
-    except Exception: return []
+    return supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("doctor_id", doctor_id).in_("status", ["scheduled", "checked_in", "triage", "consultation"]).order("queue_number").execute().data
 
 @app.get("/patient/doctors")
 async def get_all_doctors():
-    if not supabase: return []
     return supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute().data
 
 @app.get("/patient/profile")
 async def get_patient_profile(user_id: str):
-    if not supabase: return {}
     res = supabase.table("patients").select("*").eq("id", user_id).execute()
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.post("/patient/book-appointment")
 async def book_appointment(booking: AppointmentBooking):
-    if not supabase: raise HTTPException(status_code=500)
-    try:
-        q_res = supabase.table("appointments").select("queue_number").eq("doctor_id", booking.doctor_id).eq("status", "scheduled").order("queue_number", desc=True).limit(1).execute()
-        next_q = 1
-        if q_res.data: next_q = q_res.data[0]['queue_number'] + 1
-        supabase.table("appointments").insert({
-            "patient_id": booking.patient_id,
-            "doctor_id": booking.doctor_id,
-            "status": "scheduled",
-            "queue_number": next_q,
-            "scheduled_time": f"{booking.date}T{booking.time}:00"
-        }).execute()
-        return {"status": "success"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    q_res = supabase.table("appointments").select("queue_number").eq("doctor_id", booking.doctor_id).eq("status", "scheduled").order("queue_number", desc=True).limit(1).execute()
+    next_q = q_res.data[0]['queue_number'] + 1 if q_res.data else 1
+    supabase.table("appointments").insert({
+        "patient_id": booking.patient_id,
+        "doctor_id": booking.doctor_id,
+        "status": "scheduled",
+        "queue_number": next_q,
+        "scheduled_time": f"{booking.date}T{booking.time}:00"
+    }).execute()
+    return {"status": "success"}
 
 @app.get("/patient/history")
 async def get_patient_history(patient_id: str):
-    if not supabase: return []
-    try:
-        # FIX: Added !inner to enforce correct join filtering
-        return supabase.table("consultations")\
-            .select("*, doctors:profiles!doctor_id(full_name), appointments!inner(scheduled_time, patient_id)")\
-            .eq("appointments.patient_id", patient_id)\
-            .order("created_at", desc=True)\
-            .execute().data
-    except Exception as e:
-        print(f"History Fetch Error: {e}")
-        # Return empty list to prevent frontend crash
-        return []
+    # Added !inner for robust filtering
+    return supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments!inner(scheduled_time, patient_id)").eq("appointments.patient_id", patient_id).order("created_at", desc=True).execute().data
