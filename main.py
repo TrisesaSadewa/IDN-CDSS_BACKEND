@@ -138,6 +138,7 @@ async def submit_consultation(data: ConsultationData):
                     if isinstance(ing, dict) and 'name' in ing:
                         check_list.append(ing['name'])
             else:
+                # Regular drug
                 check_list.append(item['name'])
 
         ddi_warnings = await check_openfda_interactions(check_list)
@@ -230,3 +231,4 @@ async def book_appointment(booking: AppointmentBooking):
 async def get_patient_history(patient_id: str):
     # Added !inner for robust filtering
     return supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments!inner(scheduled_time, patient_id)").eq("appointments.patient_id", patient_id).order("created_at", desc=True).execute().data
+
