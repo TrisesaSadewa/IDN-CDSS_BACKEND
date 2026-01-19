@@ -2,26 +2,29 @@ import os
 import json
 import re
 import aiohttp 
+import asyncio
 from typing import List, Optional, Dict, Any
-from datetime import datetime
-from fastapi import FastAPI, HTTPException
+from itertools import combinations
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
 
-# --- IMPORT LOCAL PARSER ---
+# --- IMPORT LOCAL MODULES ---
 try:
     import ner_parser
-    print("SUCCESS: NER Parser loaded.")
+    import structured_drug_db # Critical for ingredient lookup
+    print("SUCCESS: Local modules loaded.")
 except ImportError as e:
-    print(f"WARNING: ner_parser.py not found: {e}")
+    print(f"WARNING: Modules not found: {e}")
     ner_parser = None
+    structured_drug_db = None
 
 # --- CONFIGURATION ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="5.5 - DDI Ingredients")
+app = FastAPI(title="Smart HIS Backend", version="5.7 - Ingredient Expansion")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -63,49 +66,86 @@ class AppointmentBooking(BaseModel):
     date: str
     time: str
 
-# --- OPENFDA HELPER ---
+# --- INTELLIGENT DDI CHECKER ---
+
+def resolve_active_ingredients(drug_name: str) -> List[str]:
+    """
+    Converts a Brand Name (e.g. 'Tremenza') into its list of active ingredients
+    (e.g. ['Pseudoephedrine', 'Triprolidine']) using the local DB.
+    """
+    clean_name = drug_name.split()[0].lower() # Heuristic key
+    ingredients = []
+
+    # 1. Try DB Lookup
+    if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
+        drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
+        
+        if drug_obj:
+            # Priority: Contents > Generic > Name
+            # "contents" usually has the full chemical composition
+            source_text = drug_obj.contents or drug_obj.generic or drug_obj.name
+            
+            # Split combination drugs by common delimiters (/ , +)
+            # e.g. "Pseudoephedrine/Triprolidine" -> ["Pseudoephedrine", "Triprolidine"]
+            parts = re.split(r'[/,+]', source_text)
+            for p in parts:
+                cleaned = p.strip()
+                # Remove dosage info from ingredient name (e.g. "Paracetamol 500mg" -> "Paracetamol")
+                # Regex removes numbers+units at end
+                cleaned = re.sub(r'\s*\d+.*$', '', cleaned)
+                if cleaned:
+                    ingredients.append(cleaned)
+            
+            return ingredients
+
+    # 2. Fallback: Return original name if no DB match
+    return [clean_name]
+
 async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
     """
-    Checks OpenFDA for adverse events.
-    Filters out invalid names and checks unique pairs.
+    Checks OpenFDA for interactions between active ingredients.
     """
-    # 1. Clean and Deduplicate
-    unique_drugs = set()
-    for d in drug_list:
-        clean = d.strip()
-        # Ignore structural labels if they sneak in
-        if clean and "compound" not in clean.lower() and "racikan" not in clean.lower():
-            unique_drugs.add(clean)
-            
-    drug_list_clean = list(unique_drugs)
+    # 1. Expand to Active Ingredients & Deduplicate
+    active_ingredients = set()
     
-    if len(drug_list_clean) < 2:
+    for d in drug_list:
+        if not d: continue
+        # Filter equipment
+        if "spuit" in d.lower() or "infus" in d.lower() or "kasa" in d.lower():
+            continue
+            
+        resolved = resolve_active_ingredients(d)
+        for ing in resolved:
+            active_ingredients.add(ing)
+
+    check_items = list(active_ingredients)
+    
+    if len(check_items) < 2:
         return []
 
     warnings = []
     
+    # 2. Pairwise Check
+    pairs = list(combinations(check_items, 2))
+    
     async with aiohttp.ClientSession() as session:
-        for i in range(len(drug_list_clean)):
-            for j in range(i + 1, len(drug_list_clean)):
-                # Take first word for API query to increase hit rate (e.g. "Amox 500" -> "Amox")
-                drug_a = drug_list_clean[i].split()[0]
-                drug_b = drug_list_clean[j].split()[0]
+        for drug_a, drug_b in pairs:
+            # Query: Find reports where BOTH ingredients appear
+            query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
+            url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
+            
+            try:
+                async with session.get(url) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        total = data.get('meta', {}).get('results', {}).get('total', 0)
+                        
+                        # Threshold > 50 reports implies a signal worth noting
+                        if total > 50: 
+                            warnings.append(f"INTERACTION SIGNAL: {drug_a.title()} + {drug_b.title()} ({total} reports)")
+            except Exception as e:
+                print(f"OpenFDA Error for {drug_a}/{drug_b}: {e}")
                 
-                if drug_a.lower() == drug_b.lower(): continue
-
-                query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
-                url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
-                
-                try:
-                    async with session.get(url) as resp:
-                        if resp.status == 200:
-                            data = await resp.json()
-                            total = data.get('meta', {}).get('results', {}).get('total', 0)
-                            if total > 50: 
-                                warnings.append(f"INTERACTION: {drug_a} + {drug_b} ({total} reports)")
-                except Exception as e:
-                    print(f"OpenFDA Error: {e}")
-                    
     return warnings
 
 # --- ENDPOINTS ---
@@ -128,30 +168,30 @@ async def parse_prescription_endpoint(payload: ParseRequest):
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # 1. FLATTEN INGREDIENTS FOR DDI CHECK
-        # This ensures we check the actual drugs inside a "Racikan"
+        # 1. Gather all drugs for DDI Check
         check_list = []
         for item in data.prescription_items:
-            # If item has nested ingredients (from parser), use those
+            # Handle Racikan ingredients
             if item.get('ingredients') and isinstance(item['ingredients'], list):
                 for ing in item['ingredients']:
                     if isinstance(ing, dict) and 'name' in ing:
                         check_list.append(ing['name'])
             else:
-                # Regular drug
                 check_list.append(item['name'])
 
+        # 2. Run Check
         ddi_warnings = await check_openfda_interactions(check_list)
 
-        # 2. Save Consultation
+        # 3. Construct Record
         subjective_text = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
         comorbidities = ", ".join(data.secondary_diagnoses) if data.secondary_diagnoses else "None"
         assessment_text = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nSECONDARY: {comorbidities}\nNOTES: {data.clinical_notes}"
 
         plan_text = data.therapy_instructions
         if ddi_warnings:
-            plan_text += "\n\n[SYSTEM ALERTS]\n" + "\n".join(ddi_warnings)
+            plan_text += "\n\n[SYSTEM DDI ALERTS]\n" + "\n".join(ddi_warnings)
 
+        # 4. Save
         consult_res = supabase.table("consultations").insert({
             "appointment_id": data.appointment_id,
             "doctor_id": data.doctor_id,
@@ -166,14 +206,20 @@ async def submit_consultation(data: ConsultationData):
 
         items_payload = []
         for item in data.prescription_items:
+            dose_instr = f"{item['dosage']} {item['frequency']}"
+            if item['name'] == "Compound (Racikan)" and 'ingredients' in item:
+                 dose_instr += f" (Contains: {len(item['ingredients'])} items)"
+
             items_payload.append({
                 "consultation_id": consult_id,
                 "drug_name_snapshot": item['name'],
                 "quantity": 10,
-                "dosage_instruction": f"{item['dosage']} {item['frequency']}",
+                "dosage_instruction": dose_instr,
                 "status": "pending"
             })
-        if items_payload: supabase.table("prescription_items").insert(items_payload).execute()
+        
+        if items_payload: 
+            supabase.table("prescription_items").insert(items_payload).execute()
 
         supabase.table("appointments").update({"status": "pharmacy"}).eq("id", data.appointment_id).execute()
         
@@ -186,7 +232,7 @@ async def submit_consultation(data: ConsultationData):
         print(f"Submit Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ... (Standard Getters - Kept for file completeness) ...
+# ... (Standard Getters) ...
 @app.get("/")
 def read_root(): return {"status": "active"}
 
@@ -198,7 +244,8 @@ async def search_icd10(q: str):
 
 @app.get("/doctor/appointment/{appt_id}")
 async def get_appointment_detail(appt_id: str):
-    res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
+    res = supabase.table("appointments").select("*, patients(*), triage_notes(*)")\
+        .eq("id", appt_id).single().execute()
     return res.data
 
 @app.get("/doctor/queue")
@@ -229,6 +276,4 @@ async def book_appointment(booking: AppointmentBooking):
 
 @app.get("/patient/history")
 async def get_patient_history(patient_id: str):
-    # Added !inner for robust filtering
     return supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments!inner(scheduled_time, patient_id)").eq("appointments.patient_id", patient_id).order("created_at", desc=True).execute().data
-
