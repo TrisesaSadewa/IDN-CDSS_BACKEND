@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="5.7 - Ingredient Expansion")
+app = FastAPI(title="Smart HIS Backend", version="5.8 - DDI Filters")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -104,19 +104,37 @@ def resolve_active_ingredients(drug_name: str) -> List[str]:
 async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
     """
     Checks OpenFDA for interactions between active ingredients.
+    FILTERS OUT common non-drug terms to prevent false positives.
     """
+    # Common dosage forms/units that are NOT drugs
+    IGNORE_TERMS = {
+        "tab", "tablet", "cap", "capsule", "caps", "inj", "injection", "injeksi",
+        "syr", "syrup", "sirup", "susp", "suspension", "drops", "drop", "gtts",
+        "ml", "mg", "g", "mcg", "iu", "unit", "amp", "vial", "btl", "tube", "sachet",
+        "supp", "suppository", "kapsul", "bungkus", "puyer", "racikan", "compound",
+        "cream", "krim", "oint", "ointment", "salep", "gel", "lotion",
+        "spuit", "infus", "set", "kasa", "needle", "syringe", "disp"
+    }
+
     # 1. Expand to Active Ingredients & Deduplicate
     active_ingredients = set()
     
     for d in drug_list:
         if not d: continue
-        # Filter equipment
-        if "spuit" in d.lower() or "infus" in d.lower() or "kasa" in d.lower():
-            continue
-            
+        
+        # Resolve brand names first
         resolved = resolve_active_ingredients(d)
+        
         for ing in resolved:
-            active_ingredients.add(ing)
+            clean_ing = ing.strip().lower()
+            # Strict Filter: Ignore if it's in the blocklist or is just a number
+            if clean_ing in IGNORE_TERMS or clean_ing.replace('.', '', 1).isdigit():
+                continue
+            # Ignore short 1-2 char strings (usually noise)
+            if len(clean_ing) < 3:
+                continue
+                
+            active_ingredients.add(clean_ing)
 
     check_items = list(active_ingredients)
     
@@ -131,6 +149,7 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
     async with aiohttp.ClientSession() as session:
         for drug_a, drug_b in pairs:
             # Query: Find reports where BOTH ingredients appear
+            # Use exact phrase match for drugs to avoid partial noise matches
             query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
             url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
             
