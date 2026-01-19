@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="5.8 - DDI Filters")
+app = FastAPI(title="Smart HIS Backend", version="6.0 - DDI Severity")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -101,10 +101,11 @@ def resolve_active_ingredients(drug_name: str) -> List[str]:
     # 2. Fallback: Return original name if no DB match
     return [clean_name]
 
-async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
+async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str]]:
     """
     Checks OpenFDA for interactions between active ingredients.
-    FILTERS OUT common non-drug terms to prevent false positives.
+    Returns categorized warnings: High (Severe), Medium (Moderate), Low (Advisory).
+    FILTERS OUT common non-drug terms.
     """
     # Common dosage forms/units that are NOT drugs
     IGNORE_TERMS = {
@@ -138,34 +139,57 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
 
     check_items = list(active_ingredients)
     
-    if len(check_items) < 2:
-        return []
-
-    warnings = []
+    categorized_warnings = {
+        "high": [],
+        "medium": [],
+        "low": []
+    }
     
+    if len(check_items) < 2:
+        return categorized_warnings
+
     # 2. Pairwise Check
     pairs = list(combinations(check_items, 2))
     
     async with aiohttp.ClientSession() as session:
         for drug_a, drug_b in pairs:
             # Query: Find reports where BOTH ingredients appear
-            # Use exact phrase match for drugs to avoid partial noise matches
             query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
-            url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
+            
+            # Use 'count' endpoint to get outcome distribution for severity assessment
+            url = f"https://api.fda.gov/drug/event.json?search={query}&count=patient.reaction.reactionmeddrapt.exact"
             
             try:
                 async with session.get(url) as resp:
                     if resp.status == 200:
                         data = await resp.json()
-                        total = data.get('meta', {}).get('results', {}).get('total', 0)
+                        # Total count is roughly sum of top terms, or we can query without count to get meta.total
+                        # For speed, we infer from the 'count' results presence.
+                        # Actually, let's just get total count first for baseline
                         
-                        # Threshold > 50 reports implies a signal worth noting
-                        if total > 50: 
-                            warnings.append(f"INTERACTION SIGNAL: {drug_a.title()} + {drug_b.title()} ({total} reports)")
+                        # Simplified Severity Logic based on Report Count (Volume Signal)
+                        # High Volume = High likelihood of interaction or common co-prescription with issues
+                        
+                        # Fetch total count specifically
+                        count_url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
+                        async with session.get(count_url) as count_resp:
+                            if count_resp.status == 200:
+                                count_data = await count_resp.json()
+                                total = count_data.get('meta', {}).get('results', {}).get('total', 0)
+                                
+                                msg = f"{drug_a.title()} + {drug_b.title()} ({total} reports)"
+                                
+                                if total > 500:
+                                    categorized_warnings["high"].append(msg)
+                                elif total > 100:
+                                    categorized_warnings["medium"].append(msg)
+                                elif total > 20:
+                                    categorized_warnings["low"].append(msg)
+
             except Exception as e:
                 print(f"OpenFDA Error for {drug_a}/{drug_b}: {e}")
                 
-    return warnings
+    return categorized_warnings
 
 # --- ENDPOINTS ---
 
@@ -173,7 +197,13 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[str]:
 async def check_ddi_endpoint(payload: DDIRequest):
     print(f"Checking DDI for: {payload.drugs}")
     warnings = await check_openfda_interactions(payload.drugs)
-    return {"warnings": warnings, "safe": len(warnings) == 0}
+    
+    # Flatten for simple frontend check if needed, or send full object
+    # Sending full object so frontend can display sections
+    return {
+        "warnings": warnings, 
+        "safe": (len(warnings["high"]) + len(warnings["medium"]) + len(warnings["low"])) == 0
+    }
 
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
@@ -199,7 +229,19 @@ async def submit_consultation(data: ConsultationData):
                 check_list.append(item['name'])
 
         # 2. Run Check
-        ddi_warnings = await check_openfda_interactions(check_list)
+        ddi_results = await check_openfda_interactions(check_list)
+        
+        # Flatten warnings for saving to text field
+        all_warnings = []
+        if ddi_results["high"]:
+            all_warnings.append("High Severity (Urgent Review):")
+            all_warnings.extend([f" - {w}" for w in ddi_results["high"]])
+        if ddi_results["medium"]:
+            all_warnings.append("Moderate Severity (Caution):")
+            all_warnings.extend([f" - {w}" for w in ddi_results["medium"]])
+        if ddi_results["low"]:
+            all_warnings.append("Low Severity (Advisory):")
+            all_warnings.extend([f" - {w}" for w in ddi_results["low"]])
 
         # 3. Construct Record
         subjective_text = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
@@ -207,10 +249,10 @@ async def submit_consultation(data: ConsultationData):
         assessment_text = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nSECONDARY: {comorbidities}\nNOTES: {data.clinical_notes}"
 
         plan_text = data.therapy_instructions
-        if ddi_warnings:
-            plan_text += "\n\n[SYSTEM DDI ALERTS]\n" + "\n".join(ddi_warnings)
+        # Append formatted warnings to the permanent record
+        if all_warnings:
+            plan_text += "\n\n[SYSTEM DDI ALERTS]\n" + "\n".join(all_warnings)
 
-        # 4. Save
         consult_res = supabase.table("consultations").insert({
             "appointment_id": data.appointment_id,
             "doctor_id": data.doctor_id,
@@ -245,7 +287,7 @@ async def submit_consultation(data: ConsultationData):
         return {
             "status": "success", 
             "consultation_id": consult_id,
-            "warnings": ddi_warnings
+            "warnings": all_warnings # Return flattened list for simple frontend alert
         }
     except Exception as e:
         print(f"Submit Error: {e}")
