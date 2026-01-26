@@ -9,11 +9,20 @@ except ImportError:
     DB_AVAILABLE = False
 
 def parse_prescription_text(text):
+    """
+    Parses prescription text. 
+    Supports:
+    1. Colon Format: "Drug :Qty:Sig"
+    2. Hash Format: "Drug #Qty#Sig" (NEW)
+    3. Unstructured Fallback
+    """
     if not text:
         return {"separate_drugs": [], "racikan": [], "equipment": []}
 
-    # Normalize delimiters
-    text = text.replace('\n', ';')
+    # Normalize entry delimiters (||| -> ;)
+    text = text.replace('|||', ';').replace('\n', ';')
+    
+    # Split into entries
     entries = [e.strip() for e in text.split(';') if e.strip()]
     
     parsed_data = {
@@ -23,14 +32,14 @@ def parse_prescription_text(text):
     }
     
     for entry in entries:
-        # 1. Equipment Check
+        # 1. Check for Equipment
         if DB_AVAILABLE:
             eq_name = structured_drug_db.find_equipment_match(entry)
             if eq_name:
                 parsed_data["equipment"].append({"name": eq_name, "original": entry})
                 continue
 
-        # 2. Racikan Check
+        # 2. Check for Racikan
         is_racikan = bool(re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', entry, re.IGNORECASE))
         if is_racikan:
             racikan_data = _parse_racikan_entry(entry)
@@ -38,15 +47,17 @@ def parse_prescription_text(text):
                 parsed_data["racikan"].append(racikan_data)
             continue
 
-        # 3. Drug Parsing
-        if ":" in entry:
-            fast_drug = _parse_colon_drug(entry)
+        # 3. FAST PATH: Check for Structured Formats (: or #)
+        if ":" in entry or "#" in entry:
+            fast_drug = _parse_structured_format(entry)
             if fast_drug:
                 parsed_data["separate_drugs"].append(fast_drug)
-        else:
-            fallback_drug = _parse_unstructured(entry)
-            if fallback_drug:
-                parsed_data["separate_drugs"].append(fallback_drug)
+            continue
+
+        # 4. FALLBACK: Unstructured
+        fallback_drug = _parse_unstructured(entry)
+        if fallback_drug:
+             parsed_data["separate_drugs"].append(fallback_drug)
 
     return parsed_data
 
@@ -59,25 +70,37 @@ def _clean_drug_name(name):
     name = re.sub(r'^\d+\s+', '', name) 
     return " ".join(name.split())
 
-def _parse_colon_drug(entry):
-    parts = entry.split(':')
-    if len(parts) < 1: return None
+def _parse_structured_format(entry):
+    """
+    Parses structured formats.
+    Type A: "METRONIDAZOL 500 MG TAB :45.00:3 dd tab 1 pc"
+    Type B: "ANS V-BLOC 6.25 MG TABLET #30.00#1-0-0"
+    """
+    # Determine delimiter
+    delimiter = '#' if '#' in entry else ':'
     
-    raw_name = parts[0].strip()
+    parts = entry.split(delimiter)
+    
+    # We expect at least 3 parts: [Name, Qty, Freq]
+    # Sometimes Qty might be missing or format varies slightly, handle gracefully
+    if len(parts) < 2:
+        return None
+        
+    raw_name_part = parts[0].strip()
     qty = parts[1].strip() if len(parts) > 1 else "0"
     freq = parts[2].strip() if len(parts) > 2 else ""
 
-    # Extract Dosage
+    # Extract Dosage from Name Part
     dosage = ""
-    dose_match = re.search(r'(\d+([.,]\d+)?\s*(?:MG|G|ML|IU|MCG|%))', raw_name, re.IGNORECASE)
+    dosage_match = re.search(r'(\d+([.,]\d+)?\s*(?:MG|G|ML|IU|MCG|%))', raw_name_part, re.IGNORECASE)
     
-    clean_source = raw_name
-    if dose_match:
-        dosage = dose_match.group(1)
-        clean_source = raw_name.replace(dosage, "")
+    clean_name_source = raw_name_part
+    if dosage_match:
+        dosage = dosage_match.group(1)
+        clean_name_source = raw_name_part.replace(dosage, "")
 
-    final_name = _clean_drug_name(clean_source)
-
+    final_name = _clean_drug_name(clean_name_source)
+    
     if DB_AVAILABLE:
         db_match = structured_drug_db.find_drug_match(final_name)
         if db_match: final_name = db_match
@@ -95,13 +118,7 @@ def _parse_colon_drug(entry):
     }
 
 def _extract_ingredients(recipe_text):
-    """
-    Extracts individual ingredients from compound recipe string.
-    Example: "Tremenza 1/5 tablet Lasal 0,8mg"
-    """
     ingredients = []
-    # Regex to find Dosage/Amount patterns
-    # Matches: fractions (1/5), decimals (0,8), integers (10) followed by optional units/forms
     dose_pat = re.compile(
         r'((?:\d+\s*/\s*\d+|\d+(?:[.,]\d+)?)\s*(?:mg|g|ml|mcg|iu|%|tab|cap|tablet|kapsul|bungkus|sachet|amp|vial)?)', 
         re.IGNORECASE
@@ -120,17 +137,19 @@ def _extract_ingredients(recipe_text):
         
         if current_name:
             ingredients.append({"name": current_name, "strength": dose_part})
-            # Reset only if we found a dose, otherwise keep name for next iteration (unlikely case)
             current_name = ""
             
     return ingredients
 
 def _parse_racikan_entry(entry):
-    parts = entry.split(':')
+    # Determine delimiter for racikan too
+    delimiter = '#' if '#' in entry else ':'
+    parts = entry.split(delimiter)
+    
     full_recipe = parts[0].strip()
     
-    # Split Ingredients vs Instructions (m.f., dtd)
     split_match = re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', full_recipe, re.IGNORECASE)
+    
     if split_match:
         ingredients_text = full_recipe[:split_match.start()].strip()
         compounding_instr = full_recipe[split_match.start():].strip()
@@ -138,11 +157,10 @@ def _parse_racikan_entry(entry):
         ingredients_text = full_recipe
         compounding_instr = ""
 
-    # Parse Ingredients
     ingredients_list = _extract_ingredients(ingredients_text)
     
     qty = parts[1].strip() if len(parts) > 1 else "1"
-    freq = parts[2].strip() if len(parts) > 2 else ""
+    freq = parts[2].strip() if len(parts) > 2 else "See instructions"
 
     try:
         if "." in qty: qty = str(int(float(qty)))
@@ -150,7 +168,7 @@ def _parse_racikan_entry(entry):
 
     return {
         "is_compound": True,
-        "ingredients": ingredients_list, # List of {name, strength}
+        "ingredients": ingredients_list,
         "recipe_text": full_recipe,
         "compounding_instruction": compounding_instr,
         "frequency": freq,
