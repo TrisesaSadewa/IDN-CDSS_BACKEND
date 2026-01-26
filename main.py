@@ -13,7 +13,7 @@ from supabase import create_client, Client
 # --- IMPORT LOCAL MODULES ---
 try:
     import ner_parser
-    import structured_drug_db # Critical for ingredient lookup
+    import structured_drug_db 
     print("SUCCESS: Local modules loaded.")
 except ImportError as e:
     print(f"WARNING: Modules not found: {e}")
