@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="6.3 - DDI Curated Fix")
+app = FastAPI(title="Smart HIS Backend", version="6.4 - History Fix")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -66,7 +66,7 @@ class AppointmentBooking(BaseModel):
     date: str
     time: str
 
-# --- CURATED DDI KNOWLEDGE BASE (UPDATED FROM USER REQUEST) ---
+# --- CURATED DDI KNOWLEDGE BASE ---
 KNOWN_INTERACTIONS = {
     # Major
     frozenset(["aspirin", "ibuprofen"]): "Major",
@@ -325,4 +325,25 @@ async def book_appointment(booking: AppointmentBooking):
 
 @app.get("/patient/history")
 async def get_patient_history(patient_id: str):
-    return supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments!inner(scheduled_time, patient_id)").eq("appointments.patient_id", patient_id).order("created_at", desc=True).execute().data
+    if not supabase: return []
+    try:
+        # Step 1: Find appointment IDs for this patient
+        # We query the appointments table first to get the IDs
+        appts_res = supabase.table("appointments").select("id").eq("patient_id", patient_id).execute()
+        if not appts_res.data:
+            return []
+            
+        appt_ids = [a['id'] for a in appts_res.data]
+        
+        # Step 2: Fetch consultations linked to those appointment IDs
+        # This avoids the complex nested join filtering that causes 500 errors
+        consultations = supabase.table("consultations")\
+            .select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time)")\
+            .in_("appointment_id", appt_ids)\
+            .order("created_at", desc=True)\
+            .execute()
+            
+        return consultations.data
+    except Exception as e:
+        print(f"History Error: {e}")
+        return [] # Return empty list on error to prevent frontend crash
