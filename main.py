@@ -13,7 +13,7 @@ from supabase import create_client, Client
 # --- IMPORT LOCAL MODULES ---
 try:
     import ner_parser
-    import structured_drug_db
+    import structured_drug_db 
     print("SUCCESS: Local modules loaded.")
 except ImportError as e:
     print(f"WARNING: Modules not found: {e}")
@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="7.0 - Outcome-Based DDI")
+app = FastAPI(title="Smart HIS Backend", version="8.0 - Actionable DDI")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -66,12 +66,68 @@ class AppointmentBooking(BaseModel):
     date: str
     time: str
 
+# --- RICH DDI KNOWLEDGE BASE ---
+# Format: { frozenset(drugs): { severity, description, advice } }
+KNOWN_INTERACTIONS = {
+    # Major
+    frozenset(["aspirin", "ibuprofen"]): {
+        "severity": "Major",
+        "description": "Ibuprofen may interfere with the antiplatelet effect of low-dose aspirin, reducing its cardioprotective benefits. Also increases risk of GI bleeding.",
+        "advice": "Administer ibuprofen at least 8 hours before or 30 minutes after aspirin. Consider substituting Ibuprofen with Paracetamol or Celecoxib."
+    },
+    frozenset(["acetylsalicylic acid", "ibuprofen"]): {
+        "severity": "Major",
+        "description": "Ibuprofen may interfere with the antiplatelet effect of low-dose aspirin. Increased bleeding risk.",
+        "advice": "Space dosing (8hrs apart) or switch NSAID."
+    },
+    
+    # Moderate
+    frozenset(["carvedilol", "ibuprofen"]): {
+        "severity": "Moderate",
+        "description": "NSAIDs may diminish the antihypertensive effect of Beta-blockers (Carvedilol) via prostaglandin inhibition.",
+        "advice": "Monitor blood pressure closely. If BP rises, consider alternative pain relief."
+    },
+    frozenset(["candesartan", "ibuprofen"]): {
+        "severity": "Moderate",
+        "description": "NSAIDs may diminish the antihypertensive effect of ARBs (Candesartan) and increase risk of renal impairment.",
+        "advice": "Monitor BP and renal function. Hydrate patient."
+    },
+    
+    # Minor
+    frozenset(["carvedilol", "sucralfate"]): {
+        "severity": "Minor",
+        "description": "Sucralfate may reduce absorption of some medications, though data for Carvedilol is limited.",
+        "advice": "Separate dosing by at least 2 hours."
+    },
+    frozenset(["nitroglycerin", "aspirin"]): {
+        "severity": "Minor",
+        "description": "Aspirin may increase serum concentrations of Nitroglycerin.",
+        "advice": "Monitor for hypotension or headache."
+    },
+     frozenset(["acetylsalicylic acid", "nitroglycerin"]): {
+        "severity": "Minor",
+        "description": "Aspirin may increase serum concentrations of Nitroglycerin.",
+        "advice": "Monitor for hypotension or headache."
+    },
+    frozenset(["nitroglycerin", "omeprazole"]): {
+        "severity": "Minor", 
+        "description": "Minor potential for altered absorption (pH dependent).",
+        "advice": "No specific action required."
+    },
+     frozenset(["sucralfate", "omeprazole"]): {
+        "severity": "Minor", 
+        "description": "Sucralfate requires acidic pH to activate; Omeprazole raises pH.",
+        "advice": "Take Sucralfate 1 hour before Omeprazole."
+    },
+    frozenset(["carvedilol", "acetylsalicylic acid"]): { "severity": "Minor", "description": "Combined use is generally safe and common (cardioprotection + BP control).", "advice": "Routine monitoring." },
+    frozenset(["carvedilol", "aspirin"]): { "severity": "Minor", "description": "Combined use is generally safe and common.", "advice": "Routine monitoring." },
+    frozenset(["aspirin", "omeprazole"]): { "severity": "Minor", "description": "No significant interaction. Omeprazole often prescribed to protect gut from Aspirin.", "advice": "Safe combination." },
+    frozenset(["acetylsalicylic acid", "omeprazole"]): { "severity": "Minor", "description": "No significant interaction.", "advice": "Safe combination." },
+}
+
 # --- INTELLIGENT DDI CHECKER ---
 
 def resolve_active_ingredients(drug_name: str) -> List[str]:
-    """
-    Converts a Brand Name (e.g. 'V-Bloc') into active ingredients (e.g. ['Carvedilol']).
-    """
     clean_name = drug_name.split()[0].lower()
     ingredients = []
 
@@ -89,53 +145,9 @@ def resolve_active_ingredients(drug_name: str) -> List[str]:
 
     return [clean_name]
 
-async def check_severity_by_outcome(session, query, drug_pair_str) -> str:
+async def check_openfda_interactions(drug_list: List[str]) -> List[Dict[str, Any]]:
     """
-    Determines severity by checking specific serious outcomes in OpenFDA reports.
-    Returns: "High", "Medium", "Low", or None
-    """
-    base_url = "https://api.fda.gov/drug/event.json"
-    
-    # 1. Check for Death / Life-Threatening (High)
-    # serousnessdeath=1 OR seriousnesslifethreatening=1
-    high_query = f"{query}+AND+(seriousnessdeath:1+OR+seriousnesslifethreatening:1)"
-    try:
-        async with session.get(f"{base_url}?search={high_query}&limit=1") as resp:
-            if resp.status == 200:
-                data = await resp.json()
-                count = data['meta']['results']['total']
-                # If significant number of death reports exist, it's Major
-                if count > 20: 
-                    return "High"
-    except: pass
-
-    # 2. Check for Hospitalization / Disability (Medium)
-    # seriousnesshospitalization=1 OR seriousnessdisabling=1
-    med_query = f"{query}+AND+(seriousnesshospitalization:1+OR+seriousnessdisabling:1)"
-    try:
-        async with session.get(f"{base_url}?search={med_query}&limit=1") as resp:
-            if resp.status == 200:
-                data = await resp.json()
-                count = data['meta']['results']['total']
-                if count > 50:
-                    return "Medium"
-    except: pass
-
-    # 3. Check General Volume (Low)
-    try:
-        async with session.get(f"{base_url}?search={query}&limit=1") as resp:
-            if resp.status == 200:
-                data = await resp.json()
-                count = data['meta']['results']['total']
-                if count > 100: # If just frequent but not serious
-                    return "Low"
-    except: pass
-    
-    return None
-
-async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str]]:
-    """
-    Checks interactions using Outcome-Based Severity.
+    Returns a LIST of interaction objects with detailed metadata.
     """
     IGNORE_TERMS = {
         "tab", "tablet", "cap", "capsule", "caps", "inj", "injection", "injeksi",
@@ -144,7 +156,7 @@ async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str
         "supp", "suppository", "kapsul", "bungkus", "puyer", "racikan", "compound",
         "cream", "krim", "oint", "ointment", "salep", "gel", "lotion",
         "spuit", "infus", "set", "kasa", "needle", "syringe", "disp",
-        "acid", "sodium", "calcium", "potassium", "chloride"
+        "acid", "sodium", "calcium", "potassium"
     }
 
     active_ingredients = set()
@@ -158,40 +170,63 @@ async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str
             active_ingredients.add(clean_ing)
 
     check_items = list(active_ingredients)
-    
-    categorized_warnings = { "high": [], "medium": [], "low": [] }
-    
-    if len(check_items) < 2: return categorized_warnings
+    results = []
+
+    if len(check_items) < 2: return results
 
     pairs = list(combinations(check_items, 2))
     
     async with aiohttp.ClientSession() as session:
         for drug_a, drug_b in pairs:
-            # Query Logic: Both drugs present
-            query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
+            # 1. CHECK LOCAL KNOWLEDGE BASE FIRST
+            pair_set = frozenset([drug_a.lower(), drug_b.lower()])
             
-            # Determine Severity dynamically
-            severity = await check_severity_by_outcome(session, query, f"{drug_a}+{drug_b}")
-            
-            if severity:
-                msg = f"{drug_a.title()} + {drug_b.title()}"
-                if severity == "High":
-                    categorized_warnings["high"].append(msg + " (Critical Outcomes Detected)")
-                elif severity == "Medium":
-                    categorized_warnings["medium"].append(msg + " (Hospitalization Risks)")
-                elif severity == "Low":
-                    categorized_warnings["low"].append(msg + " (Advisory)")
+            if pair_set in KNOWN_INTERACTIONS:
+                info = KNOWN_INTERACTIONS[pair_set]
+                results.append({
+                    "pair": [drug_a.title(), drug_b.title()],
+                    "severity": info["severity"],
+                    "description": info["description"],
+                    "advice": info["advice"],
+                    "source": "Clinical DB"
+                })
+                continue 
 
-    return categorized_warnings
+            # 2. CHECK OPENFDA (FALLBACK)
+            query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
+            try:
+                count_url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
+                async with session.get(count_url) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        total = data.get('meta', {}).get('results', {}).get('total', 0)
+                        
+                        if total > 1000:
+                            results.append({
+                                "pair": [drug_a.title(), drug_b.title()],
+                                "severity": "Moderate",
+                                "description": f"High co-occurrence in FDA Adverse Events ({total} reports). Potential interaction.",
+                                "advice": "Review patient history for prior tolerance.",
+                                "source": "OpenFDA"
+                            })
+            except Exception as e:
+                print(f"OpenFDA Error: {e}")
+                
+    return results
 
 # --- ENDPOINTS ---
 
 @app.post("/api/check-ddi")
 async def check_ddi_endpoint(payload: DDIRequest):
     print(f"Checking DDI for: {payload.drugs}")
-    warnings = await check_openfda_interactions(payload.drugs)
-    safe = (len(warnings["high"]) + len(warnings["medium"]) + len(warnings["low"])) == 0
-    return {"warnings": warnings, "safe": safe}
+    interaction_list = await check_openfda_interactions(payload.drugs)
+    
+    # Sort: Major -> Moderate -> Minor
+    severity_order = {"Major": 1, "Moderate": 2, "Minor": 3}
+    interaction_list.sort(key=lambda x: severity_order.get(x["severity"], 99))
+    
+    is_safe = len(interaction_list) == 0
+    return {"interactions": interaction_list, "safe": is_safe}
 
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
@@ -205,10 +240,8 @@ async def parse_prescription_endpoint(payload: ParseRequest):
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # 1. Gather all drugs for DDI Check
         check_list = []
         for item in data.prescription_items:
-            # Handle Racikan ingredients
             if item.get('ingredients') and isinstance(item['ingredients'], list):
                 for ing in item['ingredients']:
                     if isinstance(ing, dict) and 'name' in ing:
@@ -216,19 +249,12 @@ async def submit_consultation(data: ConsultationData):
             else:
                 check_list.append(item['name'])
 
-        # 2. Run Check
-        ddi_results = await check_openfda_interactions(check_list)
+        interactions = await check_openfda_interactions(check_list)
         
+        # Flatten warnings for text field storage
         all_warnings = []
-        if ddi_results["high"]:
-            all_warnings.append("High Severity (Urgent Review):")
-            all_warnings.extend([f" - {w}" for w in ddi_results["high"]])
-        if ddi_results["medium"]:
-            all_warnings.append("Moderate Severity (Caution):")
-            all_warnings.extend([f" - {w}" for w in ddi_results["medium"]])
-        if ddi_results["low"]:
-            all_warnings.append("Low Severity (Advisory):")
-            all_warnings.extend([f" - {w}" for w in ddi_results["low"]])
+        for i in interactions:
+            all_warnings.append(f"[{i['severity'].upper()}] {i['pair'][0]} + {i['pair'][1]}: {i['description']}")
 
         subjective_text = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
         comorbidities = ", ".join(data.secondary_diagnoses) if data.secondary_diagnoses else "None"
@@ -272,13 +298,13 @@ async def submit_consultation(data: ConsultationData):
         return {
             "status": "success", 
             "consultation_id": consult_id,
-            "warnings": all_warnings 
+            "interactions": interactions
         }
     except Exception as e:
         print(f"Submit Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ... (Standard Getters) ...
+# ... (Standard Getters - Kept for file completeness) ...
 @app.get("/")
 def read_root(): return {"status": "active"}
 
