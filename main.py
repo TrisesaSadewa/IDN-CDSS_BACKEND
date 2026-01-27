@@ -13,7 +13,7 @@ from supabase import create_client, Client
 # --- IMPORT LOCAL MODULES ---
 try:
     import ner_parser
-    import structured_drug_db # Critical for ingredient lookup
+    import structured_drug_db
     print("SUCCESS: Local modules loaded.")
 except ImportError as e:
     print(f"WARNING: Modules not found: {e}")
@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="6.5 - Acid Fix")
+app = FastAPI(title="Smart HIS Backend", version="7.0 - Outcome-Based DDI")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -66,29 +66,12 @@ class AppointmentBooking(BaseModel):
     date: str
     time: str
 
-# --- CURATED DDI KNOWLEDGE BASE ---
-KNOWN_INTERACTIONS = {
-    # Major
-    frozenset(["aspirin", "ibuprofen"]): "Major",
-    frozenset(["acetylsalicylic acid", "ibuprofen"]): "Major",
-    
-    # Moderate
-    frozenset(["carvedilol", "ibuprofen"]): "Moderate",
-    
-    # Minor
-    frozenset(["carvedilol", "sucralfate"]): "Minor",
-    frozenset(["carvedilol", "aspirin"]): "Minor",
-    frozenset(["carvedilol", "acetylsalicylic acid"]): "Minor",
-    frozenset(["nitroglycerin", "aspirin"]): "Minor",
-    frozenset(["nitroglycerin", "acetylsalicylic acid"]): "Minor",
-    frozenset(["nitroglycerin", "omeprazole"]): "Minor",
-    frozenset(["aspirin", "omeprazole"]): "Minor",
-    frozenset(["acetylsalicylic acid", "omeprazole"]): "Minor",
-}
-
 # --- INTELLIGENT DDI CHECKER ---
 
 def resolve_active_ingredients(drug_name: str) -> List[str]:
+    """
+    Converts a Brand Name (e.g. 'V-Bloc') into active ingredients (e.g. ['Carvedilol']).
+    """
     clean_name = drug_name.split()[0].lower()
     ingredients = []
 
@@ -106,7 +89,54 @@ def resolve_active_ingredients(drug_name: str) -> List[str]:
 
     return [clean_name]
 
+async def check_severity_by_outcome(session, query, drug_pair_str) -> str:
+    """
+    Determines severity by checking specific serious outcomes in OpenFDA reports.
+    Returns: "High", "Medium", "Low", or None
+    """
+    base_url = "https://api.fda.gov/drug/event.json"
+    
+    # 1. Check for Death / Life-Threatening (High)
+    # serousnessdeath=1 OR seriousnesslifethreatening=1
+    high_query = f"{query}+AND+(seriousnessdeath:1+OR+seriousnesslifethreatening:1)"
+    try:
+        async with session.get(f"{base_url}?search={high_query}&limit=1") as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                count = data['meta']['results']['total']
+                # If significant number of death reports exist, it's Major
+                if count > 20: 
+                    return "High"
+    except: pass
+
+    # 2. Check for Hospitalization / Disability (Medium)
+    # seriousnesshospitalization=1 OR seriousnessdisabling=1
+    med_query = f"{query}+AND+(seriousnesshospitalization:1+OR+seriousnessdisabling:1)"
+    try:
+        async with session.get(f"{base_url}?search={med_query}&limit=1") as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                count = data['meta']['results']['total']
+                if count > 50:
+                    return "Medium"
+    except: pass
+
+    # 3. Check General Volume (Low)
+    try:
+        async with session.get(f"{base_url}?search={query}&limit=1") as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                count = data['meta']['results']['total']
+                if count > 100: # If just frequent but not serious
+                    return "Low"
+    except: pass
+    
+    return None
+
 async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str]]:
+    """
+    Checks interactions using Outcome-Based Severity.
+    """
     IGNORE_TERMS = {
         "tab", "tablet", "cap", "capsule", "caps", "inj", "injection", "injeksi",
         "syr", "syrup", "sirup", "susp", "suspension", "drops", "drop", "gtts",
@@ -114,7 +144,7 @@ async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str
         "supp", "suppository", "kapsul", "bungkus", "puyer", "racikan", "compound",
         "cream", "krim", "oint", "ointment", "salep", "gel", "lotion",
         "spuit", "infus", "set", "kasa", "needle", "syringe", "disp",
-        "acid", "sodium", "calcium", "potassium" # Added common suffixes to ignore as standalone
+        "acid", "sodium", "calcium", "potassium", "chloride"
     }
 
     active_ingredients = set()
@@ -128,6 +158,7 @@ async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str
             active_ingredients.add(clean_ing)
 
     check_items = list(active_ingredients)
+    
     categorized_warnings = { "high": [], "medium": [], "low": [] }
     
     if len(check_items) < 2: return categorized_warnings
@@ -136,31 +167,21 @@ async def check_openfda_interactions(drug_list: List[str]) -> Dict[str, List[str
     
     async with aiohttp.ClientSession() as session:
         for drug_a, drug_b in pairs:
-            # 1. CHECK LOCAL KNOWLEDGE BASE FIRST
-            pair_set = frozenset([drug_a, drug_b])
-            if pair_set in KNOWN_INTERACTIONS:
-                severity = KNOWN_INTERACTIONS[pair_set]
-                msg = f"{drug_a.title()} x {drug_b.title()} (Known Interaction)"
-                if severity == "Major": categorized_warnings["high"].append(msg)
-                elif severity == "Moderate": categorized_warnings["medium"].append(msg)
-                elif severity == "Minor": categorized_warnings["low"].append(msg)
-                continue 
-
-            # 2. CHECK OPENFDA (FALLBACK)
+            # Query Logic: Both drugs present
             query = f'patient.drug.medicinalproduct:("{drug_a}"+AND+"{drug_b}")'
             
-            try:
-                count_url = f"https://api.fda.gov/drug/event.json?search={query}&limit=1"
-                async with session.get(count_url) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        total = data.get('meta', {}).get('results', {}).get('total', 0)
-                        
-                        if total > 1000:
-                            categorized_warnings["medium"].append(f"{drug_a.title()} + {drug_b.title()} ({total} reports - Review)")
-            except Exception as e:
-                print(f"OpenFDA Error for {drug_a}/{drug_b}: {e}")
-                
+            # Determine Severity dynamically
+            severity = await check_severity_by_outcome(session, query, f"{drug_a}+{drug_b}")
+            
+            if severity:
+                msg = f"{drug_a.title()} + {drug_b.title()}"
+                if severity == "High":
+                    categorized_warnings["high"].append(msg + " (Critical Outcomes Detected)")
+                elif severity == "Medium":
+                    categorized_warnings["medium"].append(msg + " (Hospitalization Risks)")
+                elif severity == "Low":
+                    categorized_warnings["low"].append(msg + " (Advisory)")
+
     return categorized_warnings
 
 # --- ENDPOINTS ---
@@ -184,8 +205,10 @@ async def parse_prescription_endpoint(payload: ParseRequest):
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
+        # 1. Gather all drugs for DDI Check
         check_list = []
         for item in data.prescription_items:
+            # Handle Racikan ingredients
             if item.get('ingredients') and isinstance(item['ingredients'], list):
                 for ing in item['ingredients']:
                     if isinstance(ing, dict) and 'name' in ing:
@@ -193,6 +216,7 @@ async def submit_consultation(data: ConsultationData):
             else:
                 check_list.append(item['name'])
 
+        # 2. Run Check
         ddi_results = await check_openfda_interactions(check_list)
         
         all_warnings = []
@@ -248,26 +272,13 @@ async def submit_consultation(data: ConsultationData):
         return {
             "status": "success", 
             "consultation_id": consult_id,
-            "warnings": all_warnings
+            "warnings": all_warnings 
         }
     except Exception as e:
         print(f"Submit Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/patient/history")
-async def get_patient_history(patient_id: str):
-    if not supabase: return []
-    try:
-        appts_res = supabase.table("appointments").select("id").eq("patient_id", patient_id).execute()
-        if not appts_res.data: return []
-        appt_ids = [a['id'] for a in appts_res.data]
-        consultations = supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time)").in_("appointment_id", appt_ids).order("created_at", desc=True).execute()
-        return consultations.data
-    except Exception as e:
-        print(f"History Error: {e}")
-        return []
-
-# ... (Standard Getters - Kept for file completeness) ...
+# ... (Standard Getters) ...
 @app.get("/")
 def read_root(): return {"status": "active"}
 
@@ -308,3 +319,16 @@ async def book_appointment(booking: AppointmentBooking):
         "scheduled_time": f"{booking.date}T{booking.time}:00"
     }).execute()
     return {"status": "success"}
+
+@app.get("/patient/history")
+async def get_patient_history(patient_id: str):
+    if not supabase: return []
+    try:
+        appts_res = supabase.table("appointments").select("id").eq("patient_id", patient_id).execute()
+        if not appts_res.data: return []
+        appt_ids = [a['id'] for a in appts_res.data]
+        consultations = supabase.table("consultations").select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time)").in_("appointment_id", appt_ids).order("created_at", desc=True).execute()
+        return consultations.data
+    except Exception as e:
+        print(f"History Error: {e}")
+        return []
