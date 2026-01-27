@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="8.0 - Actionable DDI")
+app = FastAPI(title="Smart HIS Backend", version="8.1 - Rich DDI")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -119,10 +119,26 @@ KNOWN_INTERACTIONS = {
         "description": "Sucralfate requires acidic pH to activate; Omeprazole raises pH.",
         "advice": "Take Sucralfate 1 hour before Omeprazole."
     },
-    frozenset(["carvedilol", "acetylsalicylic acid"]): { "severity": "Minor", "description": "Combined use is generally safe and common (cardioprotection + BP control).", "advice": "Routine monitoring." },
-    frozenset(["carvedilol", "aspirin"]): { "severity": "Minor", "description": "Combined use is generally safe and common.", "advice": "Routine monitoring." },
-    frozenset(["aspirin", "omeprazole"]): { "severity": "Minor", "description": "No significant interaction. Omeprazole often prescribed to protect gut from Aspirin.", "advice": "Safe combination." },
-    frozenset(["acetylsalicylic acid", "omeprazole"]): { "severity": "Minor", "description": "No significant interaction.", "advice": "Safe combination." },
+    frozenset(["carvedilol", "acetylsalicylic acid"]): { 
+        "severity": "Minor", 
+        "description": "Combined use is generally safe and common (cardioprotection + BP control).", 
+        "advice": "Routine monitoring." 
+    },
+    frozenset(["carvedilol", "aspirin"]): { 
+        "severity": "Minor", 
+        "description": "Combined use is generally safe and common.", 
+        "advice": "Routine monitoring." 
+    },
+    frozenset(["aspirin", "omeprazole"]): { 
+        "severity": "Minor", 
+        "description": "No significant interaction. Omeprazole often prescribed to protect gut from Aspirin.", 
+        "advice": "Safe combination." 
+    },
+    frozenset(["acetylsalicylic acid", "omeprazole"]): { 
+        "severity": "Minor", 
+        "description": "No significant interaction.", 
+        "advice": "Safe combination." 
+    },
 }
 
 # --- INTELLIGENT DDI CHECKER ---
