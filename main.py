@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="8.1 - Rich DDI")
+app = FastAPI(title="Smart HIS Backend", version="8.2 - Clinical Advice")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -67,77 +67,54 @@ class AppointmentBooking(BaseModel):
     time: str
 
 # --- RICH DDI KNOWLEDGE BASE ---
-# Format: { frozenset(drugs): { severity, description, advice } }
+# Detailed Clinical Advice
 KNOWN_INTERACTIONS = {
     # Major
     frozenset(["aspirin", "ibuprofen"]): {
         "severity": "Major",
-        "description": "Ibuprofen may interfere with the antiplatelet effect of low-dose aspirin, reducing its cardioprotective benefits. Also increases risk of GI bleeding.",
-        "advice": "Administer ibuprofen at least 8 hours before or 30 minutes after aspirin. Consider substituting Ibuprofen with Paracetamol or Celecoxib."
+        "mechanism": "Pharmacodynamic Antagonism",
+        "description": "Ibuprofen can block the access of Aspirin to the COX-1 enzyme on platelets, preventing the irreversible inhibition needed for cardioprotection.",
+        "advice": "Administer Ibuprofen at least 8 hours before or 30 minutes after Aspirin (immediate release). Consider substituting Ibuprofen with Paracetamol or Celecoxib if chronic use is needed."
     },
     frozenset(["acetylsalicylic acid", "ibuprofen"]): {
         "severity": "Major",
-        "description": "Ibuprofen may interfere with the antiplatelet effect of low-dose aspirin. Increased bleeding risk.",
+        "mechanism": "Pharmacodynamic Antagonism",
+        "description": "Ibuprofen interferes with the antiplatelet effect of Aspirin.",
         "advice": "Space dosing (8hrs apart) or switch NSAID."
     },
     
     # Moderate
     frozenset(["carvedilol", "ibuprofen"]): {
         "severity": "Moderate",
-        "description": "NSAIDs may diminish the antihypertensive effect of Beta-blockers (Carvedilol) via prostaglandin inhibition.",
-        "advice": "Monitor blood pressure closely. If BP rises, consider alternative pain relief."
+        "mechanism": "Antagonism of Antihypertensive Effect",
+        "description": "NSAIDs (Ibuprofen) may cause fluid retention and vasoconstriction via prostaglandin inhibition, directly opposing the blood pressure lowering effect of Beta-blockers (Carvedilol).",
+        "advice": "Monitor BP closely after starting NSAID. Check for signs of fluid retention (edema, weight gain). If BP rises, consider alternative pain relief."
     },
     frozenset(["candesartan", "ibuprofen"]): {
         "severity": "Moderate",
-        "description": "NSAIDs may diminish the antihypertensive effect of ARBs (Candesartan) and increase risk of renal impairment.",
-        "advice": "Monitor BP and renal function. Hydrate patient."
+        "mechanism": "Renal Impairment Risk",
+        "description": "Concurrent use of ARBs (Candesartan) and NSAIDs reduces renal glomerular filtration pressure, increasing the risk of acute kidney injury, especially in dehydrated or elderly patients.",
+        "advice": "Ensure adequate hydration. Monitor serum creatinine and potassium. Monitor BP."
     },
     
     # Minor
     frozenset(["carvedilol", "sucralfate"]): {
         "severity": "Minor",
-        "description": "Sucralfate may reduce absorption of some medications, though data for Carvedilol is limited.",
-        "advice": "Separate dosing by at least 2 hours."
+        "mechanism": "Reduced Absorption",
+        "description": "Sucralfate can bind to other drugs in the GI tract, reducing their bioavailability.",
+        "advice": "Administer Carvedilol at least 2 hours before Sucralfate."
     },
     frozenset(["nitroglycerin", "aspirin"]): {
         "severity": "Minor",
-        "description": "Aspirin may increase serum concentrations of Nitroglycerin.",
-        "advice": "Monitor for hypotension or headache."
-    },
-     frozenset(["acetylsalicylic acid", "nitroglycerin"]): {
-        "severity": "Minor",
-        "description": "Aspirin may increase serum concentrations of Nitroglycerin.",
-        "advice": "Monitor for hypotension or headache."
-    },
-    frozenset(["nitroglycerin", "omeprazole"]): {
-        "severity": "Minor", 
-        "description": "Minor potential for altered absorption (pH dependent).",
-        "advice": "No specific action required."
+        "mechanism": "Increased Serum Concentration",
+        "description": "Aspirin may decrease the clearance of Nitroglycerin, potentially enhancing its hypotensive effect.",
+        "advice": "Monitor for excessive hypotension, dizziness, or headache."
     },
      frozenset(["sucralfate", "omeprazole"]): {
         "severity": "Minor", 
-        "description": "Sucralfate requires acidic pH to activate; Omeprazole raises pH.",
-        "advice": "Take Sucralfate 1 hour before Omeprazole."
-    },
-    frozenset(["carvedilol", "acetylsalicylic acid"]): { 
-        "severity": "Minor", 
-        "description": "Combined use is generally safe and common (cardioprotection + BP control).", 
-        "advice": "Routine monitoring." 
-    },
-    frozenset(["carvedilol", "aspirin"]): { 
-        "severity": "Minor", 
-        "description": "Combined use is generally safe and common.", 
-        "advice": "Routine monitoring." 
-    },
-    frozenset(["aspirin", "omeprazole"]): { 
-        "severity": "Minor", 
-        "description": "No significant interaction. Omeprazole often prescribed to protect gut from Aspirin.", 
-        "advice": "Safe combination." 
-    },
-    frozenset(["acetylsalicylic acid", "omeprazole"]): { 
-        "severity": "Minor", 
-        "description": "No significant interaction.", 
-        "advice": "Safe combination." 
+        "mechanism": "pH Dependent Efficacy",
+        "description": "Sucralfate requires an acidic environment to form its protective gel. Omeprazole raises gastric pH, potentially reducing Sucralfate's efficacy.",
+        "advice": "Administer Sucralfate at least 1 hour before Omeprazole."
     },
 }
 
@@ -162,9 +139,6 @@ def resolve_active_ingredients(drug_name: str) -> List[str]:
     return [clean_name]
 
 async def check_openfda_interactions(drug_list: List[str]) -> List[Dict[str, Any]]:
-    """
-    Returns a LIST of interaction objects with detailed metadata.
-    """
     IGNORE_TERMS = {
         "tab", "tablet", "cap", "capsule", "caps", "inj", "injection", "injeksi",
         "syr", "syrup", "sirup", "susp", "suspension", "drops", "drop", "gtts",
@@ -202,6 +176,7 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[Dict[str, Any
                 results.append({
                     "pair": [drug_a.title(), drug_b.title()],
                     "severity": info["severity"],
+                    "mechanism": info.get("mechanism", "Pharmacodynamic"),
                     "description": info["description"],
                     "advice": info["advice"],
                     "source": "Clinical DB"
@@ -221,8 +196,9 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[Dict[str, Any
                             results.append({
                                 "pair": [drug_a.title(), drug_b.title()],
                                 "severity": "Moderate",
+                                "mechanism": "Statistical Signal",
                                 "description": f"High co-occurrence in FDA Adverse Events ({total} reports). Potential interaction.",
-                                "advice": "Review patient history for prior tolerance.",
+                                "advice": "Review patient history for prior tolerance (e.g. previous successful co-administration without adverse events). Monitor for unexpected side effects.",
                                 "source": "OpenFDA"
                             })
             except Exception as e:
@@ -237,13 +213,13 @@ async def check_ddi_endpoint(payload: DDIRequest):
     print(f"Checking DDI for: {payload.drugs}")
     interaction_list = await check_openfda_interactions(payload.drugs)
     
-    # Sort: Major -> Moderate -> Minor
     severity_order = {"Major": 1, "Moderate": 2, "Minor": 3}
     interaction_list.sort(key=lambda x: severity_order.get(x["severity"], 99))
     
     is_safe = len(interaction_list) == 0
     return {"interactions": interaction_list, "safe": is_safe}
 
+# ... (Rest of standard endpoints preserved) ...
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
     if not ner_parser: raise HTTPException(status_code=500, detail="NER Parser module not loaded.")
@@ -267,7 +243,6 @@ async def submit_consultation(data: ConsultationData):
 
         interactions = await check_openfda_interactions(check_list)
         
-        # Flatten warnings for text field storage
         all_warnings = []
         for i in interactions:
             all_warnings.append(f"[{i['severity'].upper()}] {i['pair'][0]} + {i['pair'][1]}: {i['description']}")
@@ -320,7 +295,6 @@ async def submit_consultation(data: ConsultationData):
         print(f"Submit Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ... (Standard Getters - Kept for file completeness) ...
 @app.get("/")
 def read_root(): return {"status": "active"}
 
