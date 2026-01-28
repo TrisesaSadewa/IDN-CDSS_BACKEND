@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="8.4 - DDI Calibrated")
+app = FastAPI(title="Smart HIS Backend", version="8.6 - Calibrated DDI Fix")
 
 # --- CORS CONFIGURATION ---
 app.add_middleware(
@@ -66,88 +66,76 @@ class AppointmentBooking(BaseModel):
     date: str
     time: str
 
-# --- CURATED DDI KNOWLEDGE BASE (INDONESIAN STANDARD CALIBRATION) ---
+# --- CURATED DDI KNOWLEDGE BASE (INDONESIAN STANDARD) ---
+# Keys are frozensets of LOWERCASE drug names.
 KNOWN_INTERACTIONS = {
     # --- MAJOR (Severe / Avoid) ---
     frozenset(["aspirin", "ibuprofen"]): {
         "severity": "Major",
-        "mechanism": "Pharmacodynamic Antagonism",
-        "description": "Ibuprofen binds to COX-1 receptors, blocking Aspirin's access. This negates the cardioprotective (anti-platelet) effect of Aspirin, increasing stroke/MI risk.",
-        "advice": "AVOID concurrent use if possible. If necessary, take Ibuprofen 8 hours before or 30 minutes after Aspirin. Prefer Paracetamol for pain."
+        "description": "Ibuprofen interferes with the antiplatelet effect of Aspirin, reducing cardiovascular protection. Increased bleeding risk.",
+        "advice": "AVOID concurrent use. If necessary, take Ibuprofen 8 hours before or 30 minutes after Aspirin. Prefer Paracetamol."
     },
     frozenset(["acetylsalicylic acid", "ibuprofen"]): {
         "severity": "Major",
-        "mechanism": "Pharmacodynamic Antagonism",
-        "description": "Ibuprofen blocks the anti-platelet effect of Acetylsalicylic Acid (Aspirin), reducing heart protection.",
-        "advice": "Take Ibuprofen 8 hours before Aspirin. Consider switching to Paracetamol."
+        "description": "Ibuprofen interferes with the antiplatelet effect of Acetylsalicylic Acid (Aspirin), reducing cardiovascular protection.",
+        "advice": "AVOID concurrent use. If necessary, take Ibuprofen 8 hours before or 30 minutes after Aspirin. Prefer Paracetamol."
     },
-
+    
     # --- INTERMEDIATE (Moderate / Monitor) ---
     frozenset(["carvedilol", "ibuprofen"]): {
         "severity": "Moderate",
-        "mechanism": "Antagonism of Antihypertensive Effect",
-        "description": "NSAIDs (Ibuprofen) cause sodium/water retention and vasoconstriction, directly opposing the BP-lowering effect of Beta-blockers (Carvedilol).",
-        "advice": "Monitor BP closely. If BP is uncontrolled, stop Ibuprofen or increase antihypertensive dose."
+        "description": "NSAIDs may diminish the antihypertensive effect of Beta-blockers (Carvedilol) via fluid retention.",
+        "advice": "Monitor blood pressure. If BP rises, consider alternative pain relief."
     },
     frozenset(["candesartan", "ibuprofen"]): {
         "severity": "Moderate",
-        "mechanism": "Renal Impairment Risk",
-        "description": "NSAIDs constrict afferent arterioles while ARBs (Candesartan) dilate efferent arterioles. Combined, they drastically drop glomerular filtration pressure.",
-        "advice": "High risk of Acute Kidney Injury. Ensure hydration. Monitor Creatinine/Potassium."
+        "description": "NSAIDs may diminish the antihypertensive effect of ARBs (Candesartan) and increase risk of renal impairment.",
+        "advice": "Monitor BP and renal function. Ensure patient is hydrated."
     },
 
     # --- MINOR (Advisory / Pharmacokinetic) ---
     frozenset(["carvedilol", "sucralfate"]): {
         "severity": "Minor",
-        "mechanism": "Reduced Absorption",
-        "description": "Sucralfate coats the stomach lining and may physically bind to Carvedilol, reducing its absorption.",
-        "advice": "Separate dosing. Take Carvedilol at least 2 hours before Sucralfate."
+        "description": "Sucralfate may reduce absorption of Carvedilol.",
+        "advice": "Separate dosing by at least 2 hours."
     },
     frozenset(["carvedilol", "aspirin"]): { 
         "severity": "Minor", 
-        "mechanism": "Additive Hypotension/Bleeding (Low Risk)", 
-        "description": "Generally a standard post-MI combination. Minimal interaction risk.", 
+        "description": "Combined use is generally safe and common.", 
         "advice": "Routine monitoring." 
     },
     frozenset(["carvedilol", "acetylsalicylic acid"]): { 
         "severity": "Minor", 
-        "mechanism": "Standard Therapy", 
-        "description": "Standard combination for heart failure/CAD.", 
+        "description": "Combined use is generally safe.", 
         "advice": "Routine monitoring." 
     },
     frozenset(["nitroglycerin", "aspirin"]): {
         "severity": "Minor",
-        "mechanism": "Pharmacokinetic",
         "description": "Aspirin may increase serum concentrations of Nitroglycerin.",
-        "advice": "Monitor for headache or hypotension."
+        "advice": "Monitor for hypotension or headache."
     },
-     frozenset(["acetylsalicylic acid", "nitroglycerin"]): {
+     frozenset(["nitroglycerin", "acetylsalicylic acid"]): {
         "severity": "Minor",
-        "mechanism": "Pharmacokinetic",
-        "description": "Aspirin may increase serum concentrations of Nitroglycerin.",
-        "advice": "Monitor for headache or hypotension."
+        "description": "Acetylsalicylic Acid may increase serum concentrations of Nitroglycerin.",
+        "advice": "Monitor for hypotension or headache."
     },
     frozenset(["nitroglycerin", "omeprazole"]): {
         "severity": "Minor", 
-        "mechanism": "pH Dependent Absorption",
-        "description": "Dry mouth from nitrates might delay dissolution of sublingual tablets, but interaction is minimal.",
+        "description": "Minor potential for altered absorption.",
         "advice": "No specific action required."
     },
      frozenset(["sucralfate", "omeprazole"]): {
         "severity": "Minor", 
-        "mechanism": "pH Dependent Activation",
-        "description": "Sucralfate needs acid to activate. Omeprazole reduces acid.",
+        "description": "Sucralfate requires acidic pH to activate; Omeprazole raises pH.",
         "advice": "Take Sucralfate 1 hour before Omeprazole."
     },
     frozenset(["aspirin", "omeprazole"]): { 
-        "severity": "Info", # Changed from Minor to Info to reduce alert fatigue
-        "mechanism": "Therapeutic Pair", 
-        "description": "Omeprazole is often prescribed to prevent Aspirin-induced ulcers.", 
+        "severity": "Info", 
+        "description": "Omeprazole protects stomach from Aspirin-induced ulcers.", 
         "advice": "Beneficial combination." 
     },
     frozenset(["acetylsalicylic acid", "omeprazole"]): { 
         "severity": "Info", 
-        "mechanism": "Therapeutic Pair", 
         "description": "Omeprazole protects stomach from NSAID injury.", 
         "advice": "Beneficial combination." 
     },
@@ -206,7 +194,7 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[Dict[str, Any
     
     async with aiohttp.ClientSession() as session:
         for drug_a, drug_b in pairs:
-            # 1. CHECK LOCAL KNOWLEDGE BASE FIRST
+            # 1. CHECK LOCAL KNOWLEDGE BASE FIRST (Case Insensitive)
             pair_set = frozenset([drug_a.lower(), drug_b.lower()])
             
             if pair_set in KNOWN_INTERACTIONS:
@@ -215,7 +203,6 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[Dict[str, Any
                 results.append({
                     "pair": [drug_a.title(), drug_b.title()],
                     "severity": info["severity"],
-                    "mechanism": info.get("mechanism", "Pharmacodynamic"),
                     "description": info["description"],
                     "advice": info["advice"],
                     "source": "Clinical DB"
@@ -235,9 +222,8 @@ async def check_openfda_interactions(drug_list: List[str]) -> List[Dict[str, Any
                             results.append({
                                 "pair": [drug_a.title(), drug_b.title()],
                                 "severity": "Moderate",
-                                "mechanism": "Statistical Signal (OpenFDA)",
-                                "description": f"High co-occurrence in adverse event reports ({total} cases). Specific interaction mechanism not in local DB.",
-                                "advice": "Review patient history. Check standard references.",
+                                "description": f"High co-occurrence in FDA Adverse Events ({total} reports). Potential interaction.",
+                                "advice": "Review patient history for prior tolerance.",
                                 "source": "OpenFDA"
                             })
             except Exception as e:
@@ -255,10 +241,10 @@ async def check_ddi_endpoint(payload: DDIRequest):
     severity_order = {"Major": 1, "Moderate": 2, "Minor": 3, "Info": 4}
     interaction_list.sort(key=lambda x: severity_order.get(x["severity"], 99))
     
-    # Only consider it "Unsafe" if there are Major or Moderate interactions
-    is_safe = not any(i["severity"] in ["Major", "Moderate"] for i in interaction_list)
+    is_safe = len(interaction_list) == 0
     return {"interactions": interaction_list, "safe": is_safe}
 
+# ... (Retain existing endpoints) ...
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
     if not ner_parser: raise HTTPException(status_code=500, detail="NER Parser module not loaded.")
@@ -284,7 +270,6 @@ async def submit_consultation(data: ConsultationData):
         
         all_warnings = []
         for i in interactions:
-            # Skip Info logs in persistent record to reduce noise
             if i['severity'] != 'Info':
                 all_warnings.append(f"[{i['severity'].upper()}] {i['pair'][0]} + {i['pair'][1]}: {i['description']}")
 
@@ -336,7 +321,6 @@ async def submit_consultation(data: ConsultationData):
         print(f"Submit Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ... (Standard Getters - Kept for file completeness) ...
 @app.get("/")
 def read_root(): return {"status": "active"}
 
