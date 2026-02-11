@@ -1,182 +1,94 @@
 import re
+from structured_drug_db import DRUGS
 
-# 1. OPTIONAL DATABASE IMPORT
-try:
-    import structured_drug_db
-    DB_AVAILABLE = True
-except ImportError:
-    structured_drug_db = None
-    DB_AVAILABLE = False
-
-def parse_prescription_text(text):
-    """
-    Parses prescription text into structured data.
-    """
-    if not text:
-        return {"separate_drugs": [], "racikan": [], "equipment": []}
-
-    # Normalize delimiters
-    text = text.replace('\n', ';').replace('|||', ';')
-    entries = [e.strip() for e in text.split(';') if e.strip()]
-    
-    parsed_data = {
-        "separate_drugs": [],
-        "racikan": [],
-        "equipment": []
-    }
-    
-    for entry in entries:
-        # 1. Equipment Check
-        if DB_AVAILABLE:
-            eq_name = structured_drug_db.find_equipment_match(entry)
-            if eq_name:
-                parsed_data["equipment"].append({"name": eq_name, "original": entry})
-                continue
-
-        # 2. Racikan Check
-        is_racikan = bool(re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', entry, re.IGNORECASE))
-        if is_racikan:
-            racikan_data = _parse_racikan_entry(entry)
-            if racikan_data:
-                parsed_data["racikan"].append(racikan_data)
-            continue
-
-        # 3. Drug Parsing
-        if ":" in entry or "#" in entry:
-            fast_drug = _parse_structured_format(entry)
-            if fast_drug:
-                parsed_data["separate_drugs"].append(fast_drug)
-        else:
-            fallback_drug = _parse_unstructured(entry)
-            if fallback_drug:
-                parsed_data["separate_drugs"].append(fallback_drug)
-
-    return parsed_data
-
-def _clean_drug_name(name):
-    if not name: return ""
-    # Remove common noise words/codes
-    noise = r'\b(ANS|TAB|TABLET|KAPSUL|CAPSUL|CAPS|INJ|INJEKSI|SYR|DROPS|VIAL|AMPUL|SACHET|BTL|TUB|GR|GRAM|MG|ML|IU|MCG)\b'
-    name = re.sub(noise, ' ', name, flags=re.IGNORECASE)
-    name = re.sub(r'[*]+', '', name) 
-    name = re.sub(r'^\d+\s+', '', name) 
-    # Fix common split errors
-    name = name.replace(" Acid", " Acid") # Preserve spacing
-    return " ".join(name.split())
-
-def _parse_structured_format(entry):
-    delimiter = '#' if '#' in entry else ':'
-    parts = entry.split(delimiter)
-    if len(parts) < 1: return None
-    
-    raw_name = parts[0].strip()
-    qty = parts[1].strip() if len(parts) > 1 else "0"
-    freq = parts[2].strip() if len(parts) > 2 else ""
-
-    # Extract Dosage
-    dosage = ""
-    dose_match = re.search(r'(\d+([.,]\d+)?\s*(?:MG|G|ML|IU|MCG|%))', raw_name, re.IGNORECASE)
-    
-    clean_source = raw_name
-    if dose_match:
-        dosage = dose_match.group(1)
-        clean_source = raw_name.replace(dosage, "")
-
-    final_name = _clean_drug_name(clean_source)
-
-    if DB_AVAILABLE:
-        db_match = structured_drug_db.find_drug_match(final_name)
-        if db_match: final_name = db_match
-
-    # Clean Qty
-    try:
-        if "." in qty: qty = str(int(float(qty)))
-    except: pass
-
-    return {
-        "drugName": final_name,
-        "dosage": dosage,
-        "frequency": freq,
-        "quantity": qty
-    }
-
-def _extract_ingredients(recipe_text):
-    """
-    Extracts ingredients from compound recipe string.
-    Fixes splitting issues where "Acid" becomes its own drug.
-    """
-    ingredients = []
-    
-    # Improved regex: Don't split if the word is "Acid" preceded by a chemical name
-    # We split by dosage, but we must be careful not to split too aggressively
-    dose_pat = re.compile(
-        r'((?:\d+\s*/\s*\d+|\d+(?:[.,]\d+)?)\s*(?:mg|g|ml|mcg|iu|%|tab|cap|tablet|kapsul|bungkus|sachet|amp|vial)?)', 
-        re.IGNORECASE
-    )
-    
-    parts = dose_pat.split(recipe_text)
-    current_name = ""
-    
-    for i in range(0, len(parts)-1, 2):
-        name_part = parts[i].strip()
-        dose_part = parts[i+1].strip()
+class IndonesianDrugParser:
+    def __init__(self):
+        self.BRAND_MAP = {}
+        self.MAX_WORD_LENGTH = 0
         
-        if name_part: 
-            cleaned = _clean_drug_name(name_part)
-            # CRITICAL FIX: If name is just "Acid" or similar suffix, append to previous if possible
-            # But in this loop, we build a list. 
-            if cleaned.lower() in ["acid", "hydrochloride", "sodium", "calcium"] and ingredients:
-                # Merge with previous ingredient
-                prev = ingredients.pop()
-                combined_name = f"{prev['name']} {cleaned}"
-                ingredients.append({"name": combined_name, "strength": dose_part}) # Use new dose
-                continue
-            
-            if cleaned: current_name = cleaned
+        print(f"Building NER Map from {len(DRUGS)} entries...")
         
-        if current_name:
-            ingredients.append({"name": current_name, "strength": dose_part})
-            current_name = ""
+        for drug in DRUGS:
+            # Map Brand Name
+            if drug.brand_name and drug.brand_name.lower() != "unknown":
+                key = drug.brand_name.lower()
+                self.BRAND_MAP[key] = drug
+                self._update_max_length(key)
             
-    return ingredients
+            # Map Generic Name (if long enough to be unique)
+            if drug.generic_name and len(drug.generic_name) > 3:
+                key = drug.generic_name.lower()
+                if key not in self.BRAND_MAP:
+                    self.BRAND_MAP[key] = drug
+                    self._update_max_length(key)
 
-def _parse_racikan_entry(entry):
-    delimiter = '#' if '#' in entry else ':'
-    parts = entry.split(delimiter)
-    full_recipe = parts[0].strip()
-    
-    split_match = re.search(r'\b(m\.?f\.?|racikan|puyer|dtd)\b', full_recipe, re.IGNORECASE)
-    if split_match:
-        ingredients_text = full_recipe[:split_match.start()].strip()
-        compounding_instr = full_recipe[split_match.start():].strip()
-    else:
-        ingredients_text = full_recipe
-        compounding_instr = ""
+    def _update_max_length(self, text):
+        # Track the maximum number of words in a drug name for N-gram windowing
+        word_count = len(text.split())
+        if word_count > self.MAX_WORD_LENGTH:
+            self.MAX_WORD_LENGTH = word_count
 
-    ingredients_list = _extract_ingredients(ingredients_text)
-    
-    qty = parts[1].strip() if len(parts) > 1 else "1"
-    freq = parts[2].strip() if len(parts) > 2 else "See instructions"
+    def clean_text(self, raw_text):
+        """Removes Indonesian prescription noise."""
+        text = raw_text.lower().strip()
+        
+        # Patterns to remove (dosage instructions)
+        patterns = [
+            r'\b\d+\s*x\s*[\d\.,/]+',   # 3 x 1
+            r'\b\d+\s*dd\s*[\d\.,/]+',  # 3 dd 1
+            r'\bs\s*\d+\s*dd',          # S 3 dd
+            r'\bno\s*[xivlc]+',         # No XII
+            r'\bno\s*\d+',              # No 10
+            r'\btab\b|\bcaps\b|\bcap\b|\bsyr\b|\bcth\b|\bbungkus\b|\bsachet\b|\bfls\b|\btube\b|\binj\b'
+        ]
+        
+        for p in patterns:
+            text = re.sub(p, ' ', text)
+            
+        text = re.sub(r'[^\w\s]', ' ', text) # Remove punctuation
+        return " ".join(text.split())
 
-    try:
-        if "." in qty: qty = str(int(float(qty)))
-    except: pass
+    def extract_drugs(self, prescription_list):
+        detected_drugs = []
+        
+        for line in prescription_list:
+            cleaned_line = self.clean_text(line)
+            words = cleaned_line.split()
+            n = len(words)
+            i = 0
+            
+            # Greedy N-Gram Matcher
+            # We iterate through the text and try to match the longest possible phrase
+            while i < n:
+                match_found = False
+                
+                # Try largest window first (e.g. 4 words), then shrink
+                window_limit = min(self.MAX_WORD_LENGTH, n - i)
+                for length in range(window_limit, 0, -1):
+                    phrase = " ".join(words[i : i + length])
+                    
+                    if phrase in self.BRAND_MAP:
+                        drug_obj = self.BRAND_MAP[phrase]
+                        detected_drugs.append({
+                            "brand_name": drug_obj.brand_name,
+                            "generic": drug_obj.generic_name,
+                            "class": drug_obj.drug_class,
+                            "dose_mg": drug_obj.dose_mg,
+                            "original_text": line
+                        })
+                        i += length # Skip past this phrase
+                        match_found = True
+                        break
+                
+                if not match_found:
+                    i += 1
+            
+            # If no drugs found via DB, but line looks significant, add as unknown
+            if not detected_drugs and len(cleaned_line) > 3:
+                # Optional: Only added if you want to flag unkown inputs
+                pass
+                
+        return detected_drugs
 
-    return {
-        "is_compound": True,
-        "ingredients": ingredients_list,
-        "recipe_text": full_recipe,
-        "compounding_instruction": compounding_instr,
-        "frequency": freq,
-        "quantity": qty
-    }
-
-def _parse_unstructured(entry):
-    parts = entry.split()
-    if not parts: return None
-    return {
-        "drugName": _clean_drug_name(parts[0]),
-        "dosage": "",
-        "frequency": " ".join(parts[1:]) if len(parts)>1 else "",
-        "quantity": "1"
-    }
+# Create the parser instance
+parser = IndonesianDrugParser()
