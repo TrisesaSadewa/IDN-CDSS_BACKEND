@@ -1,7 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 @dataclass
 class Drug:
@@ -13,6 +13,7 @@ class Drug:
 class DrugDatabase:
     def __init__(self, json_path='drug_database.json'):
         self.drugs: List[Drug] = []
+        self.index: Dict[str, Drug] = {} 
         # Finds the JSON file in the same directory as this script
         self.json_path = os.path.join(os.path.dirname(__file__), json_path)
         self.load_data()
@@ -37,6 +38,15 @@ class DrugDatabase:
                 ) 
                 for d in raw_list
             ]
+            
+            # --- CRITICAL MISSING PART FIXED BELOW ---
+            # Create Fast Lookup Index for Main API
+            for drug in self.drugs:
+                if drug.brand_name and drug.brand_name != "Unknown":
+                    self.index[drug.brand_name.lower()] = drug
+                if drug.generic_name:
+                    self.index[drug.generic_name.lower()] = drug
+            
             print(f"✅ Database loaded successfully: {len(self.drugs)} drugs active.")
             
         except Exception as e:
@@ -46,6 +56,6 @@ class DrugDatabase:
         return self.drugs
 
 # --- SINGLETON INSTANCE ---
-# This executes immediately when this file is imported
 db_instance = DrugDatabase()
 DRUGS = db_instance.get_all()
+DRUG_INDEX = db_instance.index  # <--- This export is required by main.py
