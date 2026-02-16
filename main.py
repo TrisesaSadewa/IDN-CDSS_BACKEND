@@ -11,20 +11,23 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 
 # --- IMPORT LOCAL MODULES ---
+ner_engine = None
+structured_drug_db = None
+
 try:
     import ner_parser
-    import structured_drug_db 
+    # Fix: Access the 'parser' instance inside the module
+    ner_engine = ner_parser.parser 
+    import structured_drug_db
     print("SUCCESS: Local modules loaded.")
 except ImportError as e:
     print(f"WARNING: Modules not found: {e}")
-    ner_parser = None
-    structured_drug_db = None
 
 # --- CONFIGURATION ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="8.7 - Frontend Compat Fix")
+app = FastAPI(title="Smart HIS Backend", version="8.8 - 404/500 Fix")
 
 app.add_middleware(
     CORSMiddleware,
@@ -81,6 +84,8 @@ def resolve_active_ingredients(drug_name: str) -> List[str]:
     if not drug_name: return []
     clean_name = drug_name.split()[0].lower()
     ingredients = []
+    
+    # Check if DB is loaded and has the Index
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
         if drug_obj:
@@ -91,19 +96,18 @@ def resolve_active_ingredients(drug_name: str) -> List[str]:
                 cleaned = re.sub(r'\s*\d+.*$', '', cleaned) 
                 if cleaned: ingredients.append(cleaned)
             return ingredients
+            
     return [clean_name]
 
 def extract_frequency(text: str) -> str:
-    """Simple regex to find frequency in original text for frontend display."""
     match = re.search(r'(\d+\s*[xX]\s*[\d\.,/]+)|(\d+\s*dd\s*[\d\.,/]+)|(s\s*\d+\s*dd)', text, re.IGNORECASE)
     if match: return match.group(0)
-    return "1 x 1" # Default if not found
+    return "1 x 1"
 
 # --- ENDPOINTS ---
 
 @app.post("/api/check-ddi")
 async def check_ddi_endpoint(payload: DDIRequest):
-    # (Same DDI Logic as before, condensed for brevity)
     active_ingredients = set()
     IGNORE_TERMS = {"tab", "caps", "mg", "ml", "g", "inj", "syr"}
     for d in payload.drugs:
@@ -135,17 +139,15 @@ async def check_ddi_endpoint(payload: DDIRequest):
 
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
-    if not ner_parser: raise HTTPException(status_code=500, detail="NER Parser not loaded.")
+    if not ner_engine: 
+        raise HTTPException(status_code=500, detail="NER Parser not loaded. Check server logs.")
     try:
         lines = payload.text.split('\n')
-        parsed_drugs = ner_parser.extract_drugs(lines)
+        # Fix: call extract_drugs on the engine instance, not the module
+        parsed_drugs = ner_engine.extract_drugs(lines)
         
-        # --- COMPATIBILITY LAYER ---
-        # Convert new parser format to what doctor_logic.js expects
         frontend_drugs = []
         for d in parsed_drugs:
-            # Map 'brand_name' -> 'drugName'
-            # Extract frequency from original text
             freq = extract_frequency(d.get('original_text', ''))
             dosage = f"{d.get('dose_mg', '')} mg" if d.get('dose_mg') else "Unknown dose"
             
@@ -157,17 +159,39 @@ async def parse_prescription_endpoint(payload: ParseRequest):
             
         return {
             "separate_drugs": frontend_drugs,
-            "racikan": [] # New parser doesn't handle racikan yet, send empty list to prevent JS error
+            "racikan": []
         }
     except Exception as e:
+        print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/patient/history")
+async def get_patient_history(patient_id: str):
+    """Fetches past consultations for the patient."""
+    if not supabase: return []
+    try:
+        # 1. Get all appointment IDs for this patient
+        appts_res = supabase.table("appointments").select("id").eq("patient_id", patient_id).execute()
+        if not appts_res.data: return []
+        
+        appt_ids = [a['id'] for a in appts_res.data]
+        
+        # 2. Get consultations linked to these appointments
+        consultations = supabase.table("consultations")\
+            .select("*, doctors:profiles!doctor_id(full_name), appointments(scheduled_time)")\
+            .in_("appointment_id", appt_ids)\
+            .order("created_at", desc=True)\
+            .execute()
+            
+        return consultations.data
+    except Exception as e:
+        print(f"History Error: {e}")
+        return []
 
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
-    # (Same Supabase logic as before)
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # Construct consultation record
         subjective = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
         assessment = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nNOTES: {data.clinical_notes}"
         
@@ -182,15 +206,13 @@ async def submit_consultation(data: ConsultationData):
         }).execute()
         
         consult_id = res.data[0]['id']
-        
-        # Update Appointment Status
         supabase.table("appointments").update({"status": "pharmacy"}).eq("id", data.appointment_id).execute()
         
         return {"status": "success", "consultation_id": consult_id, "interactions": []}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# ... (Retain GET endpoints for Queue, History, etc.) ...
+# ... (Standard GET Endpoints) ...
 @app.get("/doctor/queue")
 async def get_doctor_queue(doctor_id: str):
     if not supabase: return []
@@ -201,6 +223,14 @@ async def get_appointment_detail(appt_id: str):
     if not supabase: return {}
     res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
     return res.data
+
+@app.get("/patient/profile")
+async def get_patient_profile(user_id: str):
+    res = supabase.table("patients").select("*").eq("id", user_id).execute()
+    return res.data[0] if res.data else {"mrn": "N/A"}
+
+@app.get("/")
+def read_root(): return {"status": "active", "version": "8.8"}
 
 if __name__ == '__main__':
     import uvicorn
