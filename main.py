@@ -26,7 +26,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="9.0 - Logic Engine")
+app = FastAPI(title="Smart HIS Backend", version="9.2 - Logic Engine")
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,91 +61,104 @@ class ConsultationData(BaseModel):
     therapy_instructions: str
     prescription_items: List[Dict[str, Any]]
 
-# --- 1. THE LOGIC MATRIX (CLASS-BASED RULES) ---
-# This is how a Real CDSS works. We define rules based on biological mechanisms.
-# Any drug falling into these classes will trigger the rule.
-
-INTERACTION_RULES = {
-    # --- MAJOR ---
+# --- 1. MECHANISM-BASED RULES (The "Brain") ---
+CLASS_RULES = {
+    # MAJOR: Therapeutic Failure / Danger
     frozenset(["antiplatelet", "nsaid"]): {
         "severity": "Major",
-        "description": "NSAIDs competitively inhibit the antiplatelet effect of Aspirin-like drugs, increasing cardiovascular risk.",
-        "advice": "Avoid concurrent use. If necessary, take NSAID 8 hours before or 30 mins after Antiplatelet."
+        "description": "Pharmacodynamic antagonism: NSAIDs block the antiplatelet binding site, negating cardiovascular protection.",
+        "advice": "Avoid concurrent use. If necessary, take NSAID 8 hours before or 30 mins after."
     },
     frozenset(["hemostatic", "oral_contraceptive"]): {
         "severity": "Major",
-        "description": "Thrombogenic effect is additive. Increased risk of clots/stroke.",
+        "description": "Additive thrombogenic effect: Significantly increases risk of thromboembolism.",
         "advice": "Contraindicated."
     },
 
-    # --- MODERATE ---
+    # MODERATE: Physiology Antagonism
     frozenset(["beta-blocker", "nsaid"]): {
-        "severity": "Moderate",
-        "description": "NSAIDs cause fluid retention and prostaglandin inhibition, antagonizing the antihypertensive effect.",
-        "advice": "Monitor BP closely. Adjust dosage if needed."
-    },
-    frozenset(["arb", "nsaid"]): {
-        "severity": "Moderate",
-        "description": "NSAIDs reduce glomerular filtration. Combined with ARBs, this increases risk of renal failure.",
-        "advice": "Monitor renal function and BP."
+        "severity": "Intermediate", # Using your preferred term
+        "description": "Physiologic antagonism: NSAIDs cause fluid retention, reducing the antihypertensive efficacy of Beta-Blockers.",
+        "advice": "Monitor blood pressure closely."
     },
     frozenset(["ace-inhibitor", "nsaid"]): {
-        "severity": "Moderate",
-        "description": "NSAIDs reduce glomerular filtration. Combined with ACEi, this increases risk of renal failure.",
+        "severity": "Intermediate",
+        "description": "Renal hemodynamics: Additive risk of renal impairment and reduced antihypertensive effect.",
+        "advice": "Monitor renal function and BP."
+    },
+    frozenset(["arb", "nsaid"]): {
+        "severity": "Intermediate",
+        "description": "Renal hemodynamics: Additive risk of renal impairment and reduced antihypertensive effect.",
         "advice": "Monitor renal function and BP."
     },
 
-    # --- MINOR ---
-    frozenset(["beta-blocker", "mucosal-protective"]): { # e.g. Carvedilol + Sucralfate
+    # MINOR: Pharmacokinetic / Absorption / Mild Additive
+    frozenset(["mucosal-protective", "beta-blocker"]): {
         "severity": "Minor",
-        "description": "Mucosal protective agents may reduce absorption of other drugs.",
-        "advice": "Separate dosing by at least 2 hours."
+        "description": "Absorption interference: Sucralfate coating may delay absorption of oral medications.",
+        "advice": "Separate dosing by 2 hours."
     },
-    frozenset(["antiplatelet", "nitrate"]): { # e.g. Aspirin + Nitroglycerin
+    frozenset(["mucosal-protective", "antiplatelet"]): {
         "severity": "Minor",
-        "description": "Antiplatelets may increase serum concentration of Nitrates.",
-        "advice": "Monitor for hypotension or headache."
+        "description": "Absorption interference: Sucralfate coating may delay absorption.",
+        "advice": "Separate dosing by 2 hours."
     },
-    frozenset(["nitrate", "ppi"]): { # e.g. Nitroglycerin + Omeprazole
+    frozenset(["nitrate", "antiplatelet"]): {
         "severity": "Minor",
-        "description": "Minor potential for altered absorption.",
-        "advice": "No specific action required."
+        "description": "Additive hemodynamic effect: Potential for increased vasodilation/hypotension.",
+        "advice": "Monitor for headache or hypotension."
+    },
+    frozenset(["nitrate", "ppi"]): {
+        "severity": "Minor",
+        "description": "Pharmacokinetic: Minor potential for altered absorption/metabolism.",
+        "advice": "Monitor clinical status."
     },
     
-    # --- INFO / PROTECTIVE ---
-    frozenset(["antiplatelet", "ppi"]): { # e.g. Aspirin + Omeprazole
-        "severity": "Info",
-        "description": "PPIs are often prescribed to prevent gastric bleeding from antiplatelet therapy.",
-        "advice": "Beneficial combination for high-risk GI patients."
+    # INFO / PROTECTIVE
+    frozenset(["antiplatelet", "ppi"]): {
+        "severity": "Info", # or Minor if you prefer, but usually this is "Good"
+        "description": "Gastroprotection: PPIs reduce risk of GI bleeding from antiplatelets.",
+        "advice": "Beneficial combination."
     },
-    frozenset(["nsaid", "ppi"]): { # e.g. Ibuprofen + Omeprazole
+    frozenset(["nsaid", "ppi"]): {
         "severity": "Info",
-        "description": "PPIs protect against NSAID-induced gastric injury.",
+        "description": "Gastroprotection: PPIs reduce risk of NSAID-induced ulcers.",
         "advice": "Beneficial combination."
     }
 }
 
 # --- HELPERS ---
-
-def get_drug_class(drug_name: str) -> str:
+def get_drug_info(drug_name: str):
     """
-    Looks up the therapeutic class of a drug from the database.
+    Returns (generic_name, drug_class) by looking up the DB.
     """
-    if not drug_name: return "unknown"
+    if not drug_name: return ("unknown", "unknown")
     clean_name = drug_name.split()[0].lower()
     
+    # 1. Look in DB Index
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
-        if drug_obj and drug_obj.drug_class:
-            return drug_obj.drug_class.lower()
-            
-    # Fallback: Simple heuristic if DB lookup fails
-    if "aspirin" in clean_name or "aspilet" in clean_name: return "antiplatelet"
-    if "ibuprofen" in clean_name: return "nsaid"
-    if "carvedilol" in clean_name: return "beta-blocker"
-    if "omeprazole" in clean_name: return "ppi"
-    
-    return "unknown"
+        if drug_obj:
+            return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
+
+    # 2. Heuristic Fallback (If drug not in DB, guess class by name)
+    # This ensures the logic works even if your JSON is incomplete
+    if "aspirin" in clean_name or "aspilet" in clean_name or "miniaspi" in clean_name: 
+        return ("acetylsalicylic acid", "antiplatelet")
+    if "ibuprofen" in clean_name or "na diclofenac" in clean_name: 
+        return ("ibuprofen", "nsaid")
+    if "carvedilol" in clean_name or "bisoprolol" in clean_name: 
+        return ("carvedilol", "beta-blocker")
+    if "omeprazole" in clean_name or "lansoprazole" in clean_name: 
+        return ("omeprazole", "ppi")
+    if "sucralfate" in clean_name or "inpepsa" in clean_name: 
+        return ("sucralfate", "mucosal-protective")
+    if "nitro" in clean_name or "isdn" in clean_name: 
+        return ("nitroglycerin", "nitrate")
+    if "candesartan" in clean_name or "valsartan" in clean_name:
+        return ("candesartan", "arb")
+        
+    return (clean_name, "unknown")
 
 def extract_frequency(text: str) -> str:
     match = re.search(r'(\d+\s*[xX]\s*[\d\.,/]+)|(\d+\s*dd\s*[\d\.,/]+)|(s\s*\d+\s*dd)', text, re.IGNORECASE)
@@ -156,43 +169,34 @@ def extract_frequency(text: str) -> str:
 
 @app.post("/api/check-ddi")
 async def check_ddi_endpoint(payload: DDIRequest):
-    """
-    Real CDSS Engine:
-    1. Identify Drug Classes.
-    2. Check Class-vs-Class Rules.
-    """
     drugs = [d for d in payload.drugs if d]
     results = []
     
-    if len(drugs) < 2:
-        return {"interactions": [], "safe": True}
+    if len(drugs) < 2: return {"interactions": [], "safe": True}
 
-    # Generate all pairs
     pairs = list(combinations(drugs, 2))
     
     for da_name, db_name in pairs:
-        # 1. Get Classes
-        class_a = get_drug_class(da_name)
-        class_b = get_drug_class(db_name)
+        # 1. Get Class Information
+        gen_a, class_a = get_drug_info(da_name)
+        gen_b, class_b = get_drug_info(db_name)
         
-        # 2. Check Rule Matrix
-        pair_key = frozenset([class_a, class_b])
+        # 2. Create Mechanism Key
+        mechanism_key = frozenset([class_a, class_b])
         
-        # DEBUG PRINT (Check server logs if logic fails)
-        print(f"Checking: {da_name}({class_a}) + {db_name}({class_b})")
-        
-        if pair_key in INTERACTION_RULES:
-            rule = INTERACTION_RULES[pair_key]
+        # 3. Check Logic
+        if mechanism_key in CLASS_RULES:
+            rule = CLASS_RULES[mechanism_key]
             results.append({
                 "pair": [da_name.title(), db_name.title()],
                 "severity": rule["severity"],
                 "description": rule["description"],
                 "advice": rule["advice"],
-                "source": "Clinical Guidelines (PIONAS)"
+                "source": "Mechanism Logic"
             })
             
-    # Sort by severity
-    severity_order = {"Major": 1, "Moderate": 2, "Minor": 3, "Info": 4}
+    # Sort: Major -> Intermediate -> Minor -> Info
+    severity_order = {"Major": 1, "Intermediate": 2, "Moderate": 2, "Minor": 3, "Info": 4}
     results.sort(key=lambda x: severity_order.get(x["severity"], 99))
     
     return {"interactions": results, "safe": len(results) == 0}
@@ -264,7 +268,6 @@ async def get_patient_history(patient_id: str):
     except Exception as e:
         return []
 
-# ... (Standard GET Endpoints for Queue, Profile, etc.) ...
 @app.get("/doctor/queue")
 async def get_doctor_queue(doctor_id: str):
     if not supabase: return []
@@ -282,7 +285,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "9.0 - Logic Engine"}
+def read_root(): return {"status": "active", "version": "9.2 - Logic Engine"}
 
 if __name__ == '__main__':
     import uvicorn
