@@ -1,5 +1,10 @@
 import re
-from structured_drug_db import DRUGS
+# Check for safe import to prevent crashes if DB format is wrong
+try:
+    from structured_drug_db import DRUGS
+except ImportError:
+    DRUGS = []
+    print("WARNING: Could not import DRUGS from structured_drug_db")
 
 class IndonesianDrugParser:
     def __init__(self):
@@ -9,6 +14,10 @@ class IndonesianDrugParser:
         print(f"Building NER Map from {len(DRUGS)} entries...")
         
         for drug in DRUGS:
+            # SAFETY CHECK: Ensure we are using the new Drug object format
+            if not hasattr(drug, 'brand_name'):
+                continue
+
             # Map Brand Name
             if drug.brand_name and drug.brand_name.lower() != "unknown":
                 key = drug.brand_name.lower()
@@ -58,11 +67,8 @@ class IndonesianDrugParser:
             i = 0
             
             # Greedy N-Gram Matcher
-            # We iterate through the text and try to match the longest possible phrase
             while i < n:
                 match_found = False
-                
-                # Try largest window first (e.g. 4 words), then shrink
                 window_limit = min(self.MAX_WORD_LENGTH, n - i)
                 for length in range(window_limit, 0, -1):
                     phrase = " ".join(words[i : i + length])
@@ -76,18 +82,13 @@ class IndonesianDrugParser:
                             "dose_mg": drug_obj.dose_mg,
                             "original_text": line
                         })
-                        i += length # Skip past this phrase
+                        i += length 
                         match_found = True
                         break
                 
                 if not match_found:
                     i += 1
             
-            # If no drugs found via DB, but line looks significant, add as unknown
-            if not detected_drugs and len(cleaned_line) > 3:
-                # Optional: Only added if you want to flag unkown inputs
-                pass
-                
         return detected_drugs
 
 # Create the parser instance
