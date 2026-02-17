@@ -14,12 +14,10 @@ class DrugDatabase:
     def __init__(self, json_path='drug_database.json'):
         self.drugs: List[Drug] = []
         self.index: Dict[str, Drug] = {} 
-        # Finds the JSON file in the same directory as this script
         self.json_path = os.path.join(os.path.dirname(__file__), json_path)
         self.load_data()
 
     def load_data(self):
-        """Loads drugs from the external JSON file."""
         if not os.path.exists(self.json_path):
             print(f"CRITICAL WARNING: {self.json_path} not found. DB is empty.")
             return
@@ -28,7 +26,6 @@ class DrugDatabase:
             with open(self.json_path, 'r', encoding='utf-8') as f:
                 raw_list = json.load(f)
                 
-            # Convert raw dicts to Drug objects
             self.drugs = [
                 Drug(
                     brand_name=d.get('brand_name', 'Unknown'),
@@ -39,7 +36,7 @@ class DrugDatabase:
                 for d in raw_list
             ]
             
-            # Create Fast Lookup Index for Main API
+            # Create Fast Lookup Index
             for drug in self.drugs:
                 if drug.brand_name and drug.brand_name != "Unknown":
                     self.index[drug.brand_name.lower()] = drug
@@ -57,4 +54,4 @@ class DrugDatabase:
 # --- SINGLETON INSTANCE ---
 db_instance = DrugDatabase()
 DRUGS = db_instance.get_all()
-DRUG_INDEX = db_instance.index  # Required by main.py
+DRUG_INDEX = db_instance.index
