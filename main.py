@@ -1,8 +1,6 @@
 import os
 import json
 import re
-import aiohttp 
-import asyncio
 from typing import List, Optional, Dict, Any
 from itertools import combinations
 from fastapi import FastAPI, HTTPException
@@ -10,25 +8,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
 
-# --- IMPORT LOCAL MODULES WITH ERROR HANDLING ---
+# --- IMPORT MODULES ---
 ner_engine = None
 structured_drug_db = None
 
-print("--- STARTING SERVER ---")
 try:
     import structured_drug_db
-    print(f"DB Loaded. Index size: {len(getattr(structured_drug_db, 'DRUG_INDEX', {}))}")
     import ner_parser
     ner_engine = ner_parser.parser 
-    print("NER Engine Loaded.")
+    print("SUCCESS: Modules loaded.")
 except Exception as e:
-    print(f"CRITICAL MODULE ERROR: {e}")
+    print(f"MODULE ERROR: {e}")
 
-# --- CONFIGURATION ---
+# --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-
-app = FastAPI(title="Smart HIS Backend", version="9.3 - Stable")
+app = FastAPI(title="Smart HIS Backend", version="9.5 - Logic Calibrated")
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,12 +32,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception as e:
-    print(f"Supabase Connection Failed: {e}")
-    supabase = None
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- MODELS ---
 class ParseRequest(BaseModel):
@@ -63,29 +53,33 @@ class ConsultationData(BaseModel):
     therapy_instructions: str
     prescription_items: List[Dict[str, Any]]
 
-# --- LOGIC RULES ---
+# --- 1. MECHANISM-BASED CLASS RULES ---
 CLASS_RULES = {
-    # MAJOR
-    frozenset(["antiplatelet", "nsaid"]): { "severity": "Major", "description": "NSAIDs competitively inhibit the antiplatelet effect of Aspirin.", "advice": "Avoid concurrent use. Take NSAID 8 hours before or 30 mins after." },
-    frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive thrombogenic effect. High risk of clots.", "advice": "Contraindicated." },
-    # MODERATE
-    frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "NSAIDs reduce antihypertensive efficacy.", "advice": "Monitor BP." },
-    frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Risk of renal impairment.", "advice": "Monitor renal function." },
-    frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Risk of renal impairment.", "advice": "Monitor renal function." },
-    # MINOR
-    frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption interference.", "advice": "Separate dosing by 2 hours." },
-    frozenset(["mucosal-protective", "antiplatelet"]): { "severity": "Minor", "description": "Absorption interference.", "advice": "Separate dosing by 2 hours." },
-    frozenset(["nitrate", "antiplatelet"]): { "severity": "Minor", "description": "Potential additive hypotension.", "advice": "Monitor for headache/hypotension." },
-    frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Minor pharmacokinetic interaction.", "advice": "Monitor status." },
-    # INFO
-    frozenset(["antiplatelet", "ppi"]): { "severity": "Info", "description": "Protective against GI bleeding.", "advice": "Beneficial." },
-    frozenset(["nsaid", "ppi"]): { "severity": "Info", "description": "Protective against GI bleeding.", "advice": "Beneficial." }
+    # MAJOR (Red)
+    frozenset(["antiplatelet", "nsaid"]): { "severity": "Major", "description": "Pharmacodynamic Antagonism: NSAID blocks Aspirin's antiplatelet site, negating stroke protection.", "advice": "Avoid concurrent use." },
+    frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots.", "advice": "Contraindicated." },
+    
+    # INTERMEDIATE (Orange)
+    frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy via fluid retention.", "advice": "Monitor BP." },
+    frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
+    frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
+    
+    # MINOR (Blue)
+    frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption Interference: Sucralfate coating reduces drug uptake.", "advice": "Separate dosing by 2 hours." },
+    frozenset(["mucosal-protective", "antiplatelet"]): { "severity": "Minor", "description": "Absorption Interference: Sucralfate coating reduces drug uptake.", "advice": "Separate dosing by 2 hours." },
+    frozenset(["nitrate", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics: Potential for increased vasodilation.", "advice": "Monitor for hypotension." },
+    frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: Minor alteration in absorption.", "advice": "Monitor status." },
+    frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics: Potential hypotensive effect.", "advice": "Routine monitoring." },
+    
+    # CALIBRATED RULE: Antiplatelet + PPI = Minor
+    frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: Increased pH may alter enteric-coated tablet dissolution.", "advice": "Monitor efficacy (though often used for protection)." },
 }
 
 # --- HELPERS ---
 def get_drug_info(drug_name: str):
     if not drug_name: return ("unknown", "unknown")
-    clean_name = drug_name.split()[0].lower()
+    # Clean input: Remove "ANS" prefix if present
+    clean_name = drug_name.replace("ANS ", "").split()[0].lower()
     
     # 1. DB Lookup
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
@@ -93,18 +87,20 @@ def get_drug_info(drug_name: str):
         if drug_obj:
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
-    # 2. Heuristic Fallback
-    if "aspirin" in clean_name or "aspilet" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
+    # 2. Heuristic Fallback (Logic Safety Net)
+    if "aspirin" in clean_name or "aspilet" in clean_name or "miniaspi" in clean_name or "thrombo" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
-    if "carvedilol" in clean_name: return ("carvedilol", "beta-blocker")
+    if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
     if "omeprazole" in clean_name: return ("omeprazole", "ppi")
     if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
-    if "nitro" in clean_name: return ("nitroglycerin", "nitrate")
+    if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
+    if "candesartan" in clean_name: return ("candesartan", "arb")
         
     return (clean_name, "unknown")
 
 def extract_frequency(text: str) -> str:
-    match = re.search(r'(\d+\s*[xX]\s*[\d\.,/]+)|(\d+\s*dd\s*[\d\.,/]+)|(s\s*\d+\s*dd)', text, re.IGNORECASE)
+    # Extracts patterns like "3x1", "1-0-0", "S 3 dd 1"
+    match = re.search(r'(\d+\s*[xX]\s*[\d\.,/]+)|(\d+-\d+-\d+)|(s\s*\d+\s*dd)', text, re.IGNORECASE)
     if match: return match.group(0)
     return "1 x 1"
 
@@ -121,7 +117,7 @@ async def check_ddi_endpoint(payload: DDIRequest):
         gen_a, class_a = get_drug_info(da)
         gen_b, class_b = get_drug_info(db)
         
-        # Check Rules
+        # Check Logic Rule
         mech_key = frozenset([class_a, class_b])
         if mech_key in CLASS_RULES:
             rule = CLASS_RULES[mech_key]
@@ -139,10 +135,14 @@ async def check_ddi_endpoint(payload: DDIRequest):
 
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
-    if not ner_engine:
-        raise HTTPException(status_code=500, detail="NER Parser failed to load on server boot. Check logs.")
+    if not ner_engine: raise HTTPException(status_code=500, detail="NER Parser not loaded")
     try:
-        lines = payload.text.split('\n')
+        # Handle "|||" separator from hospital systems
+        if "|||" in payload.text:
+            lines = [l.strip() for l in payload.text.split("|||") if l.strip()]
+        else:
+            lines = payload.text.split('\n')
+
         parsed_drugs = ner_engine.extract_drugs(lines)
         
         frontend_drugs = []
@@ -156,7 +156,6 @@ async def parse_prescription_endpoint(payload: ParseRequest):
             })
         return {"separate_drugs": frontend_drugs, "racikan": []}
     except Exception as e:
-        print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/patient/history")
@@ -173,10 +172,8 @@ async def get_patient_history(patient_id: str):
             .execute()
         return consultations.data
     except Exception as e:
-        print(f"History Error: {e}")
         return []
 
-# ... Standard endpoints ...
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
@@ -192,10 +189,7 @@ async def submit_consultation(data: ConsultationData):
             "plan": data.therapy_instructions,
             "prescription_raw_text": str(data.prescription_items)
         }).execute()
-        
-        # Update Appointment
         supabase.table("appointments").update({"status": "pharmacy"}).eq("id", data.appointment_id).execute()
-        
         return {"status": "success", "consultation_id": res.data[0]['id'], "interactions": []}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -217,7 +211,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "9.3"}
+def read_root(): return {"status": "active", "version": "9.5"}
 
 if __name__ == '__main__':
     import uvicorn
