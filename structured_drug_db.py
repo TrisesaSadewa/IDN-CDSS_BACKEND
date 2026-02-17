@@ -39,7 +39,7 @@ class DrugDatabase:
                 for d in raw_list
             ]
             
-            # --- INDEXING (Required for DDI Checker) ---
+            # Create Fast Lookup Index for Main API
             for drug in self.drugs:
                 if drug.brand_name and drug.brand_name != "Unknown":
                     self.index[drug.brand_name.lower()] = drug
@@ -57,4 +57,4 @@ class DrugDatabase:
 # --- SINGLETON INSTANCE ---
 db_instance = DrugDatabase()
 DRUGS = db_instance.get_all()
-DRUG_INDEX = db_instance.index  # <--- EXPORTED FOR MAIN.PY
+DRUG_INDEX = db_instance.index  # Required by main.py
