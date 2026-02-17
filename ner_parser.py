@@ -54,7 +54,8 @@ class IndonesianDrugParser:
         for p in patterns:
             text = re.sub(p, ' ', text)
             
-        text = re.sub(r'[^\w\s]', ' ', text) # Remove punctuation
+        # FIX: Added hyphen (-) to allowed characters so 'v-bloc' is preserved
+        text = re.sub(r'[^\w\s-]', ' ', text) 
         return " ".join(text.split())
 
     def extract_drugs(self, prescription_list):
