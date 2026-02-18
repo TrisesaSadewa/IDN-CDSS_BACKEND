@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="9.9 - Complete Classes")
+app = FastAPI(title="Smart HIS Backend", version="9.9.1 - Phenytoin Rules")
 
 app.add_middleware(
     CORSMiddleware,
@@ -60,12 +60,13 @@ CLASS_RULES = {
     frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots/stroke.", "advice": "Contraindicated." },
     frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction: Phenytoin induces CYP3A4, reducing Amlodipine levels.", "advice": "Monitor BP closely." },
     frozenset(["triptan", "psychotropic"]): { "severity": "Major", "description": "Serotonin Syndrome Risk: Combined use with SSRI/SNRI increases serotonin levels.", "advice": "Monitor for serotonin toxicity." },
+    frozenset(["sedative_hypnotic", "opioid"]): { "severity": "Major", "description": "Additive CNS Depression.", "advice": "Strict monitoring or avoid." },
     
     # INTERMEDIATE (Orange)
     frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy.", "advice": "Monitor BP." },
     frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
     frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
-    frozenset(["anticonvulsant", "folate"]): { "severity": "Intermediate", "description": "Pharmacokinetic: Folic acid decreases Phenytoin levels; Phenytoin decreases Folate.", "advice": "Monitor levels." },
+    frozenset(["anticonvulsant", "folate"]): { "severity": "Intermediate", "description": "Pharmacokinetic: Folic acid decreases Phenytoin levels; Phenytoin decreases Folate.", "advice": "Monitor Phenytoin levels and folate status." },
     frozenset(["bisphosphonate", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity: Increased risk of gastric ulceration.", "advice": "Use with caution." },
     
     # MINOR (Yellow)
@@ -75,8 +76,7 @@ CLASS_RULES = {
     frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Minor pharmacokinetic interaction.", "advice": "Monitor status." },
     frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Routine monitoring." },
     frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: pH alteration.", "advice": "Monitor efficacy." },
-    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement.", "advice": "Monitor for toxicity." },
-    frozenset(["sedative_hypnotic", "opioid"]): { "severity": "Major", "description": "Additive CNS Depression.", "advice": "Strict monitoring or avoid." },
+    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement: Salicylates can displace Phenytoin from plasma proteins.", "advice": "Monitor for signs of Phenytoin toxicity." },
 }
 
 # --- HELPERS ---
@@ -91,16 +91,19 @@ def get_drug_info(drug_name: str):
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
     # 2. Heuristic Fallback (Safety Net)
-    if "aspirin" in clean_name or "aspilet" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
+    # This ensures that if a drug name isn't perfectly matched in the DB, 
+    # we still catch common classes for the demo.
+    if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
     if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
     if "omeprazole" in clean_name: return ("omeprazole", "ppi")
     if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
-    if "nitro" in clean_name: return ("nitroglycerin", "nitrate")
+    if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
     if "candesartan" in clean_name: return ("candesartan", "arb")
-    if "zolmitriptan" in clean_name: return ("zolmitriptan", "triptan")
-    if "zoledronic" in clean_name: return ("zoledronic acid", "bisphosphonate")
-        
+    if "amlodipin" in clean_name: return ("amlodipine", "ccb")
+    if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
+    if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
+    
     return (clean_name, "unknown")
 
 def extract_frequency(text: str) -> str:
@@ -226,7 +229,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "9.9"}
+def read_root(): return {"status": "active", "version": "9.9.1"}
 
 if __name__ == '__main__':
     import uvicorn
