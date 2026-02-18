@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="9.6 - Dose Fix")
+app = FastAPI(title="Smart HIS Backend", version="9.6.1 - Nitrokaf Fix")
 
 app.add_middleware(
     CORSMiddleware,
@@ -78,11 +78,14 @@ def get_drug_info(drug_name: str):
     if not drug_name: return ("unknown", "unknown")
     clean_name = drug_name.replace("ANS ", "").split()[0].lower()
     
+    # 1. DB Lookup
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
-        if drug_obj:
+        # FIX: Check if class is valid. If unknown, try heuristics.
+        if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
+    # 2. Heuristic Fallback (Safety Net for missing DB classes like Nitrokaf)
     if "aspirin" in clean_name or "aspilet" in clean_name or "miniaspi" in clean_name or "thrombo" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
     if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
@@ -218,7 +221,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "9.6"}
+def read_root(): return {"status": "active", "version": "9.6.1"}
 
 if __name__ == '__main__':
     import uvicorn
