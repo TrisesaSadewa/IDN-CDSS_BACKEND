@@ -1280,13 +1280,13 @@
   {
     "brand_name": "asam folat tab 0,4 mg",
     "generic_name": "Acid, Folat",
-    "drug_class": "unknown",
+    "drug_class": "Supplement",
     "dose_mg": 0.4
   },
   {
     "brand_name": "asam folat tab 1 mg",
     "generic_name": "Acid, Folat",
-    "drug_class": "unknown",
+    "drug_class": "Supplement",
     "dose_mg": 1.0
   },
   {
@@ -3014,7 +3014,7 @@
   {
     "brand_name": "asam folat tab sal 0,4 mg",
     "generic_name": "Acid",
-    "drug_class": "unknown",
+    "drug_class": "Supplement",
     "dose_mg": 0.4
   },
   {
@@ -5222,7 +5222,7 @@
   {
     "brand_name": "Asam Folat",
     "generic_name": "Folic Acid",
-    "drug_class": "unknown",
+    "drug_class": "Supplement",
     "dose_mg": null
   },
   {
@@ -5354,7 +5354,7 @@
   {
     "brand_name": "Phenitoin",
     "generic_name": "Phenytoin",
-    "drug_class": "unknown",
+    "drug_class": "Anticonvulsant",
     "dose_mg": null
   },
   {
@@ -5377,6 +5377,18 @@
   },
   {
     "brand_name": "V-Bloc",
+    "generic_name": "Carvedilol",
+    "drug_class": "beta-blocker",
+    "dose_mg": null
+  },
+  {
+    "brand_name": "V-Bloc 6.25 MG",
+    "generic_name": "Carvedilol",
+    "drug_class": "beta-blocker",
+    "dose_mg": 6.25 MG
+  },
+  {
+    "brand_name": "v-bloc",
     "generic_name": "Carvedilol",
     "drug_class": "beta-blocker",
     "dose_mg": null
@@ -5456,7 +5468,7 @@
   {
     "brand_name": "Neuromed Topical Anesthetic 7",
     "generic_name": "Lidocaine Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "Anesthetic",
     "dose_mg": null
   },
   {
