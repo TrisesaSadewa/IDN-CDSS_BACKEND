@@ -102,7 +102,7 @@ def get_drug_info(drug_name: str):
     if "candesartan" in clean_name: return ("candesartan", "arb")
     if "amlodipin" in clean_name: return ("amlodipine", "ccb")
     if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
-    if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
+    if "folat" in clean_name or "folic" in clean_name or "asam folat" in clean_name: return ("folic acid", "folate")
     
     return (clean_name, "unknown")
 
@@ -235,3 +235,4 @@ if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
