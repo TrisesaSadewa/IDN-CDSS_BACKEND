@@ -9,6 +9,7 @@ class Drug:
     generic_name: str
     drug_class: str
     dose_mg: Optional[float] = None
+    is_pediatric: bool = False
 
 class DrugDatabase:
     def __init__(self, json_path='drug_database.json'):
@@ -18,6 +19,7 @@ class DrugDatabase:
         self.load_data()
 
     def load_data(self):
+        """Loads drugs from the external JSON file."""
         if not os.path.exists(self.json_path):
             print(f"CRITICAL WARNING: {self.json_path} not found. DB is empty.")
             return
@@ -31,7 +33,8 @@ class DrugDatabase:
                     brand_name=d.get('brand_name', 'Unknown'),
                     generic_name=d.get('generic_name', 'Unknown'),
                     drug_class=d.get('drug_class', 'unknown'),
-                    dose_mg=d.get('dose_mg')
+                    dose_mg=d.get('dose_mg'),
+                    is_pediatric=d.get('is_pediatric', False)
                 ) 
                 for d in raw_list
             ]
