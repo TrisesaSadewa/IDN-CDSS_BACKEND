@@ -345,14 +345,14 @@
   {
     "brand_name": "natrium bikarbonat tab 500 mg",
     "generic_name": "Sodium, Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "natrium bikarbonat Injeksi 8,4%",
     "generic_name": "Sodium, Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -485,28 +485,28 @@
   {
     "brand_name": "albendazol tab 400 mg",
     "generic_name": "Albendazol",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": 400.0,
     "is_pediatric": false
   },
   {
     "brand_name": "mebendazol tab 100 mg",
     "generic_name": "Mebendazol",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "mebendazol tab 500 mg",
     "generic_name": "Mebendazol",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "mebendazol Syrup 20 mg",
     "generic_name": "Mebendazol",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": 20.0,
     "is_pediatric": false
   },
@@ -1927,14 +1927,14 @@
   {
     "brand_name": "glibenklamid tab 2,5 mg",
     "generic_name": "Glyburide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": 2.5,
     "is_pediatric": false
   },
   {
     "brand_name": "glibenklamid tab 5 mg",
     "generic_name": "Glyburide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": 5.0,
     "is_pediatric": false
   },
@@ -2445,14 +2445,14 @@
   {
     "brand_name": "fenofibrat kaps 100 mg",
     "generic_name": "Fenofibrat",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "fenofibrat kaps 300 mg",
     "generic_name": "Fenofibrat",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
@@ -3845,7 +3845,7 @@
   {
     "brand_name": "glyburide",
     "generic_name": "glyburide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5189,7 +5189,7 @@
   {
     "brand_name": "DIAGIT",
     "generic_name": "glyburide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5581,7 +5581,7 @@
   {
     "brand_name": "glibenclamide",
     "generic_name": "glyburide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5672,7 +5672,7 @@
   {
     "brand_name": "Fenofibrate",
     "generic_name": "Fenofibrate",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5784,7 +5784,7 @@
   {
     "brand_name": "Digoxin",
     "generic_name": "Digoxin",
-    "drug_class": "cardiac_glycoside",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5833,7 +5833,7 @@
   {
     "brand_name": "Bicarbonas Natricus",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5861,7 +5861,7 @@
   {
     "brand_name": "Glybenclamide",
     "generic_name": "Glyburide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6778,7 +6778,7 @@
   {
     "brand_name": "Quabic-100",
     "generic_name": "Hemodialysis Grade Sodium Bicarbonate Solution",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6806,7 +6806,7 @@
   {
     "brand_name": "Quabic-300",
     "generic_name": "Hemodialysis Grade Sodium Bicarbonate Solution",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8283,7 +8283,7 @@
   {
     "brand_name": "Gemfibrozil",
     "generic_name": "Gemfibrozil",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8682,7 +8682,7 @@
   {
     "brand_name": "Cell Salts",
     "generic_name": "Calc. Fluor., Calc. Phos., Calc.Sulph., Ferrum Phosphoricum, Kali Mur., Kali Phos., Kali Sulph., Mag. Phos., Nat. Mur., Nat. Phos., Nat.Sulphuricum, Silicea",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -13946,7 +13946,7 @@
   {
     "brand_name": "Insect Sting Relief Pad 01",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -15143,7 +15143,7 @@
   {
     "brand_name": "Miranda Castros Healing Cell Salts For Bones, Hair, Nails And Teeth Homeopathic Combination",
     "generic_name": "Calcarea Fluorica, Calcarea Phosphorica, Silicea",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -21310,7 +21310,7 @@
   {
     "brand_name": "Ivermectin",
     "generic_name": "Ivermectin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22486,7 +22486,7 @@
   {
     "brand_name": "Sodium Bicarbonate",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22822,7 +22822,7 @@
   {
     "brand_name": "Good Neighbor Pharmacy Lice Treatment",
     "generic_name": "Permethrin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -25272,7 +25272,7 @@
   {
     "brand_name": "Sodium Bicarbonate Antacid",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -28058,7 +28058,7 @@
   {
     "brand_name": "Vamousse Lice Treatment",
     "generic_name": "Pediculicide",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -28233,7 +28233,7 @@
   {
     "brand_name": "Elliotts B",
     "generic_name": "Sodium Cation, Sodium Bicarbonate, Anhydrous Dextrose, Magnesium Sulfate, Potassium Chloride, Calcium Chloride, Sodium Phosphate",
-    "drug_class": "antacid",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -28821,7 +28821,7 @@
   {
     "brand_name": "Ohtas Isan Antacid",
     "generic_name": "Calcium Carbonate, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31607,7 +31607,7 @@
   {
     "brand_name": "Good Sense Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31621,7 +31621,7 @@
   {
     "brand_name": "Kroger Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31670,7 +31670,7 @@
   {
     "brand_name": "Dg Health Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31761,7 +31761,7 @@
   {
     "brand_name": "Cvs Health Antacid And Pain Reliever",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -32909,7 +32909,7 @@
   {
     "brand_name": "Albendazole",
     "generic_name": "Albendazole",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -34792,7 +34792,7 @@
   {
     "brand_name": "Sinucleanse Neti-Pot",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -34806,7 +34806,7 @@
   {
     "brand_name": "Sinus Wash Packet",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -34841,7 +34841,7 @@
   {
     "brand_name": "Cvs",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -36850,7 +36850,7 @@
   {
     "brand_name": "Alka-Seltzer Heartburn Relief Lemon Lime",
     "generic_name": "Anhydrous Citric Acid, Sodium Bicarbonate (Heat-Treated)",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -37676,7 +37676,7 @@
   {
     "brand_name": "Alka Seltzer Originial 1S Blister Pack",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -38040,7 +38040,7 @@
   {
     "brand_name": "Roflumilast",
     "generic_name": "Roflumilast",
-    "drug_class": "unknown",
+    "drug_class": "pde4_inhibitor",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -39398,7 +39398,7 @@
   {
     "brand_name": "Soft Tip Neti Pot Sinus Wash Meijer",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -40364,7 +40364,7 @@
   {
     "brand_name": "Jacksons Cell Salts Nat Mur 6X 9",
     "generic_name": "Natrum Muriaticum",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -43745,7 +43745,7 @@
   {
     "brand_name": "Alka-Seltzer Hangover Relief",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -43864,7 +43864,7 @@
   {
     "brand_name": "Prismasol Bgk2/0",
     "generic_name": "Magnesium Chloride, Dextrose Anhydrous, Lactic Acid, Sodium Chloride, Sodium Bicarbonate, And Potassium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -44235,7 +44235,7 @@
   {
     "brand_name": "Polyethylene Glycol 3350, Sodium Chloride, Sodium Bicarbonate And Potassium Chloride - Unflavored",
     "generic_name": "Polyethylene Glycol 3350, Sodium Chloride, Sodium Bicarbonate And Potassium Chloride - Unflavored",
-    "drug_class": "antacid",
+    "drug_class": "laxative",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -44417,7 +44417,7 @@
   {
     "brand_name": "Alka-Seltzer Original",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -45747,7 +45747,7 @@
   {
     "brand_name": "Permethrin",
     "generic_name": "Permethrin Cream 5% W/W",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49233,7 +49233,7 @@
   {
     "brand_name": "Emverm",
     "generic_name": "Mebendazole",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49310,7 +49310,7 @@
   {
     "brand_name": "Albenza",
     "generic_name": "Albendazole",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49576,7 +49576,7 @@
   {
     "brand_name": "Sal De Uvas Picot",
     "generic_name": "Citric Acid Monohydrate, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -55883,7 +55883,7 @@
   {
     "brand_name": "Zynteglo",
     "generic_name": "Betibeglogene Autotemcel",
-    "drug_class": "unknown",
+    "drug_class": "gene_therapy",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -58620,7 +58620,7 @@
   {
     "brand_name": "Golytely",
     "generic_name": "Polyethylene Glycol 3350, Sodium Sulfate Anhydrous, Sodium Bicarbonate, Sodium Chloride, Potassium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "laxative",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -62302,7 +62302,7 @@
   {
     "brand_name": "Soolantra",
     "generic_name": "Ivermectin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -63513,7 +63513,7 @@
   {
     "brand_name": "Cvs Health Extra Strength Antacid And Pain Reliever",
     "generic_name": "Aspirin, Anhydrous Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -67650,7 +67650,7 @@
   {
     "brand_name": "Sodium Bicarbonate 10 Gr",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": 10000.0,
     "is_pediatric": false
   },
@@ -68014,7 +68014,7 @@
   {
     "brand_name": "Jacksons Cell Salts Silica 6X 12",
     "generic_name": "Silicea",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -68049,7 +68049,7 @@
   {
     "brand_name": "Well At Walgreens",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -68231,7 +68231,7 @@
   {
     "brand_name": "12 Cell Salts Complex",
     "generic_name": "Calcarea Fluorica, Calcarea Phosphorica, Calcarea Sulphurica, Ferrum Phosphoricum, Kali Muriaticum, Kali Phosphoricum, Kali Sulphuricum, Magnesia Phosphorica, Natrum Muriaticum, Natrum Phosphoricum, Natrum Sulphuricum, Silicea",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -68469,7 +68469,7 @@
   {
     "brand_name": "Cvs",
     "generic_name": "Sodium Chloride, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -69190,7 +69190,7 @@
   {
     "brand_name": "Rid One And Done",
     "generic_name": "Ivermectin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -71542,7 +71542,7 @@
   {
     "brand_name": "Tricor",
     "generic_name": "Fenofibrate",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76834,7 +76834,7 @@
   {
     "brand_name": "Premier Value Lice Treatment Kit",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -77877,7 +77877,7 @@
   {
     "brand_name": "Permethrin",
     "generic_name": "Permethrin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80320,7 +80320,7 @@
   {
     "brand_name": "Kroger Complete Lice Treatment Kit",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -89014,7 +89014,7 @@
   {
     "brand_name": "Sodium Bicarbonate 10 Gr. (650 Mg)",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": 10000.0,
     "is_pediatric": false
   },
@@ -89763,7 +89763,7 @@
   {
     "brand_name": "Alka-Seltzer Heartburn",
     "generic_name": "Anhydrous Citric Acid, Sodium Bicarbonate (Heat-Treated)",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -90330,7 +90330,7 @@
   {
     "brand_name": "Peg-3350 And Electrolytes",
     "generic_name": "Polyethylene Glycol 3350, Sodium Sulfate Anhydrous, Sodium Bicarbonate, Sodium Chloride, Potassium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "laxative",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -90575,7 +90575,7 @@
   {
     "brand_name": "Best Choice Lice Treatment",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -92458,7 +92458,7 @@
   {
     "brand_name": "Sodium Bicarbonate",
     "generic_name": "Sodium Bicarbonate Injection,",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -92668,7 +92668,7 @@
   {
     "brand_name": "De La Cruz Desempacho",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -94439,7 +94439,7 @@
   {
     "brand_name": "Leader Extra Strength Effervescent Antacid And Pain Reliever",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -94901,7 +94901,7 @@
   {
     "brand_name": "Rapidol Sodium Bicarbonate",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -95902,7 +95902,7 @@
   {
     "brand_name": "Bromo Seltzer",
     "generic_name": "Aspirin, Sodium Bicarbonate, Citric Acid",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -96028,7 +96028,7 @@
   {
     "brand_name": "Quality Choice Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -98303,7 +98303,7 @@
   {
     "brand_name": "Jacksons Cell Salts Calc Fluor 6X 1",
     "generic_name": "Calc Fluor",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -99738,7 +99738,7 @@
   {
     "brand_name": "Sodium Bicarbonate 10Gr (650Mg)",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": 10000.0,
     "is_pediatric": false
   },
@@ -103112,7 +103112,7 @@
   {
     "brand_name": "Medique Medi Seltzer",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -106794,7 +106794,7 @@
   {
     "brand_name": "Nix",
     "generic_name": "Permethrin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -108264,7 +108264,7 @@
   {
     "brand_name": "Rid Lice Treatment Complete Kit",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -109013,7 +109013,7 @@
   {
     "brand_name": "Jacksons Cell Salts Mag Phos 6X 8",
     "generic_name": "Magnesia Phosphorica",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118624,7 +118624,7 @@
   {
     "brand_name": "Discount Lice Treatment",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118806,7 +118806,7 @@
   {
     "brand_name": "Albendazole 200 Mg",
     "generic_name": "Albendazole",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": 200.0,
     "is_pediatric": false
   },
@@ -124462,7 +124462,7 @@
   {
     "brand_name": "Meijer Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -124742,7 +124742,7 @@
   {
     "brand_name": "Drug Mart Effervescent Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -127661,7 +127661,7 @@
   {
     "brand_name": "Jacksons Cell Salts 12 In 1",
     "generic_name": "Calc Fluor, Calc Phos, Calc Sulph, Ferrum Phos, Kali Mur, Kali Phos, Kali Sulph, Mag Phos, Nat Mur, Nat Phos, Nat Sulph, Silicea",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -127703,7 +127703,7 @@
   {
     "brand_name": "Sinus Wash Saline Refills Meijer",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -133233,7 +133233,7 @@
   {
     "brand_name": "Jacksons Cell Salts Kali Mur 6X 5",
     "generic_name": "Kali Muriaticum",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134395,7 +134395,7 @@
   {
     "brand_name": "Zoryve",
     "generic_name": "Roflumilast",
-    "drug_class": "unknown",
+    "drug_class": "pde4_inhibitor",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134969,7 +134969,7 @@
   {
     "brand_name": "Alka-Seltzer Original",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate Tablet, Effervescent",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135508,7 +135508,7 @@
   {
     "brand_name": "Jacksons Cell Salts Nat Sulph 6X 11",
     "generic_name": "Natrum Sulphuricum",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -137272,7 +137272,7 @@
   {
     "brand_name": "Jacksons Cell Salts Kali Phos 6X 10",
     "generic_name": "Kali Phosphoricum",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -137972,7 +137972,7 @@
   {
     "brand_name": "Lanoxin",
     "generic_name": "Digoxin",
-    "drug_class": "cardiac_glycoside",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -139204,7 +139204,7 @@
   {
     "brand_name": "De La Cruz Sodium Bicarbonate Antacid",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -139505,7 +139505,7 @@
   {
     "brand_name": "16Bkouty Lice Treatment",
     "generic_name": "16Bkouty Lice Treatment",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -141241,7 +141241,7 @@
   {
     "brand_name": "Topcare Lice Killing Creme Rinse",
     "generic_name": "Permethrin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -144937,7 +144937,7 @@
   {
     "brand_name": "Vermox",
     "generic_name": "Mebendazole",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -152133,7 +152133,7 @@
   {
     "brand_name": "Top Value Effervescent Pain Relief",
     "generic_name": "Apirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -153057,7 +153057,7 @@
   {
     "brand_name": "Ecodent Ultimate Essential Mouthcare Sparkling Clean Mint",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -154443,7 +154443,7 @@
   {
     "brand_name": "Sinucleanse Squeeze",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -156312,7 +156312,7 @@
   {
     "brand_name": "Walgreens Sinus Wash Squeeze Bottle Kit",
     "generic_name": "Sodium Chloride, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -156774,7 +156774,7 @@
   {
     "brand_name": "Jacksons Cell Salts Kali Sulph 6X 7",
     "generic_name": "Kali Sulphuricum",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157740,7 +157740,7 @@
   {
     "brand_name": "Leader Sinus Wash Saline Refill Packets",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157761,7 +157761,7 @@
   {
     "brand_name": "Zokinvy",
     "generic_name": "Lonafarnib",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -164208,7 +164208,7 @@
   {
     "brand_name": "Sodium Bicarbonate 5Gr (325Mg)",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": 5000.0,
     "is_pediatric": false
   },
@@ -165111,14 +165111,14 @@
   {
     "brand_name": "Signature Care Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Rite Aid Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -170921,7 +170921,7 @@
   {
     "brand_name": "Alka-Seltzer Extra Strength",
     "generic_name": "Anhydrous Citric Acid, Sodium Bicarbonate, And Aspirin",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -172769,7 +172769,7 @@
   {
     "brand_name": "Herklin Lice Treatment",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -176871,7 +176871,7 @@
   {
     "brand_name": "Daliresp",
     "generic_name": "Roflumilast",
-    "drug_class": "unknown",
+    "drug_class": "pde4_inhibitor",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -177662,7 +177662,7 @@
   {
     "brand_name": "Best Choice Effervescent Antacid Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -178936,7 +178936,7 @@
   {
     "brand_name": "Ecodent Ultimate Essential Mouthcare Spicy-Cool Cinnamon",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -180392,7 +180392,7 @@
   {
     "brand_name": "Sinucleanse",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -183395,7 +183395,7 @@
   {
     "brand_name": "Lipofen",
     "generic_name": "Fenofibrate",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -183759,7 +183759,7 @@
   {
     "brand_name": "Sinucleanse Micro-Filtered Nasal Wash System",
     "generic_name": "Sodium Chloride, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -185446,7 +185446,7 @@
   {
     "brand_name": "Stomachin Antacid",
     "generic_name": "Magnesium Carbonate And Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -192327,7 +192327,7 @@
   {
     "brand_name": "Sklice",
     "generic_name": "Ivermectin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -195099,7 +195099,7 @@
   {
     "brand_name": "Anubismed",
     "generic_name": "Sodium Bicarbonate, Aloe Barbadensis Leaf Juice, Imidazolidinyl Urea",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -196793,7 +196793,7 @@
   {
     "brand_name": "Peg-3350, Sodium Chloride, Sodium Bicarbonate And Potassium Chloride",
     "generic_name": "Polyethylene Glycol 3350, Sodium Chloride, Sodium Bicarbonate, Potassium Chloride",
-    "drug_class": "antacid",
+    "drug_class": "laxative",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197010,7 +197010,7 @@
   {
     "brand_name": "After Bite Kids",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197178,7 +197178,7 @@
   {
     "brand_name": "Zegerid Otc",
     "generic_name": "Omepraole, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197486,7 +197486,7 @@
   {
     "brand_name": "Heb Extra Strength Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "antacid",
+    "drug_class": "nsaid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -198172,7 +198172,7 @@
   {
     "brand_name": "Nix Lice Killing Creme Rinse",
     "generic_name": "Permethrin",
-    "drug_class": "unknown",
+    "drug_class": "antiparasitic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -199068,14 +199068,14 @@
   {
     "brand_name": "natrium bikarbonat",
     "generic_name": "natrium bikarbonat",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "natrium bikarbonat",
     "generic_name": "natrium bikarbonat",
-    "drug_class": "antacid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -203380,28 +203380,28 @@
   {
     "brand_name": "fenofibrat",
     "generic_name": "fenofibrat",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "fenofibrat",
     "generic_name": "fenofibrat",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
   {
     "brand_name": "gemfibrozil",
     "generic_name": "gemfibrozil",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
   {
     "brand_name": "gemfibrozil",
     "generic_name": "gemfibrozil",
-    "drug_class": "fibrate",
+    "drug_class": "unknown",
     "dose_mg": 600.0,
     "is_pediatric": false
   },
