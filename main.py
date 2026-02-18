@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="9.6.1 - Nitrokaf Fix")
+app = FastAPI(title="Smart HIS Backend", version="9.9 - Complete Classes")
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,20 +57,26 @@ class ConsultationData(BaseModel):
 CLASS_RULES = {
     # MAJOR (Red)
     frozenset(["antiplatelet", "nsaid"]): { "severity": "Major", "description": "Pharmacodynamic Antagonism: NSAID blocks Aspirin's antiplatelet site, negating stroke protection.", "advice": "Avoid concurrent use." },
-    frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots.", "advice": "Contraindicated." },
+    frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots/stroke.", "advice": "Contraindicated." },
+    frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction: Phenytoin induces CYP3A4, reducing Amlodipine levels.", "advice": "Monitor BP closely." },
+    frozenset(["triptan", "psychotropic"]): { "severity": "Major", "description": "Serotonin Syndrome Risk: Combined use with SSRI/SNRI increases serotonin levels.", "advice": "Monitor for serotonin toxicity." },
     
     # INTERMEDIATE (Orange)
-    frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy via fluid retention.", "advice": "Monitor BP." },
+    frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy.", "advice": "Monitor BP." },
     frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
     frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
+    frozenset(["anticonvulsant", "folate"]): { "severity": "Intermediate", "description": "Pharmacokinetic: Folic acid decreases Phenytoin levels; Phenytoin decreases Folate.", "advice": "Monitor levels." },
+    frozenset(["bisphosphonate", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity: Increased risk of gastric ulceration.", "advice": "Use with caution." },
     
-    # MINOR (Blue)
-    frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption Interference: Sucralfate coating reduces drug uptake.", "advice": "Separate dosing by 2 hours." },
-    frozenset(["mucosal-protective", "antiplatelet"]): { "severity": "Minor", "description": "Absorption Interference: Sucralfate coating reduces drug uptake.", "advice": "Separate dosing by 2 hours." },
-    frozenset(["nitrate", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics: Potential for increased vasodilation.", "advice": "Monitor for hypotension." },
-    frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: Minor alteration in absorption.", "advice": "Monitor status." },
-    frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics: Potential hypotensive effect.", "advice": "Routine monitoring." },
-    frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: Increased pH may alter enteric-coated tablet dissolution.", "advice": "Monitor efficacy (though often used for protection)." },
+    # MINOR (Yellow)
+    frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
+    frozenset(["mucosal-protective", "antiplatelet"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
+    frozenset(["nitrate", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Monitor for hypotension." },
+    frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Minor pharmacokinetic interaction.", "advice": "Monitor status." },
+    frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Routine monitoring." },
+    frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: pH alteration.", "advice": "Monitor efficacy." },
+    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement.", "advice": "Monitor for toxicity." },
+    frozenset(["sedative_hypnotic", "opioid"]): { "severity": "Major", "description": "Additive CNS Depression.", "advice": "Strict monitoring or avoid." },
 }
 
 # --- HELPERS ---
@@ -81,18 +87,19 @@ def get_drug_info(drug_name: str):
     # 1. DB Lookup
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
-        # FIX: Check if class is valid. If unknown, try heuristics.
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
-    # 2. Heuristic Fallback (Safety Net for missing DB classes like Nitrokaf)
-    if "aspirin" in clean_name or "aspilet" in clean_name or "miniaspi" in clean_name or "thrombo" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
+    # 2. Heuristic Fallback (Safety Net)
+    if "aspirin" in clean_name or "aspilet" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
     if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
     if "omeprazole" in clean_name: return ("omeprazole", "ppi")
     if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
-    if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
+    if "nitro" in clean_name: return ("nitroglycerin", "nitrate")
     if "candesartan" in clean_name: return ("candesartan", "arb")
+    if "zolmitriptan" in clean_name: return ("zolmitriptan", "triptan")
+    if "zoledronic" in clean_name: return ("zoledronic acid", "bisphosphonate")
         
     return (clean_name, "unknown")
 
@@ -102,7 +109,6 @@ def extract_frequency(text: str) -> str:
     return "1 x 1"
 
 def extract_dose_text(text: str) -> Optional[str]:
-    # Looks for things like "6.25 MG", "500 mg", "0.5 g"
     match = re.search(r'(\d+[.,]?\d*)\s*(mg|g|mcg|ml|iu)', text, re.IGNORECASE)
     if match:
         return f"{match.group(1)} {match.group(2).lower()}"
@@ -152,7 +158,6 @@ async def parse_prescription_endpoint(payload: ParseRequest):
             original_text = d.get('original_text', '')
             freq = extract_frequency(original_text)
             
-            # Logic: Prefer DB dose, fallback to Text extraction, fallback to Unknown
             if d.get('dose_mg'):
                 dosage = f"{d.get('dose_mg')} mg"
             else:
@@ -221,7 +226,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "9.6.1"}
+def read_root(): return {"status": "active", "version": "9.9"}
 
 if __name__ == '__main__':
     import uvicorn
