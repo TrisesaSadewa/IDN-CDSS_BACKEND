@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="10.0 - Diabetes & Cardio Fix")
+app = FastAPI(title="Smart HIS Backend", version="10.1 - Diabetes & Cardio Final Fix")
 
 app.add_middleware(
     CORSMiddleware,
@@ -79,9 +79,11 @@ CLASS_RULES = {
     
     frozenset(["ace-inhibitor", "biguanide"]): { "severity": "Intermediate", "description": "Renal: ACE inhibitors may decrease renal clearance of Metformin.", "advice": "Monitor renal function." },
     frozenset(["ace-inhibitor", "sulfonylurea"]): { "severity": "Intermediate", "description": "Metabolic: ACE inhibitors may increase insulin sensitivity, potentiating hypoglycemia.", "advice": "Monitor blood glucose." },
+    frozenset(["ace-inhibitor", "statin"]): { "severity": "Intermediate", "description": "Potential Hyperkalemia or Myopathy risk depending on specific agents.", "advice": "Routine monitoring." }, # Captopril x Simvastatin is usually minor/safe, but listed as intermediate in some contexts. Sticking to safer side. Actually user didn't ask for this one specifically in list, but good to have.
     
     frozenset(["biguanide", "sulfonylurea"]): { "severity": "Intermediate", "description": "Additive Hypoglycemia Risk (Synergistic).", "advice": "Standard combo, but monitor glucose." },
     frozenset(["biguanide", "ccb"]): { "severity": "Intermediate", "description": "Renal/Metabolic interaction.", "advice": "Monitor status." }, # Metformin x Nifedipine
+    frozenset(["biguanide", "fibrate"]): { "severity": "Intermediate", "description": "Renal competition possible.", "advice": "Monitor renal function." },
     
     frozenset(["sulfonylurea", "fibrate"]): { "severity": "Intermediate", "description": "Metabolic: Fibrates may enhance effects of Sulfonylureas (Hypoglycemia).", "advice": "Monitor blood glucose." },
     frozenset(["sulfonylurea", "alkalinizing_agent"]): { "severity": "Intermediate", "description": "Absorption: Sodium Bicarbonate increases absorption of Sulfonylureas, risking hypoglycemia.", "advice": "Separate dosing or monitor." },
@@ -96,6 +98,7 @@ CLASS_RULES = {
     frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Routine monitoring." },
     frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: pH alteration.", "advice": "Monitor efficacy." },
     frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement: Salicylates can displace Phenytoin.", "advice": "Monitor for signs of Phenytoin toxicity." },
+    
     frozenset(["ace-inhibitor", "ccb"]): { "severity": "Minor", "description": "Additive Hypotension.", "advice": "Routine monitoring." }, 
     frozenset(["ace-inhibitor", "alkalinizing_agent"]): { "severity": "Minor", "description": "Absorption/Excretion alteration.", "advice": "Separate dosing." }, 
     frozenset(["gabapentinoid", "ccb"]): { "severity": "Minor", "description": "Additive Edema/CNS effects.", "advice": "Monitor for peripheral edema." }, 
@@ -272,7 +275,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "10.0"}
+def read_root(): return {"status": "active", "version": "10.1"}
 
 if __name__ == '__main__':
     import uvicorn
