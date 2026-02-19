@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="10.1 - Diabetes & Cardio Final Fix")
+app = FastAPI(title="Smart HIS Backend", version="10.2 - Granular Class Overrides")
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,7 +58,7 @@ CLASS_RULES = {
     # --- MAJOR (Red) ---
     frozenset(["antiplatelet", "nsaid"]): { "severity": "Major", "description": "Pharmacodynamic Antagonism: NSAID blocks Aspirin's antiplatelet site, negating stroke protection.", "advice": "Avoid concurrent use." },
     frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots/stroke.", "advice": "Contraindicated." },
-    frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction: Phenytoin induces CYP3A4, reducing Amlodipine levels.", "advice": "Monitor BP closely." },
+    frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction: Anticonvulsants (e.g., Phenytoin) induce CYP3A4, reducing CCB levels.", "advice": "Monitor BP closely." },
     frozenset(["triptan", "psychotropic"]): { "severity": "Major", "description": "Serotonin Syndrome Risk: Combined use with SSRI/SNRI increases serotonin levels.", "advice": "Monitor for serotonin toxicity." },
     frozenset(["sedative_hypnotic", "opioid"]): { "severity": "Major", "description": "Additive CNS Depression.", "advice": "Strict monitoring or avoid." },
     frozenset(["fibrate", "statin"]): { "severity": "Major", "description": "Additive Myotoxicity: Increased risk of Rhabdomyolysis.", "advice": "Avoid if possible; monitor CK levels." },
@@ -79,16 +79,14 @@ CLASS_RULES = {
     
     frozenset(["ace-inhibitor", "biguanide"]): { "severity": "Intermediate", "description": "Renal: ACE inhibitors may decrease renal clearance of Metformin.", "advice": "Monitor renal function." },
     frozenset(["ace-inhibitor", "sulfonylurea"]): { "severity": "Intermediate", "description": "Metabolic: ACE inhibitors may increase insulin sensitivity, potentiating hypoglycemia.", "advice": "Monitor blood glucose." },
-    frozenset(["ace-inhibitor", "statin"]): { "severity": "Intermediate", "description": "Potential Hyperkalemia or Myopathy risk depending on specific agents.", "advice": "Routine monitoring." }, # Captopril x Simvastatin is usually minor/safe, but listed as intermediate in some contexts. Sticking to safer side. Actually user didn't ask for this one specifically in list, but good to have.
     
     frozenset(["biguanide", "sulfonylurea"]): { "severity": "Intermediate", "description": "Additive Hypoglycemia Risk (Synergistic).", "advice": "Standard combo, but monitor glucose." },
-    frozenset(["biguanide", "ccb"]): { "severity": "Intermediate", "description": "Renal/Metabolic interaction.", "advice": "Monitor status." }, # Metformin x Nifedipine
-    frozenset(["biguanide", "fibrate"]): { "severity": "Intermediate", "description": "Renal competition possible.", "advice": "Monitor renal function." },
+    frozenset(["biguanide", "ccb"]): { "severity": "Intermediate", "description": "Renal/Metabolic interaction.", "advice": "Monitor status." }, 
     
     frozenset(["sulfonylurea", "fibrate"]): { "severity": "Intermediate", "description": "Metabolic: Fibrates may enhance effects of Sulfonylureas (Hypoglycemia).", "advice": "Monitor blood glucose." },
     frozenset(["sulfonylurea", "alkalinizing_agent"]): { "severity": "Intermediate", "description": "Absorption: Sodium Bicarbonate increases absorption of Sulfonylureas, risking hypoglycemia.", "advice": "Separate dosing or monitor." },
     
-    frozenset(["ccb", "statin"]): { "severity": "Intermediate", "description": "Pharmacokinetic: CYP3A4 competition (e.g. Nifedipine/Amlodipine x Simvastatin).", "advice": "Monitor for statin toxicity/myopathy." }, # Nifedipine x Simvastatin
+    frozenset(["ccb", "statin"]): { "severity": "Intermediate", "description": "Pharmacokinetic: CYP3A4 competition (e.g. Nifedipine/Amlodipine x Simvastatin).", "advice": "Monitor for statin toxicity/myopathy." }, 
 
     # --- MINOR (Yellow) ---
     frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
@@ -111,31 +109,46 @@ def get_drug_info(drug_name: str):
     clean_name = drug_name.replace("ANS ", "").lower().strip()
     clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip()
     
-    # 1. DB Lookup
+    # --- PRE-EMPTIVE OVERRIDES ---
+    # This block intercepts specific drugs BEFORE checking the database.
+    # It ensures that generic classifications in your DB (like "antidiabetic") 
+    # are overridden by highly specific classes needed for granular DDI rules.
+    overrides = {
+        "metformin": ("metformin", "biguanide"),
+        "glyburide": ("glibenclamide", "sulfonylurea"),
+        "glibenclamide": ("glibenclamide", "sulfonylurea"),
+        "fenofibrate": ("fenofibrate", "fibrate"),
+        "bicarbonas": ("sodium bicarbonate", "alkalinizing_agent"),
+        "bicarbonate": ("sodium bicarbonate", "alkalinizing_agent"),
+        "gabapentin": ("gabapentin", "gabapentinoid"), # Prevents false Major alert with Nifedipine
+        "meloxicam": ("meloxicam", "nsaid"),
+        "captopril": ("captopril", "ace-inhibitor"),
+        "nifedipine": ("nifedipine", "ccb"),
+        "simvastatin": ("simvastatin", "statin"),
+        "humalog": ("insulin", "insulin")
+    }
+    
+    for kw, result in overrides.items():
+        if kw in clean_name:
+            return result
+            
+    # 1. DB Lookup (Only if no specific override above caught it)
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
-    # 2. Heuristic Fallback (Expanded)
+    # 2. Heuristic Fallback (Safety Net)
     if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
-    if "meloxicam" in clean_name: return ("meloxicam", "nsaid") # ADDED
     if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
     if "omeprazole" in clean_name: return ("omeprazole", "ppi")
     if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
     if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
     if "candesartan" in clean_name: return ("candesartan", "arb")
-    if "captopril" in clean_name: return ("captopril", "ace-inhibitor") # ADDED
-    if "amlodipin" in clean_name or "nifedipine" in clean_name: return ("ccb", "ccb") # ADDED
+    if "amlodipin" in clean_name: return ("amlodipine", "ccb")
     if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
     if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
-    if "metformin" in clean_name: return ("metformin", "biguanide") # ADDED
-    if "glyburide" in clean_name or "glibenclamide" in clean_name: return ("glyburide", "sulfonylurea") # ADDED
-    if "fenofibrate" in clean_name: return ("fenofibrate", "fibrate") # ADDED
-    if "simvastatin" in clean_name: return ("simvastatin", "statin") # ADDED
-    if "gabapentin" in clean_name: return ("gabapentin", "gabapentinoid") # ADDED
-    if "bicarbonas" in clean_name or "bicarbonate" in clean_name: return ("sodium bicarbonate", "alkalinizing_agent") # ADDED
     
     return (clean_name, "unknown")
 
@@ -275,7 +288,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "10.1"}
+def read_root(): return {"status": "active", "version": "10.2 - Granular Class Overrides"}
 
 if __name__ == '__main__':
     import uvicorn
