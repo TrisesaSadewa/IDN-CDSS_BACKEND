@@ -485,28 +485,28 @@
   {
     "brand_name": "albendazol tab 400 mg",
     "generic_name": "Albendazol",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": 400.0,
     "is_pediatric": false
   },
   {
     "brand_name": "mebendazol tab 100 mg",
     "generic_name": "Mebendazol",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "mebendazol tab 500 mg",
     "generic_name": "Mebendazol",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "mebendazol Syrup 20 mg",
     "generic_name": "Mebendazol",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": 20.0,
     "is_pediatric": false
   },
@@ -2641,7 +2641,7 @@
   {
     "brand_name": "Serbuk garam oralit",
     "generic_name": "Oral, Rehydration, Salts",
-    "drug_class": "electrolyte",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6274,7 +6274,7 @@
   {
     "brand_name": "Imatinib",
     "generic_name": "Imatinib",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6498,7 +6498,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -7198,14 +7198,14 @@
   {
     "brand_name": "Trazimera",
     "generic_name": "Trastuzumab-Qyyp",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Docetaxel",
     "generic_name": "Docetaxel Anhydrous",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8493,7 +8493,7 @@
   {
     "brand_name": "Imatinib Mesylate",
     "generic_name": "Imatinib",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8682,7 +8682,7 @@
   {
     "brand_name": "Cell Salts",
     "generic_name": "Calc. Fluor., Calc. Phos., Calc.Sulph., Ferrum Phosphoricum, Kali Mur., Kali Phos., Kali Sulph., Mag. Phos., Nat. Mur., Nat. Phos., Nat.Sulphuricum, Silicea",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -10369,7 +10369,7 @@
   {
     "brand_name": "Omega-3-Acid Ethyl Esters",
     "generic_name": "Omega-3-Acid Ethyl Esters",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -10747,7 +10747,7 @@
   {
     "brand_name": "Metadate Cd",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -11769,7 +11769,7 @@
   {
     "brand_name": "Lisdexamfetamine Dimesylate",
     "generic_name": "Lisdexamfetamine Dimesylate",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -13659,7 +13659,7 @@
   {
     "brand_name": "Oxcarbazepine",
     "generic_name": "Oxcarbazepine",
-    "drug_class": "anticonvulsant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -15143,7 +15143,7 @@
   {
     "brand_name": "Miranda Castros Healing Cell Salts For Bones, Hair, Nails And Teeth Homeopathic Combination",
     "generic_name": "Calcarea Fluorica, Calcarea Phosphorica, Silicea",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -19518,7 +19518,7 @@
   {
     "brand_name": "Buprenorphine",
     "generic_name": "Buprenorphine",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -20036,7 +20036,7 @@
   {
     "brand_name": "Methylphenidate",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -21254,7 +21254,7 @@
   {
     "brand_name": "Dexmethylphenidate Hydrochloride",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -21310,7 +21310,7 @@
   {
     "brand_name": "Ivermectin",
     "generic_name": "Ivermectin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22178,7 +22178,7 @@
   {
     "brand_name": "Carboplatin",
     "generic_name": "Carboplatin",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22822,7 +22822,7 @@
   {
     "brand_name": "Good Neighbor Pharmacy Lice Treatment",
     "generic_name": "Permethrin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22948,7 +22948,7 @@
   {
     "brand_name": "Flumazenil",
     "generic_name": "Flumazenil",
-    "drug_class": "antidote",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -23466,7 +23466,7 @@
   {
     "brand_name": "Paclitaxel Paclitaxel",
     "generic_name": "Paclitaxel",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -23501,7 +23501,7 @@
   {
     "brand_name": "Atomoxetine",
     "generic_name": "Atomoxetine",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -24124,7 +24124,7 @@
   {
     "brand_name": "Dexmethylphenidate Hydrochloride Extended-Release",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -26980,7 +26980,7 @@
   {
     "brand_name": "Docetaxel",
     "generic_name": "Docetaxel",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -27603,7 +27603,7 @@
   {
     "brand_name": "Pferdebalsam",
     "generic_name": "Pferdebalsam",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -28058,7 +28058,7 @@
   {
     "brand_name": "Vamousse Lice Treatment",
     "generic_name": "Pediculicide",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -29395,7 +29395,7 @@
   {
     "brand_name": "Indapamide",
     "generic_name": "Indapamide",
-    "drug_class": "diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -32909,7 +32909,7 @@
   {
     "brand_name": "Albendazole",
     "generic_name": "Albendazole",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -37172,21 +37172,21 @@
   {
     "brand_name": "Jobevne",
     "generic_name": "Bevacizumab-Nwgd",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Paclitaxel",
     "generic_name": "Paclitaxel",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Hydromorphone Hydrochloride",
     "generic_name": "Hydromorphone Hydrochloride",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -37459,7 +37459,7 @@
   {
     "brand_name": "Imatinib Mesylate",
     "generic_name": "Imatinib Mesylate",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -38040,7 +38040,7 @@
   {
     "brand_name": "Roflumilast",
     "generic_name": "Roflumilast",
-    "drug_class": "pde4_inhibitor",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -39300,7 +39300,7 @@
   {
     "brand_name": "Dilaudid",
     "generic_name": "Hydromorphone Hydrochloride",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -40336,7 +40336,7 @@
   {
     "brand_name": "Strattera",
     "generic_name": "Atomoxetine Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -40364,7 +40364,7 @@
   {
     "brand_name": "Jacksons Cell Salts Nat Mur 6X 9",
     "generic_name": "Natrum Muriaticum",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -42016,7 +42016,7 @@
   {
     "brand_name": "Atomoxetine Hydrochloride",
     "generic_name": "Atomoxetine Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -42240,7 +42240,7 @@
   {
     "brand_name": "Coralite Capsaicin Heat Patch 2Ct",
     "generic_name": "Capsaicin",
-    "drug_class": "electrolyte",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -43346,7 +43346,7 @@
   {
     "brand_name": "Buprenorphine And Naloxone",
     "generic_name": "Buprenorphine And Naloxone",
-    "drug_class": "opioid",
+    "drug_class": "antidote",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -44788,7 +44788,7 @@
   {
     "brand_name": "Phesgo",
     "generic_name": "Pertuzumab, Trastuzumab, And Hyaluronidase-Zzxf",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -45747,7 +45747,7 @@
   {
     "brand_name": "Permethrin",
     "generic_name": "Permethrin Cream 5% W/W",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49233,7 +49233,7 @@
   {
     "brand_name": "Emverm",
     "generic_name": "Mebendazole",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49310,7 +49310,7 @@
   {
     "brand_name": "Albenza",
     "generic_name": "Albendazole",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -55883,7 +55883,7 @@
   {
     "brand_name": "Zynteglo",
     "generic_name": "Betibeglogene Autotemcel",
-    "drug_class": "gene_therapy",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -58592,7 +58592,7 @@
   {
     "brand_name": "Omega-3-Acid Ethyl Ester",
     "generic_name": "Omega-3-Acid Ethyl Esters",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -61672,7 +61672,7 @@
   {
     "brand_name": "Isentress",
     "generic_name": "Raltegravir",
-    "drug_class": "antiretroviral",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -62302,7 +62302,7 @@
   {
     "brand_name": "Soolantra",
     "generic_name": "Ivermectin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -65011,7 +65011,7 @@
   {
     "brand_name": "Rohto Cool Relief",
     "generic_name": "Naphazoline Hydrochloride, Polysorbate 80",
-    "drug_class": "ophthalmic_lubricant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -68014,7 +68014,7 @@
   {
     "brand_name": "Jacksons Cell Salts Silica 6X 12",
     "generic_name": "Silicea",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -68231,7 +68231,7 @@
   {
     "brand_name": "12 Cell Salts Complex",
     "generic_name": "Calcarea Fluorica, Calcarea Phosphorica, Calcarea Sulphurica, Ferrum Phosphoricum, Kali Muriaticum, Kali Phosphoricum, Kali Sulphuricum, Magnesia Phosphorica, Natrum Muriaticum, Natrum Phosphoricum, Natrum Sulphuricum, Silicea",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -69190,7 +69190,7 @@
   {
     "brand_name": "Rid One And Done",
     "generic_name": "Ivermectin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -69358,7 +69358,7 @@
   {
     "brand_name": "Buprenorphine Hydrochloride",
     "generic_name": "Buprenorphine Hydrochloride",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -70702,7 +70702,7 @@
   {
     "brand_name": "Dianeal Low Calcium With Dextrose",
     "generic_name": "Sodium Chloride, Sodium Lactate, Calcium Chloride, Magnesium Chloride And Dextrose",
-    "drug_class": "oral_contraceptive",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -71045,7 +71045,7 @@
   {
     "brand_name": "Kadcyla",
     "generic_name": "Ado-Trastuzumab Emtansine",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -71857,7 +71857,7 @@
   {
     "brand_name": "Mvasi",
     "generic_name": "Bevacizumab-Awwb",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -73964,7 +73964,7 @@
   {
     "brand_name": "Sublocade",
     "generic_name": "Buprenorphine",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -74615,7 +74615,7 @@
   {
     "brand_name": "Coralite Cold And Hot",
     "generic_name": "Menthol",
-    "drug_class": "electrolyte",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76477,7 +76477,7 @@
   {
     "brand_name": "Buprenorphine Hydrochloride And Naloxone Hydrochloride Dihydrate",
     "generic_name": "Buprenorphine Hydrochloride And Naloxone Hydrochloride Dihydrate",
-    "drug_class": "opioid",
+    "drug_class": "antidote",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76589,7 +76589,7 @@
   {
     "brand_name": "Lisdexamfetamine Dimesylate",
     "generic_name": "Lisdexamfetamine",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76834,7 +76834,7 @@
   {
     "brand_name": "Premier Value Lice Treatment Kit",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -77086,7 +77086,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride Cd",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -77877,7 +77877,7 @@
   {
     "brand_name": "Permethrin",
     "generic_name": "Permethrin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -79676,7 +79676,7 @@
   {
     "brand_name": "Paclitaxel Protein-Bound Particles",
     "generic_name": "Paclitaxel Protein-Bound Particles",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80320,7 +80320,7 @@
   {
     "brand_name": "Kroger Complete Lice Treatment Kit",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80362,7 +80362,7 @@
   {
     "brand_name": "Rituxan",
     "generic_name": "Rituximab",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80460,7 +80460,7 @@
   {
     "brand_name": "Powerfulx Ginseng Recoverycream",
     "generic_name": "Panax Ginseng Root Water, Acetyl Glucosamine, Dimethyl Sulfone",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80495,7 +80495,7 @@
   {
     "brand_name": "N-9",
     "generic_name": "Phosphorus, Citrullus Colocynthis Fruit Pulp, Iris Versicolor Whole, Lycopodium Clavatum Whole, Momordica Balsamina Whole, And Bos Taurus Pancreas",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -81293,7 +81293,7 @@
   {
     "brand_name": "Herceptin Hylecta",
     "generic_name": "Trastuzumab And Hyaluronidase-Oysk",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -86249,7 +86249,7 @@
   {
     "brand_name": "B02 Adrenal Pep",
     "generic_name": "Aceticum Acidum, Adrenalinum, American Ginseng, Arnica Montana, Balsamum Peruvianum, Bos Taurus Pituitarum Posterium, Cherry Plum Flower, Chininum Arsenicosum, Cinchona Officinalis, Clematis Vitalba Flower, Damiana, European Hornbeam Flower, European Olive Flower, Glycyrrhiza Glabra, Impatiens Glandulifera Flower, Kali Phosphoricum, Lycopodium Clavatum, Magnesia Phosphorica, Phosphoricum Acidum, Phosphorus, Pyrenees Star Of Bethlehem, Rockrose Flower, Selenium Metallicum, Thyroidinum",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -89000,7 +89000,7 @@
   {
     "brand_name": "Buprenorphine Hcl",
     "generic_name": "Buprenorphine Hcl",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -90575,7 +90575,7 @@
   {
     "brand_name": "Best Choice Lice Treatment",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -92199,7 +92199,7 @@
   {
     "brand_name": "Buprenorphine Sublingual",
     "generic_name": "Buprenorphine Sublingual",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -93053,7 +93053,7 @@
   {
     "brand_name": "Buprenorphine Sublingual C-Iii",
     "generic_name": "Buprenorphine Sublingual C-Iii",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -98303,7 +98303,7 @@
   {
     "brand_name": "Jacksons Cell Salts Calc Fluor 6X 1",
     "generic_name": "Calc Fluor",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -100116,7 +100116,7 @@
   {
     "brand_name": "Jba Joint Revive",
     "generic_name": "Glucosamine Sulfate Potassium Chloride,White Willow Bark Extract,Eggshell Membrane Collagen,Chondroitin Sulfate,Turmeric Root Extract,Bromelain,Soy Lecithin",
-    "drug_class": "supplement",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -103609,7 +103609,7 @@
   {
     "brand_name": "Riabni",
     "generic_name": "Rituximab-Arrx",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -103868,7 +103868,7 @@
   {
     "brand_name": "Relexxii",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -104687,7 +104687,7 @@
   {
     "brand_name": "Emtriva",
     "generic_name": "Emtricitabine",
-    "drug_class": "antiretroviral",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -105436,7 +105436,7 @@
   {
     "brand_name": "Suboxone",
     "generic_name": "Buprenorphine Hydrochloride, Naloxone Hydrochloride",
-    "drug_class": "opioid",
+    "drug_class": "antidote",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -105611,7 +105611,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride (La)",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -106794,7 +106794,7 @@
   {
     "brand_name": "Nix",
     "generic_name": "Permethrin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -108264,7 +108264,7 @@
   {
     "brand_name": "Rid Lice Treatment Complete Kit",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -109013,7 +109013,7 @@
   {
     "brand_name": "Jacksons Cell Salts Mag Phos 6X 8",
     "generic_name": "Magnesia Phosphorica",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -110161,7 +110161,7 @@
   {
     "brand_name": "Rohto Max Strength",
     "generic_name": "Naphazoline Hydrochloride, Polysorbate 80",
-    "drug_class": "ophthalmic_lubricant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -112723,7 +112723,7 @@
   {
     "brand_name": "Guna-Stomach",
     "generic_name": "Activated Charcoal - Antimony Trisulfide - Bismuth Subnitrate - Dioscorea Villosa Root - Dopamine - Human Epidermal Growth Factor - Ipecac - Oregano - Picea Mariana Resin - Robinia Pseudoacacia Bark - Semecarpus Anacardium Juice - Silver Nitrate - Sus Scrofa Stomach - Sus Scrofa Sympathetic Nerve - Momordica Balsamina Immature Fruit -",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -115845,7 +115845,7 @@
   {
     "brand_name": "Xylocaine",
     "generic_name": "Xylocaine",
-    "drug_class": "local_anesthetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118470,7 +118470,7 @@
   {
     "brand_name": "Xylocaine-Mpf With Epi",
     "generic_name": "Xylocaine-Mpf With Epi",
-    "drug_class": "local_anesthetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118624,7 +118624,7 @@
   {
     "brand_name": "Discount Lice Treatment",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118806,7 +118806,7 @@
   {
     "brand_name": "Albendazole 200 Mg",
     "generic_name": "Albendazole",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": 200.0,
     "is_pediatric": false
   },
@@ -121998,7 +121998,7 @@
   {
     "brand_name": "Jba Joint Revive The Legend I",
     "generic_name": "Glucosamine Sulfate Potassium Chloride,Fucoidan Extract,Eggshell Membrane Collagen",
-    "drug_class": "supplement",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -126653,7 +126653,7 @@
   {
     "brand_name": "Balsamicum",
     "generic_name": "Balsamicum",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -127661,7 +127661,7 @@
   {
     "brand_name": "Jacksons Cell Salts 12 In 1",
     "generic_name": "Calc Fluor, Calc Phos, Calc Sulph, Ferrum Phos, Kali Mur, Kali Phos, Kali Sulph, Mag Phos, Nat Mur, Nat Phos, Nat Sulph, Silicea",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132449,7 +132449,7 @@
   {
     "brand_name": "Beizray",
     "generic_name": "Docetaxel",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132645,7 +132645,7 @@
   {
     "brand_name": "Omega-3-Acid Ethyl Esters",
     "generic_name": "Omega-3-Acid Ethyl Esters Capsules",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132785,14 +132785,14 @@
   {
     "brand_name": "Daytrana",
     "generic_name": "Methylphenidate",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Ritalin La",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -133233,7 +133233,7 @@
   {
     "brand_name": "Jacksons Cell Salts Kali Mur 6X 5",
     "generic_name": "Kali Muriaticum",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -133387,7 +133387,7 @@
   {
     "brand_name": "Vyvanse",
     "generic_name": "Lisdexamfetamine Dimesylate",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134381,7 +134381,7 @@
   {
     "brand_name": "Paclitaxel Protein Bound Particles Albumin Bound",
     "generic_name": "Paclitaxel",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134395,7 +134395,7 @@
   {
     "brand_name": "Zoryve",
     "generic_name": "Roflumilast",
-    "drug_class": "pde4_inhibitor",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135004,7 +135004,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride Extended Release",
     "generic_name": "Methylphenidate Hydrochloride Extended Release",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135186,7 +135186,7 @@
   {
     "brand_name": "Methylphenidate",
     "generic_name": "Methylphenidate",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135340,7 +135340,7 @@
   {
     "brand_name": "Zubsolv",
     "generic_name": "Buprenorphine Hydrochloride And Naloxone Hydrochloride",
-    "drug_class": "opioid",
+    "drug_class": "antidote",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135508,7 +135508,7 @@
   {
     "brand_name": "Jacksons Cell Salts Nat Sulph 6X 11",
     "generic_name": "Natrum Sulphuricum",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135662,7 +135662,7 @@
   {
     "brand_name": "Quillivant Xr",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -137272,7 +137272,7 @@
   {
     "brand_name": "Jacksons Cell Salts Kali Phos 6X 10",
     "generic_name": "Kali Phosphoricum",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -138875,7 +138875,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride Extended-Release",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -139505,7 +139505,7 @@
   {
     "brand_name": "16Bkouty Lice Treatment",
     "generic_name": "16Bkouty Lice Treatment",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -140898,7 +140898,7 @@
   {
     "brand_name": "Ohm-Pan",
     "generic_name": "Carbo Vegetabilis, Ceanothus Americanus, Gallium Aparine, Leptandra Virginica, Mandragora Officinarum, Momordica Balsamina, Quassia Amara",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -141241,7 +141241,7 @@
   {
     "brand_name": "Topcare Lice Killing Creme Rinse",
     "generic_name": "Permethrin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -143523,7 +143523,7 @@
   {
     "brand_name": "Matrix Support",
     "generic_name": "Ceanothus Americanus, Argentum Nitricum, Condurango, Hydrastis Canadensis, Momordica Balsamina, Pulsatilla (Pratensis), Bile Duct (Suis), Colon (Suis), Duodenum (Suis), Esophagus (Suis), Eye (Suis), Gallbladder (Suis), Ileum (Suis), Intestine (Suis), Ipecacuanha, Jejunum (Suis), Kali Bichromicum, Lung (Suis), Mucosa Nasalis Suis, Natrum Oxalaceticum, Oral Mucosa (Suis), Pancreas Suis, Phosphorus, Rectal Mucosa (Suis), Stomach (Suis), Sulphur, Veratrum Album, Mannose, Anacardium Orientale, Kreosotum,",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -144937,7 +144937,7 @@
   {
     "brand_name": "Vermox",
     "generic_name": "Mebendazole",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -145182,7 +145182,7 @@
   {
     "brand_name": "Abraxane",
     "generic_name": "Paclitaxel",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -146407,7 +146407,7 @@
   {
     "brand_name": "Emtricitabine",
     "generic_name": "Emtricitabine",
-    "drug_class": "antiretroviral",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -147436,7 +147436,7 @@
   {
     "brand_name": "Butrans",
     "generic_name": "Buprenorphine",
-    "drug_class": "opioid",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -147653,7 +147653,7 @@
   {
     "brand_name": "Focalin",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -147793,7 +147793,7 @@
   {
     "brand_name": "Methylin",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -156774,7 +156774,7 @@
   {
     "brand_name": "Jacksons Cell Salts Kali Sulph 6X 7",
     "generic_name": "Kali Sulphuricum",
-    "drug_class": "supplement",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157187,7 +157187,7 @@
   {
     "brand_name": "Ruxience",
     "generic_name": "Rituximab-Pvvr",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157229,7 +157229,7 @@
   {
     "brand_name": "Gleevec",
     "generic_name": "Imatinib Mesylate",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157761,7 +157761,7 @@
   {
     "brand_name": "Zokinvy",
     "generic_name": "Lonafarnib",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157810,7 +157810,7 @@
   {
     "brand_name": "Enhertu",
     "generic_name": "Fam-Trastuzumab Deruxtecan-Nxki",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -158489,7 +158489,7 @@
   {
     "brand_name": "Paclitaxel Protein-Bound Particles For Injectable Suspension (Albumin-Bound)",
     "generic_name": "Paclitaxel",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -160211,7 +160211,7 @@
   {
     "brand_name": "Ontruzant",
     "generic_name": "Trastuzumab",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -161282,7 +161282,7 @@
   {
     "brand_name": "Oxtellar Xr",
     "generic_name": "Oxcarbazepine",
-    "drug_class": "anticonvulsant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -161520,7 +161520,7 @@
   {
     "brand_name": "Azstarys",
     "generic_name": "Serdexmethylphenidate And Dexmethylphenidate",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -161961,7 +161961,7 @@
   {
     "brand_name": "Focalin Xr",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -163046,7 +163046,7 @@
   {
     "brand_name": "Aptensio Xr",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -163081,7 +163081,7 @@
   {
     "brand_name": "Methylphenidate Transdermal System",
     "generic_name": "Methylphenidate",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -164467,7 +164467,7 @@
   {
     "brand_name": "Emtricitabine/Tdf",
     "generic_name": "Emtricitabine/Tdf",
-    "drug_class": "antiretroviral",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -165083,7 +165083,7 @@
   {
     "brand_name": "Rohto Cool Max",
     "generic_name": "Naphazoline Hydrochloride, Polysorbate 80",
-    "drug_class": "ophthalmic_lubricant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -167736,7 +167736,7 @@
   {
     "brand_name": "Cicatrisan Cream",
     "generic_name": "Calendula Officinalis, Phytolacca Decandra, Bryonia Dioica, Balsamum Peruvianum, Dulcamara",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -169066,7 +169066,7 @@
   {
     "brand_name": "Breathtone",
     "generic_name": "Lobelia Inflata, Verbascum Thapsus, Balsamum Peruvianum, Antimonium Tartaricum, Arsenicum Album, Drosera (Rotundifolia), Kali Bichromicum, Kali Carbonicum, Natrum Sulphuricum, Phosphorous, Spongia Tosta",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -171593,7 +171593,7 @@
   {
     "brand_name": "Imatinib Mesylate 400 Mg",
     "generic_name": "Imatinib Mesylate",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": 400.0,
     "is_pediatric": false
   },
@@ -172769,7 +172769,7 @@
   {
     "brand_name": "Herklin Lice Treatment",
     "generic_name": "Piperonyl Butoxide, Pyrethrum Extract",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -173357,7 +173357,7 @@
   {
     "brand_name": "Docetaxel Anhydrous",
     "generic_name": "Docetaxel Anhydrous",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -176871,7 +176871,7 @@
   {
     "brand_name": "Daliresp",
     "generic_name": "Roflumilast",
-    "drug_class": "pde4_inhibitor",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -176913,7 +176913,7 @@
   {
     "brand_name": "Herceptin",
     "generic_name": "Trastuzumab",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -178838,7 +178838,7 @@
   {
     "brand_name": "Imkeldi",
     "generic_name": "Imatinib Oral",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -180931,7 +180931,7 @@
   {
     "brand_name": "Ritalin",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -185103,7 +185103,7 @@
   {
     "brand_name": "Buprenorphine And Naloxone Sublingual Film",
     "generic_name": "Buprenorphine And Naloxone",
-    "drug_class": "opioid",
+    "drug_class": "antidote",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -185145,7 +185145,7 @@
   {
     "brand_name": "Savaysa",
     "generic_name": "Edoxaban Tosylate",
-    "drug_class": "anticoagulant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187035,7 +187035,7 @@
   {
     "brand_name": "Rituxan Hycela",
     "generic_name": "Rituximab And Hyaluronidase",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187301,7 +187301,7 @@
   {
     "brand_name": "Zolinza",
     "generic_name": "Vorinostat",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187399,7 +187399,7 @@
   {
     "brand_name": "Jornay Pm Extended-Release",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "adhd_drug",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187504,7 +187504,7 @@
   {
     "brand_name": "Coralite Muscle And Joint Pain Relief",
     "generic_name": "Capsacin",
-    "drug_class": "electrolyte",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187931,7 +187931,7 @@
   {
     "brand_name": "Coralite Medicated Heat",
     "generic_name": "Capsaicin",
-    "drug_class": "electrolyte",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -190493,7 +190493,7 @@
   {
     "brand_name": "D-72",
     "generic_name": "Apis Mellifera, Citrullus Colocynthis Fruit Pulp, Lycopodium Clavatum Spore, Momordica Balsamina Immature Fruit, And Phosphorus",
-    "drug_class": "topical_analgesic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -192327,7 +192327,7 @@
   {
     "brand_name": "Sklice",
     "generic_name": "Ivermectin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197598,7 +197598,7 @@
   {
     "brand_name": "Xylocaine Mpf",
     "generic_name": "Xylocaine Mpf",
-    "drug_class": "local_anesthetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -198172,7 +198172,7 @@
   {
     "brand_name": "Nix Lice Killing Creme Rinse",
     "generic_name": "Permethrin",
-    "drug_class": "antiparasitic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -200776,14 +200776,14 @@
   {
     "brand_name": "imatinib mesilat[Ca]",
     "generic_name": "imatinib mesilat[Ca]",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "imatinib mesilat[Ca]",
     "generic_name": "imatinib mesilat[Ca]",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": 400.0,
     "is_pediatric": false
   },
@@ -200888,7 +200888,7 @@
   {
     "brand_name": "trastuzumab[Ca]",
     "generic_name": "trastuzumab[Ca]",
-    "drug_class": "antineoplastic",
+    "drug_class": "unknown",
     "dose_mg": 440.0,
     "is_pediatric": false
   },
@@ -203653,7 +203653,7 @@
   {
     "brand_name": "garam oralit",
     "generic_name": "garam oralit",
-    "drug_class": "electrolyte",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
