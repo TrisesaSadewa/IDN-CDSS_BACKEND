@@ -294,4 +294,17 @@ async def get_doctor_queue(doctor_id: str):
 async def get_appointment_detail(appt_id: str):
     if not supabase: return {}
     res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
-    return
+    return res.data
+
+@app.get("/patient/profile")
+async def get_patient_profile(user_id: str):
+    res = supabase.table("patients").select("*").eq("id", user_id).execute()
+    return res.data[0] if res.data else {"mrn": "N/A"}
+
+@app.get("/")
+def read_root(): return {"status": "active", "version": "10.5 - Comprehensive Interaction Matrix"}
+
+if __name__ == '__main__':
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
