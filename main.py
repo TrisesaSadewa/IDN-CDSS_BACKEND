@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="10.2 - Granular Class Overrides")
+app = FastAPI(title="Smart HIS Backend", version="10.3 - Exact Match Overrides")
 
 app.add_middleware(
     CORSMiddleware,
@@ -110,22 +110,24 @@ def get_drug_info(drug_name: str):
     clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip()
     
     # --- PRE-EMPTIVE OVERRIDES ---
-    # This block intercepts specific drugs BEFORE checking the database.
-    # It ensures that generic classifications in your DB (like "antidiabetic") 
-    # are overridden by highly specific classes needed for granular DDI rules.
+    # Intercepts spelling variations and forces the engine to recognize the precise sub-class
     overrides = {
         "metformin": ("metformin", "biguanide"),
         "glyburide": ("glibenclamide", "sulfonylurea"),
         "glibenclamide": ("glibenclamide", "sulfonylurea"),
+        "glybenclamide": ("glibenclamide", "sulfonylurea"), # <-- FIX: Catches spelling with 'y'
+        "glimepiride": ("glimepiride", "sulfonylurea"),
+        "gliclazide": ("gliclazide", "sulfonylurea"),
         "fenofibrate": ("fenofibrate", "fibrate"),
-        "bicarbonas": ("sodium bicarbonate", "alkalinizing_agent"),
+        "bicarbonas": ("sodium bicarbonate", "alkalinizing_agent"), # <-- FIX: Catches Bicarbonas Natricus
         "bicarbonate": ("sodium bicarbonate", "alkalinizing_agent"),
-        "gabapentin": ("gabapentin", "gabapentinoid"), # Prevents false Major alert with Nifedipine
+        "gabapentin": ("gabapentin", "gabapentinoid"),
         "meloxicam": ("meloxicam", "nsaid"),
         "captopril": ("captopril", "ace-inhibitor"),
         "nifedipine": ("nifedipine", "ccb"),
         "simvastatin": ("simvastatin", "statin"),
-        "humalog": ("insulin", "insulin")
+        "humalog": ("insulin", "insulin"),
+        "insulin": ("insulin", "insulin")
     }
     
     for kw, result in overrides.items():
@@ -288,7 +290,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "10.2 - Granular Class Overrides"}
+def read_root(): return {"status": "active", "version": "10.3 - Exact Match Overrides"}
 
 if __name__ == '__main__':
     import uvicorn
