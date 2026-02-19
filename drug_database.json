@@ -345,14 +345,14 @@
   {
     "brand_name": "natrium bikarbonat tab 500 mg",
     "generic_name": "Sodium, Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "natrium bikarbonat Injeksi 8,4%",
     "generic_name": "Sodium, Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -1927,14 +1927,14 @@
   {
     "brand_name": "glibenklamid tab 2,5 mg",
     "generic_name": "Glyburide",
-    "drug_class": "unknown",
+    "drug_class": "sulfonylurea",
     "dose_mg": 2.5,
     "is_pediatric": false
   },
   {
     "brand_name": "glibenklamid tab 5 mg",
     "generic_name": "Glyburide",
-    "drug_class": "unknown",
+    "drug_class": "sulfonylurea",
     "dose_mg": 5.0,
     "is_pediatric": false
   },
@@ -1955,77 +1955,77 @@
   {
     "brand_name": "glimepirid tab 1 mg",
     "generic_name": "Glimepirid",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": 1.0,
     "is_pediatric": false
   },
   {
     "brand_name": "glimepirid tab 2 mg",
     "generic_name": "Glimepirid",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": 2.0,
     "is_pediatric": false
   },
   {
     "brand_name": "glimepirid tab 3 mg",
     "generic_name": "Glimepirid",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": 3.0,
     "is_pediatric": false
   },
   {
     "brand_name": "glimepirid tab 4 mg",
     "generic_name": "Glimepirid",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": 4.0,
     "is_pediatric": false
   },
   {
     "brand_name": "glipizid tab 5 mg",
     "generic_name": "Glipizid",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": 5.0,
     "is_pediatric": false
   },
   {
     "brand_name": "glipizid tab 10 mg",
     "generic_name": "Glipizid",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": 10.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metformin tab 500 mg",
     "generic_name": "Metformin",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metformin tab 850 mg",
     "generic_name": "Metformin",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": 850.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin basal Injeksi 100 IU",
     "generic_name": "Insulin, Basal",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin prandial Injeksi 100 IU",
     "generic_name": "Insulin, Prandial",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin campuran Injeksi 100 IU",
     "generic_name": "Insulin, Campuran",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
@@ -2445,14 +2445,14 @@
   {
     "brand_name": "fenofibrat kaps 100 mg",
     "generic_name": "Fenofibrat",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "fenofibrat kaps 300 mg",
     "generic_name": "Fenofibrat",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
@@ -2641,7 +2641,7 @@
   {
     "brand_name": "Serbuk garam oralit",
     "generic_name": "Oral, Rehydration, Salts",
-    "drug_class": "unknown",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -3831,28 +3831,28 @@
   {
     "brand_name": "metformin",
     "generic_name": "Metformin",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "glimepiride",
     "generic_name": "Glimepiride",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "glyburide",
     "generic_name": "glyburide",
-    "drug_class": "unknown",
+    "drug_class": "sulfonylurea",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin",
     "generic_name": "Insulin",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -3964,7 +3964,7 @@
   {
     "brand_name": "neurontin",
     "generic_name": "Gabapentin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4013,7 +4013,7 @@
   {
     "brand_name": "amaryl",
     "generic_name": "Glimepiride",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4818,7 +4818,7 @@
   {
     "brand_name": "GLIQUIDONE",
     "generic_name": "Glimepiride",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4853,7 +4853,7 @@
   {
     "brand_name": "METFORMIN Hydrochloride",
     "generic_name": "Metformin",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5189,7 +5189,7 @@
   {
     "brand_name": "DIAGIT",
     "generic_name": "glyburide",
-    "drug_class": "unknown",
+    "drug_class": "sulfonylurea",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5581,7 +5581,7 @@
   {
     "brand_name": "glibenclamide",
     "generic_name": "glyburide",
-    "drug_class": "unknown",
+    "drug_class": "sulfonylurea",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5672,7 +5672,7 @@
   {
     "brand_name": "Fenofibrate",
     "generic_name": "Fenofibrate",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5721,14 +5721,14 @@
   {
     "brand_name": "Sitagliptin",
     "generic_name": "Sitagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Pioglitazone",
     "generic_name": "Pioglitazone",
-    "drug_class": "antidiabetic",
+    "drug_class": "antidiabetic_other",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5833,7 +5833,7 @@
   {
     "brand_name": "Bicarbonas Natricus",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5854,21 +5854,21 @@
   {
     "brand_name": "Gabapentin",
     "generic_name": "Gabapentin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Glybenclamide",
     "generic_name": "Glyburide",
-    "drug_class": "unknown",
+    "drug_class": "sulfonylurea",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Humalog",
     "generic_name": "Insulin Lispro",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6274,7 +6274,7 @@
   {
     "brand_name": "Imatinib",
     "generic_name": "Imatinib",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6386,7 +6386,7 @@
   {
     "brand_name": "Metformin Hydrochloride",
     "generic_name": "Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6498,7 +6498,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6603,7 +6603,7 @@
   {
     "brand_name": "Qtern",
     "generic_name": "Dapagliflozin And Saxagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6778,7 +6778,7 @@
   {
     "brand_name": "Quabic-100",
     "generic_name": "Hemodialysis Grade Sodium Bicarbonate Solution",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6806,7 +6806,7 @@
   {
     "brand_name": "Quabic-300",
     "generic_name": "Hemodialysis Grade Sodium Bicarbonate Solution",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -7198,14 +7198,14 @@
   {
     "brand_name": "Trazimera",
     "generic_name": "Trastuzumab-Qyyp",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Docetaxel",
     "generic_name": "Docetaxel Anhydrous",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8283,7 +8283,7 @@
   {
     "brand_name": "Gemfibrozil",
     "generic_name": "Gemfibrozil",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8493,7 +8493,7 @@
   {
     "brand_name": "Imatinib Mesylate",
     "generic_name": "Imatinib",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -9025,7 +9025,7 @@
   {
     "brand_name": "Inpefa",
     "generic_name": "Sotagliflozin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -10369,7 +10369,7 @@
   {
     "brand_name": "Omega-3-Acid Ethyl Esters",
     "generic_name": "Omega-3-Acid Ethyl Esters",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -10747,7 +10747,7 @@
   {
     "brand_name": "Metadate Cd",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -10964,7 +10964,7 @@
   {
     "brand_name": "Novolog",
     "generic_name": "Insulin Aspart",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -11769,7 +11769,7 @@
   {
     "brand_name": "Lisdexamfetamine Dimesylate",
     "generic_name": "Lisdexamfetamine Dimesylate",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -12763,7 +12763,7 @@
   {
     "brand_name": "Glipizide",
     "generic_name": "Glipizide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -13659,7 +13659,7 @@
   {
     "brand_name": "Oxcarbazepine",
     "generic_name": "Oxcarbazepine",
-    "drug_class": "unknown",
+    "drug_class": "anticonvulsant",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -13946,7 +13946,7 @@
   {
     "brand_name": "Insect Sting Relief Pad 01",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -16501,7 +16501,7 @@
   {
     "brand_name": "Fcs Cp",
     "generic_name": "Corticotropin,Glutamicacid,Mucunapuriensseed,Serotonin,Epinephrine,Niacinamide,Ubidecarenone,Adenosinetriphosphate,Insulinpork,Susscrofaparathyroidgland,Susscrofapituitarygland,Thiaminehydrochloride,Thyroid,Unspecified,Anhydrouscitricacid,Herringspermdna,Saccharomycescerevisiaerna,Anacardiumoccidentalefruit,Arsenictrioxide,Asparticacid,Bariumcarbonate,Oystershellcalciumcarbonate,Crude,Clematisrectafloweringtop,Lycopodiumclavatumspore,Anemonepulsatilla,Daturastramonium,Sulfur",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -18559,7 +18559,7 @@
   {
     "brand_name": "Professional Weight Maintenance",
     "generic_name": "Asclepias Vincetoxicum, Echinacea (Angustifolia), Hypothalamus (Suis), Hepar Suis, Kidney (Suis), Methylcobalamin, Gambogia, Graphites, Nux Vomica, Phytolacca Decandra, 7-Oxo-Dehydroepiandrosterone 3-Acetate (7-Keto), Adenosinum Triphosphoricum Dinatrum, Insulinum (Suis), Pancreas Suis, Sarcolacticum Acidum, Proteus (Vulgaris)",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -19210,7 +19210,7 @@
   {
     "brand_name": "Dna Pancreas Formula",
     "generic_name": "Lycopodium Clavatum, Pancreas Suis, Dna, Insulinum, Phosphoricum Acidum, Radium Bromatum, Uranium Nitricum",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -19518,7 +19518,7 @@
   {
     "brand_name": "Buprenorphine",
     "generic_name": "Buprenorphine",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -20029,14 +20029,14 @@
   {
     "brand_name": "Metformin Hcl",
     "generic_name": "Metformin Hcl",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Methylphenidate",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -20106,7 +20106,7 @@
   {
     "brand_name": "Glipizide And Metformin Hcl",
     "generic_name": "Glipizide And Metformin Hcl",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -20337,7 +20337,7 @@
   {
     "brand_name": "Tradjenta",
     "generic_name": "Linagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -20932,7 +20932,7 @@
   {
     "brand_name": "Insulin Aspart",
     "generic_name": "Insulin Aspart",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -21254,7 +21254,7 @@
   {
     "brand_name": "Dexmethylphenidate Hydrochloride",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -21534,7 +21534,7 @@
   {
     "brand_name": "Pregabalin",
     "generic_name": "Pregabalin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22178,7 +22178,7 @@
   {
     "brand_name": "Carboplatin",
     "generic_name": "Carboplatin",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22486,7 +22486,7 @@
   {
     "brand_name": "Sodium Bicarbonate",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22948,7 +22948,7 @@
   {
     "brand_name": "Flumazenil",
     "generic_name": "Flumazenil",
-    "drug_class": "unknown",
+    "drug_class": "antidote",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -23466,7 +23466,7 @@
   {
     "brand_name": "Paclitaxel Paclitaxel",
     "generic_name": "Paclitaxel",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -23501,7 +23501,7 @@
   {
     "brand_name": "Atomoxetine",
     "generic_name": "Atomoxetine",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -23837,7 +23837,7 @@
   {
     "brand_name": "Novolog Mix 70/30",
     "generic_name": "Insulin Aspart",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -24124,7 +24124,7 @@
   {
     "brand_name": "Dexmethylphenidate Hydrochloride Extended-Release",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -25272,7 +25272,7 @@
   {
     "brand_name": "Sodium Bicarbonate Antacid",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -25377,7 +25377,7 @@
   {
     "brand_name": "Insulin Lispro",
     "generic_name": "Insulin Lispro",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -26875,7 +26875,7 @@
   {
     "brand_name": "Ha2Cg Evolution",
     "generic_name": "7-Oxo-Dehydroepiandrosterone 3-Acetate, Aacg-A, Aacg-B, Adenosinum Triphosphoricum Dinatrum, Asclepias Vincetoxicum, Calcarea Carbonica, Cerebrum Suis, Echinacea (Angustifolia), Gambogia, Gelsemium Sempervirens, Graphites, Hepar Suis, Hypothalamus (Suis), Insulinum (Suis), Kidney (Suis), Methylcobalamin, Nux Vomica, Pancreas Suis, Phytolacca Decandra, Proteus (Vulgaris), Sarcolacticum Acidum, Stomach (Suis)",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -26980,7 +26980,7 @@
   {
     "brand_name": "Docetaxel",
     "generic_name": "Docetaxel",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -27603,7 +27603,7 @@
   {
     "brand_name": "Pferdebalsam",
     "generic_name": "Pferdebalsam",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -28233,7 +28233,7 @@
   {
     "brand_name": "Elliotts B",
     "generic_name": "Sodium Cation, Sodium Bicarbonate, Anhydrous Dextrose, Magnesium Sulfate, Potassium Chloride, Calcium Chloride, Sodium Phosphate",
-    "drug_class": "supplement",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -28821,7 +28821,7 @@
   {
     "brand_name": "Ohtas Isan Antacid",
     "generic_name": "Calcium Carbonate, Sodium Bicarbonate",
-    "drug_class": "supplement",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -29395,7 +29395,7 @@
   {
     "brand_name": "Indapamide",
     "generic_name": "Indapamide",
-    "drug_class": "unknown",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -30235,7 +30235,7 @@
   {
     "brand_name": "Metformin",
     "generic_name": "Metformin Er 500 Mg",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
@@ -31607,7 +31607,7 @@
   {
     "brand_name": "Good Sense Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31621,7 +31621,7 @@
   {
     "brand_name": "Kroger Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31642,7 +31642,7 @@
   {
     "brand_name": "Humalog Mix50/50 Kwikpen",
     "generic_name": "Insulin Lispro",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31670,7 +31670,7 @@
   {
     "brand_name": "Dg Health Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -31761,7 +31761,7 @@
   {
     "brand_name": "Cvs Health Antacid And Pain Reliever",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -34792,7 +34792,7 @@
   {
     "brand_name": "Sinucleanse Neti-Pot",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -34806,7 +34806,7 @@
   {
     "brand_name": "Sinus Wash Packet",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -34841,7 +34841,7 @@
   {
     "brand_name": "Cvs",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -34890,7 +34890,7 @@
   {
     "brand_name": "Invokana",
     "generic_name": "Canagliflozin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -36633,7 +36633,7 @@
   {
     "brand_name": "Januvia",
     "generic_name": "Sitagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "antidiabetic_other",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -36710,7 +36710,7 @@
   {
     "brand_name": "Metformin Hydrochloride Extended Release",
     "generic_name": "Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -36850,7 +36850,7 @@
   {
     "brand_name": "Alka-Seltzer Heartburn Relief Lemon Lime",
     "generic_name": "Anhydrous Citric Acid, Sodium Bicarbonate (Heat-Treated)",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -37172,21 +37172,21 @@
   {
     "brand_name": "Jobevne",
     "generic_name": "Bevacizumab-Nwgd",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Paclitaxel",
     "generic_name": "Paclitaxel",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Hydromorphone Hydrochloride",
     "generic_name": "Hydromorphone Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -37438,7 +37438,7 @@
   {
     "brand_name": "Jardiance",
     "generic_name": "Empagliflozin",
-    "drug_class": "antidiabetic",
+    "drug_class": "antidiabetic_other",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -37459,7 +37459,7 @@
   {
     "brand_name": "Imatinib Mesylate",
     "generic_name": "Imatinib Mesylate",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -37676,7 +37676,7 @@
   {
     "brand_name": "Alka Seltzer Originial 1S Blister Pack",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -38558,7 +38558,7 @@
   {
     "brand_name": "Merilog",
     "generic_name": "Insulin Aspart-Szjj",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -38803,7 +38803,7 @@
   {
     "brand_name": "Glyburide And Metformin Hydrochloride",
     "generic_name": "Glyburide And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -39300,7 +39300,7 @@
   {
     "brand_name": "Dilaudid",
     "generic_name": "Hydromorphone Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -39398,7 +39398,7 @@
   {
     "brand_name": "Soft Tip Neti Pot Sinus Wash Meijer",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -40336,7 +40336,7 @@
   {
     "brand_name": "Strattera",
     "generic_name": "Atomoxetine Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -41008,7 +41008,7 @@
   {
     "brand_name": "Lyrica Cr",
     "generic_name": "Pregabalin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -41603,7 +41603,7 @@
   {
     "brand_name": "Gabarone",
     "generic_name": "Gabapentin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -42016,7 +42016,7 @@
   {
     "brand_name": "Atomoxetine Hydrochloride",
     "generic_name": "Atomoxetine Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -42240,7 +42240,7 @@
   {
     "brand_name": "Coralite Capsaicin Heat Patch 2Ct",
     "generic_name": "Capsaicin",
-    "drug_class": "topical_analgesic",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -42583,7 +42583,7 @@
   {
     "brand_name": "Lyumjev",
     "generic_name": "Insulin Lispro-Aabc",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -42667,7 +42667,7 @@
   {
     "brand_name": "Metformin Er 500 Mg",
     "generic_name": "Metformin Er 500 Mg",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
@@ -43346,7 +43346,7 @@
   {
     "brand_name": "Buprenorphine And Naloxone",
     "generic_name": "Buprenorphine And Naloxone",
-    "drug_class": "antidote",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -43598,7 +43598,7 @@
   {
     "brand_name": "Linagliptin And Metformin Hydrochloride",
     "generic_name": "Linagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -43745,7 +43745,7 @@
   {
     "brand_name": "Alka-Seltzer Hangover Relief",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -43808,7 +43808,7 @@
   {
     "brand_name": "Alogliptin And Pioglitazone",
     "generic_name": "Alogliptin Benzoate And Pioglitazone Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "antidiabetic_other",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -43864,7 +43864,7 @@
   {
     "brand_name": "Prismasol Bgk2/0",
     "generic_name": "Magnesium Chloride, Dextrose Anhydrous, Lactic Acid, Sodium Chloride, Sodium Bicarbonate, And Potassium Chloride",
-    "drug_class": "supplement",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -44235,7 +44235,7 @@
   {
     "brand_name": "Polyethylene Glycol 3350, Sodium Chloride, Sodium Bicarbonate And Potassium Chloride - Unflavored",
     "generic_name": "Polyethylene Glycol 3350, Sodium Chloride, Sodium Bicarbonate And Potassium Chloride - Unflavored",
-    "drug_class": "laxative",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -44417,7 +44417,7 @@
   {
     "brand_name": "Alka-Seltzer Original",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -44788,7 +44788,7 @@
   {
     "brand_name": "Phesgo",
     "generic_name": "Pertuzumab, Trastuzumab, And Hyaluronidase-Zzxf",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -46986,7 +46986,7 @@
   {
     "brand_name": "Bexagliflozin",
     "generic_name": "Bexagliflozin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -48085,7 +48085,7 @@
   {
     "brand_name": "Saxagliptin",
     "generic_name": "Saxagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49275,7 +49275,7 @@
   {
     "brand_name": "Glyburide-Metformin Hydrochloride",
     "generic_name": "Glyburide-Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49576,7 +49576,7 @@
   {
     "brand_name": "Sal De Uvas Picot",
     "generic_name": "Citric Acid Monohydrate, Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -49779,7 +49779,7 @@
   {
     "brand_name": "Farxiga",
     "generic_name": "Dapagliflozin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -51557,7 +51557,7 @@
   {
     "brand_name": "Guna-Igf",
     "generic_name": "Insulin-Like Growth Factor-1",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 1000.0,
     "is_pediatric": false
   },
@@ -57052,7 +57052,7 @@
   {
     "brand_name": "Lyrica",
     "generic_name": "Pregabalin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -58067,7 +58067,7 @@
   {
     "brand_name": "Metformin Hydrochloride",
     "generic_name": "Metformin Hydrochloride Extended-Release Tablets",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -58592,7 +58592,7 @@
   {
     "brand_name": "Omega-3-Acid Ethyl Ester",
     "generic_name": "Omega-3-Acid Ethyl Esters",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -58620,7 +58620,7 @@
   {
     "brand_name": "Golytely",
     "generic_name": "Polyethylene Glycol 3350, Sodium Sulfate Anhydrous, Sodium Bicarbonate, Sodium Chloride, Potassium Chloride",
-    "drug_class": "laxative",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -58704,7 +58704,7 @@
   {
     "brand_name": "Tresiba",
     "generic_name": "Insulin Degludec",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -60622,7 +60622,7 @@
   {
     "brand_name": "Humulin N",
     "generic_name": "Insulin Human",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -61672,7 +61672,7 @@
   {
     "brand_name": "Isentress",
     "generic_name": "Raltegravir",
-    "drug_class": "unknown",
+    "drug_class": "antiretroviral",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -63513,7 +63513,7 @@
   {
     "brand_name": "Cvs Health Extra Strength Antacid And Pain Reliever",
     "generic_name": "Aspirin, Anhydrous Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -65011,7 +65011,7 @@
   {
     "brand_name": "Rohto Cool Relief",
     "generic_name": "Naphazoline Hydrochloride, Polysorbate 80",
-    "drug_class": "unknown",
+    "drug_class": "ophthalmic_lubricant",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -67650,7 +67650,7 @@
   {
     "brand_name": "Sodium Bicarbonate 10 Gr",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": 10000.0,
     "is_pediatric": false
   },
@@ -68049,7 +68049,7 @@
   {
     "brand_name": "Well At Walgreens",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -68140,7 +68140,7 @@
   {
     "brand_name": "Alogliptin",
     "generic_name": "Alogliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -68469,7 +68469,7 @@
   {
     "brand_name": "Cvs",
     "generic_name": "Sodium Chloride, Sodium Bicarbonate",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -69358,7 +69358,7 @@
   {
     "brand_name": "Buprenorphine Hydrochloride",
     "generic_name": "Buprenorphine Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -69792,7 +69792,7 @@
   {
     "brand_name": "Janumet",
     "generic_name": "Sitagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -70702,7 +70702,7 @@
   {
     "brand_name": "Dianeal Low Calcium With Dextrose",
     "generic_name": "Sodium Chloride, Sodium Lactate, Calcium Chloride, Magnesium Chloride And Dextrose",
-    "drug_class": "supplement",
+    "drug_class": "oral_contraceptive",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -71045,7 +71045,7 @@
   {
     "brand_name": "Kadcyla",
     "generic_name": "Ado-Trastuzumab Emtansine",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -71542,7 +71542,7 @@
   {
     "brand_name": "Tricor",
     "generic_name": "Fenofibrate",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -71857,7 +71857,7 @@
   {
     "brand_name": "Mvasi",
     "generic_name": "Bevacizumab-Awwb",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -73964,7 +73964,7 @@
   {
     "brand_name": "Sublocade",
     "generic_name": "Buprenorphine",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -74615,7 +74615,7 @@
   {
     "brand_name": "Coralite Cold And Hot",
     "generic_name": "Menthol",
-    "drug_class": "topical_analgesic",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -74979,7 +74979,7 @@
   {
     "brand_name": "Lantus Solostar",
     "generic_name": "Insulin Glargine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -75504,7 +75504,7 @@
   {
     "brand_name": "Kazano",
     "generic_name": "Alogliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -75532,21 +75532,21 @@
   {
     "brand_name": "Pioglitazone Hydrochloride And Metformin Hydrochloride",
     "generic_name": "Pioglitazone Hydrochloride And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Invokamet",
     "generic_name": "Canagliflozin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Saxagliptin And Metformin",
     "generic_name": "Saxagliptin And Metformin",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76022,7 +76022,7 @@
   {
     "brand_name": "Synjardy Xr",
     "generic_name": "Empagliflozin, Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76379,7 +76379,7 @@
   {
     "brand_name": "Zituvimet",
     "generic_name": "Sitagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76477,7 +76477,7 @@
   {
     "brand_name": "Buprenorphine Hydrochloride And Naloxone Hydrochloride Dihydrate",
     "generic_name": "Buprenorphine Hydrochloride And Naloxone Hydrochloride Dihydrate",
-    "drug_class": "antidote",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76589,7 +76589,7 @@
   {
     "brand_name": "Lisdexamfetamine Dimesylate",
     "generic_name": "Lisdexamfetamine",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -76792,7 +76792,7 @@
   {
     "brand_name": "Glipizide And Metformin Hydrochloride",
     "generic_name": "Glipizide And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -77058,7 +77058,7 @@
   {
     "brand_name": "Sitagliptin And Metformin Hydrochloride",
     "generic_name": "Sitagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -77086,7 +77086,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride Cd",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -77121,7 +77121,7 @@
   {
     "brand_name": "Trijardy Xr",
     "generic_name": "Empagliflozin, Linagliptin, Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -77275,7 +77275,7 @@
   {
     "brand_name": "Zituvimet Xr",
     "generic_name": "Sitagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -79676,7 +79676,7 @@
   {
     "brand_name": "Paclitaxel Protein-Bound Particles",
     "generic_name": "Paclitaxel Protein-Bound Particles",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80362,7 +80362,7 @@
   {
     "brand_name": "Rituxan",
     "generic_name": "Rituximab",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80460,7 +80460,7 @@
   {
     "brand_name": "Powerfulx Ginseng Recoverycream",
     "generic_name": "Panax Ginseng Root Water, Acetyl Glucosamine, Dimethyl Sulfone",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -80495,7 +80495,7 @@
   {
     "brand_name": "N-9",
     "generic_name": "Phosphorus, Citrullus Colocynthis Fruit Pulp, Iris Versicolor Whole, Lycopodium Clavatum Whole, Momordica Balsamina Whole, And Bos Taurus Pancreas",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -81027,7 +81027,7 @@
   {
     "brand_name": "Pregabalin Extended Release",
     "generic_name": "Pregabalin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -81293,7 +81293,7 @@
   {
     "brand_name": "Herceptin Hylecta",
     "generic_name": "Trastuzumab And Hyaluronidase-Oysk",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -82000,7 +82000,7 @@
   {
     "brand_name": "Glimepiride 3 Mg",
     "generic_name": "Glimepiride",
-    "drug_class": "antidiabetic",
+    "drug_class": "sulfonylurea",
     "dose_mg": 3.0,
     "is_pediatric": false
   },
@@ -82574,7 +82574,7 @@
   {
     "brand_name": "Humalog Kwikpen",
     "generic_name": "Insulin Lispro",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -83631,7 +83631,7 @@
   {
     "brand_name": "Pancreas Liquescence",
     "generic_name": "Cinnamomum, Gymnema Sylvestre, Phosphoricum Acidum, Syzygium Jambolanum, Trigonella Foenum-Graceum, Argentum Nitricum, Chionanthus Virginica, Hepar Suis, Pancreas Suis, Rhus Aromatica, Sulphur, Lycopodium Clavatum, Chromium Picolinate, Chromium Metallicum, Phosphorus, Vanadium Metallicum, Zincum Metallicum, Murex Purpurea, Dna, Insulinum (Human), Uranium Nitricum",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -83743,7 +83743,7 @@
   {
     "brand_name": "Panacode",
     "generic_name": "Syzygium, Hydrastis, Adrenalinum, Pancreatinum, Pituitarum Posterium, Bovista, Insulin, Lycopersicum, Phosphoricum Ac, Phosphorus, Tarentula Hispana, Terebinthina, Uranium Nitricum",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -84702,7 +84702,7 @@
   {
     "brand_name": "Fcs Hp",
     "generic_name": "Epinephrine,Glutamicacid,Mucunapruriensseed,Niacinamide,Serotonin,Ubidecarenone,Corticotropin,Adenosinetriphosphate,Insulinpork,Susscrofaparathyroidgland,Susscrofapituitarygland,Thiaminehydrochloride,Thyroid,Anhydrouscitricacid,Herringspermdna,Saccharomycescerevisiaerna,Anacardiumoccidentalefruit,Arsenictrioxide,Asparticacid,Bariumcarbonate,Oystershellcalciumcarbonatecrude,Clematisrectafloweringtop,Lycopodiumclavatumspore,Anemonepulsatilla,Daturastramonium,Sulfur",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -85164,7 +85164,7 @@
   {
     "brand_name": "Metabolism Manager",
     "generic_name": "Asclepias Vincetoxicum, Echinacea (Angustifolia), Hypothalamus Suis, Cerebrum Suis, Hepar Suis, Kidney (Suis), Methylcobalamin, Pancreas Suis, Stomach (Suis), Aacg-A, Aacg-B, Calcarea Carbonica, Gambogia, Gelsemium Sempervirens, Graphites, Nux Vomica, Phytolacca Decandra, 7-Oxo-Dehydroepiandrosterone-3Beta-Acetate (7-Keto), Adenosinum Triphosphoricum Dinatrum, Insulinum (Suis), Sarcolacticum Acidum, Proteus (Vulgaris)",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -85199,7 +85199,7 @@
   {
     "brand_name": "Weight Management",
     "generic_name": "Asclepias Vincetoxicum, Echinacea (Angustifolia), Hypothalamus (Suis), Cerebrum Suis, Hepar Suis, Kidney (Suis), Methylcobalamin, Pancreas Suis, Stomach (Suis), Aacg-A, Aacg-B, Calcarea Carbonica, Gelsemium Sempervirens, Graphites, Nux Vomica, Phytolacca Decandra, Gambogia, 7-Oxo-Dehydroepiandrosterone 3-Acetate (7-Keto), Adenosinum Triphosphoricum Dinatrum, Insulinum (Suis), Sarcolacticum Acidum, Proteus (Vulgaris)",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -86249,7 +86249,7 @@
   {
     "brand_name": "B02 Adrenal Pep",
     "generic_name": "Aceticum Acidum, Adrenalinum, American Ginseng, Arnica Montana, Balsamum Peruvianum, Bos Taurus Pituitarum Posterium, Cherry Plum Flower, Chininum Arsenicosum, Cinchona Officinalis, Clematis Vitalba Flower, Damiana, European Hornbeam Flower, European Olive Flower, Glycyrrhiza Glabra, Impatiens Glandulifera Flower, Kali Phosphoricum, Lycopodium Clavatum, Magnesia Phosphorica, Phosphoricum Acidum, Phosphorus, Pyrenees Star Of Bethlehem, Rockrose Flower, Selenium Metallicum, Thyroidinum",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -89000,7 +89000,7 @@
   {
     "brand_name": "Buprenorphine Hcl",
     "generic_name": "Buprenorphine Hcl",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -89014,7 +89014,7 @@
   {
     "brand_name": "Sodium Bicarbonate 10 Gr. (650 Mg)",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": 10000.0,
     "is_pediatric": false
   },
@@ -89763,7 +89763,7 @@
   {
     "brand_name": "Alka-Seltzer Heartburn",
     "generic_name": "Anhydrous Citric Acid, Sodium Bicarbonate (Heat-Treated)",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -90330,7 +90330,7 @@
   {
     "brand_name": "Peg-3350 And Electrolytes",
     "generic_name": "Polyethylene Glycol 3350, Sodium Sulfate Anhydrous, Sodium Bicarbonate, Sodium Chloride, Potassium Chloride",
-    "drug_class": "laxative",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -90652,7 +90652,7 @@
   {
     "brand_name": "Acarbose",
     "generic_name": "Acarbose",
-    "drug_class": "antidiabetic",
+    "drug_class": "antidiabetic_other",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -92199,7 +92199,7 @@
   {
     "brand_name": "Buprenorphine Sublingual",
     "generic_name": "Buprenorphine Sublingual",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -92458,7 +92458,7 @@
   {
     "brand_name": "Sodium Bicarbonate",
     "generic_name": "Sodium Bicarbonate Injection,",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -92668,7 +92668,7 @@
   {
     "brand_name": "De La Cruz Desempacho",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -93053,7 +93053,7 @@
   {
     "brand_name": "Buprenorphine Sublingual C-Iii",
     "generic_name": "Buprenorphine Sublingual C-Iii",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -94439,7 +94439,7 @@
   {
     "brand_name": "Leader Extra Strength Effervescent Antacid And Pain Reliever",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -94901,7 +94901,7 @@
   {
     "brand_name": "Rapidol Sodium Bicarbonate",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -95902,7 +95902,7 @@
   {
     "brand_name": "Bromo Seltzer",
     "generic_name": "Aspirin, Sodium Bicarbonate, Citric Acid",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -96028,7 +96028,7 @@
   {
     "brand_name": "Quality Choice Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -96910,7 +96910,7 @@
   {
     "brand_name": "Metformin Hydrochloride Oral Solution",
     "generic_name": "Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -99738,7 +99738,7 @@
   {
     "brand_name": "Sodium Bicarbonate 10Gr (650Mg)",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": 10000.0,
     "is_pediatric": false
   },
@@ -100116,7 +100116,7 @@
   {
     "brand_name": "Jba Joint Revive",
     "generic_name": "Glucosamine Sulfate Potassium Chloride,White Willow Bark Extract,Eggshell Membrane Collagen,Chondroitin Sulfate,Turmeric Root Extract,Bromelain,Soy Lecithin",
-    "drug_class": "electrolyte",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -100312,7 +100312,7 @@
   {
     "brand_name": "Glipizide Er",
     "generic_name": "Glipizide",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -100368,7 +100368,7 @@
   {
     "brand_name": "Actos",
     "generic_name": "Pioglitazone",
-    "drug_class": "antidiabetic",
+    "drug_class": "antidiabetic_other",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -102566,7 +102566,7 @@
   {
     "brand_name": "Metformin Hydrochloride",
     "generic_name": "Metformin Hydrochloride Tablet",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -103112,7 +103112,7 @@
   {
     "brand_name": "Medique Medi Seltzer",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -103609,7 +103609,7 @@
   {
     "brand_name": "Riabni",
     "generic_name": "Rituximab-Arrx",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -103868,7 +103868,7 @@
   {
     "brand_name": "Relexxii",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -104687,7 +104687,7 @@
   {
     "brand_name": "Emtriva",
     "generic_name": "Emtricitabine",
-    "drug_class": "unknown",
+    "drug_class": "antiretroviral",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -104715,7 +104715,7 @@
   {
     "brand_name": "Humulin R U-500",
     "generic_name": "Insulin Human",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -104757,7 +104757,7 @@
   {
     "brand_name": "Humulin 70/30",
     "generic_name": "Insulin Human",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -105436,7 +105436,7 @@
   {
     "brand_name": "Suboxone",
     "generic_name": "Buprenorphine Hydrochloride, Naloxone Hydrochloride",
-    "drug_class": "antidote",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -105520,7 +105520,7 @@
   {
     "brand_name": "Jentadueto Xr",
     "generic_name": "Linagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -105576,7 +105576,7 @@
   {
     "brand_name": "Jentadueto",
     "generic_name": "Linagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -105611,7 +105611,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride (La)",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -106675,7 +106675,7 @@
   {
     "brand_name": "Ztalmy",
     "generic_name": "Ganaxolone",
-    "drug_class": "anticonvulsant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -107004,7 +107004,7 @@
   {
     "brand_name": "Xigduo Xr",
     "generic_name": "Dapagliflozin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -108614,7 +108614,7 @@
   {
     "brand_name": "Gralise",
     "generic_name": "Gabapentin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -110161,7 +110161,7 @@
   {
     "brand_name": "Rohto Max Strength",
     "generic_name": "Naphazoline Hydrochloride, Polysorbate 80",
-    "drug_class": "unknown",
+    "drug_class": "ophthalmic_lubricant",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -112723,7 +112723,7 @@
   {
     "brand_name": "Guna-Stomach",
     "generic_name": "Activated Charcoal - Antimony Trisulfide - Bismuth Subnitrate - Dioscorea Villosa Root - Dopamine - Human Epidermal Growth Factor - Ipecac - Oregano - Picea Mariana Resin - Robinia Pseudoacacia Bark - Semecarpus Anacardium Juice - Silver Nitrate - Sus Scrofa Stomach - Sus Scrofa Sympathetic Nerve - Momordica Balsamina Immature Fruit -",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -113941,7 +113941,7 @@
   {
     "brand_name": "Glucoreg",
     "generic_name": "Ascorbicum Acidum, Pyridoxinum Hydrochloricum, Riboflavinum, Sarcolacticum Acidum, Thiaminum Hydrochloricum, Dhea (Dehydroepiandrosterone), Phloridzinum, Adenosinum Triphosphoricum Dinatrum, Alpha-Lipoicum Acidum, Citricum Acidum, Fumaricum Acidum, Nadidum, Pantothenic Acid, Acetaldehyde, Insulinum (Suis), Insulinum (Human), Hepar Suis, Pancreas Suis, Phloridzinum, Baryta Oxalica, Alloxanum, Berberis Vulgaris, Carcinosin, Lycopodium Clavatum, Momordica Balsamina, Phosphoricum Acidum, Phosphorus,",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -115845,7 +115845,7 @@
   {
     "brand_name": "Xylocaine",
     "generic_name": "Xylocaine",
-    "drug_class": "unknown",
+    "drug_class": "local_anesthetic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118036,7 +118036,7 @@
   {
     "brand_name": "Toujeo",
     "generic_name": "Insulin Glargine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118470,7 +118470,7 @@
   {
     "brand_name": "Xylocaine-Mpf With Epi",
     "generic_name": "Xylocaine-Mpf With Epi",
-    "drug_class": "unknown",
+    "drug_class": "local_anesthetic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -120717,7 +120717,7 @@
   {
     "brand_name": "Novolin 70/30",
     "generic_name": "Human Insulin",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -121998,7 +121998,7 @@
   {
     "brand_name": "Jba Joint Revive The Legend I",
     "generic_name": "Glucosamine Sulfate Potassium Chloride,Fucoidan Extract,Eggshell Membrane Collagen",
-    "drug_class": "electrolyte",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -124462,7 +124462,7 @@
   {
     "brand_name": "Meijer Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -124742,7 +124742,7 @@
   {
     "brand_name": "Drug Mart Effervescent Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -126135,7 +126135,7 @@
   {
     "brand_name": "Insulizen",
     "generic_name": "Insulin Resistance Reducer, Insulin Receptor Restore, And Blood Sugar Level Balance",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -126653,7 +126653,7 @@
   {
     "brand_name": "Balsamicum",
     "generic_name": "Balsamicum",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -127703,7 +127703,7 @@
   {
     "brand_name": "Sinus Wash Saline Refills Meijer",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132085,7 +132085,7 @@
   {
     "brand_name": "Steglatro",
     "generic_name": "Ertugliflozin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132449,7 +132449,7 @@
   {
     "brand_name": "Beizray",
     "generic_name": "Docetaxel",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132645,7 +132645,7 @@
   {
     "brand_name": "Omega-3-Acid Ethyl Esters",
     "generic_name": "Omega-3-Acid Ethyl Esters Capsules",
-    "drug_class": "unknown",
+    "drug_class": "supplement",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132785,14 +132785,14 @@
   {
     "brand_name": "Daytrana",
     "generic_name": "Methylphenidate",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Ritalin La",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -133289,7 +133289,7 @@
   {
     "brand_name": "Apidra",
     "generic_name": "Insulin Glulisine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -133387,7 +133387,7 @@
   {
     "brand_name": "Vyvanse",
     "generic_name": "Lisdexamfetamine Dimesylate",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -133429,7 +133429,7 @@
   {
     "brand_name": "Insulin Glargine Solostar",
     "generic_name": "Insulin Glargine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134010,7 +134010,7 @@
   {
     "brand_name": "Alogliptin And Metformin Hydrochloride",
     "generic_name": "Alogliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134381,7 +134381,7 @@
   {
     "brand_name": "Paclitaxel Protein Bound Particles Albumin Bound",
     "generic_name": "Paclitaxel",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134927,7 +134927,7 @@
   {
     "brand_name": "Glyxambi",
     "generic_name": "Empagliflozin And Linagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -134969,7 +134969,7 @@
   {
     "brand_name": "Alka-Seltzer Original",
     "generic_name": "Anhydrous Citric Acid, Aspirin, And Sodium Bicarbonate Tablet, Effervescent",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135004,7 +135004,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride Extended Release",
     "generic_name": "Methylphenidate Hydrochloride Extended Release",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135186,7 +135186,7 @@
   {
     "brand_name": "Methylphenidate",
     "generic_name": "Methylphenidate",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135200,7 +135200,7 @@
   {
     "brand_name": "Synjardy",
     "generic_name": "Empagliflozin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135340,7 +135340,7 @@
   {
     "brand_name": "Zubsolv",
     "generic_name": "Buprenorphine Hydrochloride And Naloxone Hydrochloride",
-    "drug_class": "antidote",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135662,7 +135662,7 @@
   {
     "brand_name": "Quillivant Xr",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -136719,7 +136719,7 @@
   {
     "brand_name": "Admelog",
     "generic_name": "Insulin Lispro",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -138875,7 +138875,7 @@
   {
     "brand_name": "Methylphenidate Hydrochloride Extended-Release",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -138966,7 +138966,7 @@
   {
     "brand_name": "Metformin",
     "generic_name": "Metformin Er 750 Mg",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": 750.0,
     "is_pediatric": false
   },
@@ -139204,7 +139204,7 @@
   {
     "brand_name": "De La Cruz Sodium Bicarbonate Antacid",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -140898,7 +140898,7 @@
   {
     "brand_name": "Ohm-Pan",
     "generic_name": "Carbo Vegetabilis, Ceanothus Americanus, Gallium Aparine, Leptandra Virginica, Mandragora Officinarum, Momordica Balsamina, Quassia Amara",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -143523,7 +143523,7 @@
   {
     "brand_name": "Matrix Support",
     "generic_name": "Ceanothus Americanus, Argentum Nitricum, Condurango, Hydrastis Canadensis, Momordica Balsamina, Pulsatilla (Pratensis), Bile Duct (Suis), Colon (Suis), Duodenum (Suis), Esophagus (Suis), Eye (Suis), Gallbladder (Suis), Ileum (Suis), Intestine (Suis), Ipecacuanha, Jejunum (Suis), Kali Bichromicum, Lung (Suis), Mucosa Nasalis Suis, Natrum Oxalaceticum, Oral Mucosa (Suis), Pancreas Suis, Phosphorus, Rectal Mucosa (Suis), Stomach (Suis), Sulphur, Veratrum Album, Mannose, Anacardium Orientale, Kreosotum,",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -145182,7 +145182,7 @@
   {
     "brand_name": "Abraxane",
     "generic_name": "Paclitaxel",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -145497,7 +145497,7 @@
   {
     "brand_name": "Insulin Degludec",
     "generic_name": "Insulin Degludec",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -145651,7 +145651,7 @@
   {
     "brand_name": "Metformin Hydrochloride Er",
     "generic_name": "Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -146407,7 +146407,7 @@
   {
     "brand_name": "Emtricitabine",
     "generic_name": "Emtricitabine",
-    "drug_class": "unknown",
+    "drug_class": "antiretroviral",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -147436,7 +147436,7 @@
   {
     "brand_name": "Butrans",
     "generic_name": "Buprenorphine",
-    "drug_class": "unknown",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -147653,7 +147653,7 @@
   {
     "brand_name": "Focalin",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -147793,7 +147793,7 @@
   {
     "brand_name": "Methylin",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -149284,7 +149284,7 @@
   {
     "brand_name": "Onglyza",
     "generic_name": "Saxagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -152133,7 +152133,7 @@
   {
     "brand_name": "Top Value Effervescent Pain Relief",
     "generic_name": "Apirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -153057,7 +153057,7 @@
   {
     "brand_name": "Ecodent Ultimate Essential Mouthcare Sparkling Clean Mint",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -153785,7 +153785,7 @@
   {
     "brand_name": "Insulin Glargine",
     "generic_name": "Insulin Glargine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -154443,7 +154443,7 @@
   {
     "brand_name": "Sinucleanse Squeeze",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -156312,7 +156312,7 @@
   {
     "brand_name": "Walgreens Sinus Wash Squeeze Bottle Kit",
     "generic_name": "Sodium Chloride, Sodium Bicarbonate",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -156984,7 +156984,7 @@
   {
     "brand_name": "Brynovin",
     "generic_name": "Sitagliptin Hydrochloride Oral",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157187,7 +157187,7 @@
   {
     "brand_name": "Ruxience",
     "generic_name": "Rituximab-Pvvr",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157229,7 +157229,7 @@
   {
     "brand_name": "Gleevec",
     "generic_name": "Imatinib Mesylate",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157740,7 +157740,7 @@
   {
     "brand_name": "Leader Sinus Wash Saline Refill Packets",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157810,7 +157810,7 @@
   {
     "brand_name": "Enhertu",
     "generic_name": "Fam-Trastuzumab Deruxtecan-Nxki",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -158489,7 +158489,7 @@
   {
     "brand_name": "Paclitaxel Protein-Bound Particles For Injectable Suspension (Albumin-Bound)",
     "generic_name": "Paclitaxel",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -160211,7 +160211,7 @@
   {
     "brand_name": "Ontruzant",
     "generic_name": "Trastuzumab",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -160876,7 +160876,7 @@
   {
     "brand_name": "Steglujan",
     "generic_name": "Ertugliflozin And Sitagliptin",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -161023,14 +161023,14 @@
   {
     "brand_name": "Pioglitazone Hydrochloride",
     "generic_name": "Pioglitazone Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "antidiabetic_other",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Kombiglyze Xr",
     "generic_name": "Saxagliptin And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -161282,7 +161282,7 @@
   {
     "brand_name": "Oxtellar Xr",
     "generic_name": "Oxcarbazepine",
-    "drug_class": "unknown",
+    "drug_class": "anticonvulsant",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -161520,7 +161520,7 @@
   {
     "brand_name": "Azstarys",
     "generic_name": "Serdexmethylphenidate And Dexmethylphenidate",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -161961,7 +161961,7 @@
   {
     "brand_name": "Focalin Xr",
     "generic_name": "Dexmethylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -163046,7 +163046,7 @@
   {
     "brand_name": "Aptensio Xr",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -163081,7 +163081,7 @@
   {
     "brand_name": "Methylphenidate Transdermal System",
     "generic_name": "Methylphenidate",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -164208,7 +164208,7 @@
   {
     "brand_name": "Sodium Bicarbonate 5Gr (325Mg)",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": 5000.0,
     "is_pediatric": false
   },
@@ -164467,7 +164467,7 @@
   {
     "brand_name": "Emtricitabine/Tdf",
     "generic_name": "Emtricitabine/Tdf",
-    "drug_class": "unknown",
+    "drug_class": "antiretroviral",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -164831,7 +164831,7 @@
   {
     "brand_name": "Novolin N",
     "generic_name": "Human Insulin",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -165083,7 +165083,7 @@
   {
     "brand_name": "Rohto Cool Max",
     "generic_name": "Naphazoline Hydrochloride, Polysorbate 80",
-    "drug_class": "unknown",
+    "drug_class": "ophthalmic_lubricant",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -165111,14 +165111,14 @@
   {
     "brand_name": "Signature Care Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Rite Aid Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -167736,7 +167736,7 @@
   {
     "brand_name": "Cicatrisan Cream",
     "generic_name": "Calendula Officinalis, Phytolacca Decandra, Bryonia Dioica, Balsamum Peruvianum, Dulcamara",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -167750,7 +167750,7 @@
   {
     "brand_name": "Weight Management Support",
     "generic_name": "Asclepias Vincetoxicum, Echinacea (Angustifolia), Hypothalamus (Suis), Cerebrum (Suis), Hepar Suis, Kidney (Suis), Methylcobalamin, Pancreas Suis, Stomach (Suis), Aacg-A, Aacg-B, Calcarea Carbonica, Gambogia, Gelsemium Sempervirens, Graphites, Nux Vomica, Phytolacca Decandra, 7-Keto (3-Acetyl-7-Oxo-Dehydroepiandrosterone), Adenosinum Triphosphoricum Dinatrum, Glucagon, Insulinum, Sarcolacticum Acidum, Proteus (Vulgaris)",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -169066,7 +169066,7 @@
   {
     "brand_name": "Breathtone",
     "generic_name": "Lobelia Inflata, Verbascum Thapsus, Balsamum Peruvianum, Antimonium Tartaricum, Arsenicum Album, Drosera (Rotundifolia), Kali Bichromicum, Kali Carbonicum, Natrum Sulphuricum, Phosphorous, Spongia Tosta",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -170172,7 +170172,7 @@
   {
     "brand_name": "Glucoreg",
     "generic_name": "Ascorbicum Acidum, Pyridoxinum Hydrochloricum, Riboflavinum, Sarcolacticum Acidum, Thiaminum Hydrochloricum, Dhea (Dehydroepiandrosterone), Adenosinum Triphosphoricum Dinatrum, Alpha-Lipoicum Acidum, Citricum Acidum, Fumaricum Acidum, Nadidum, Pantothenic Acid, Acetaldehyde, Insulinum (Suis), Insulinum (Human), Hepar Suis, Pancreas Suis, Phloridzinum, Alloxanum, Berberis Vulgaris, Carcinosin, Lycopodium Clavatum, Momordica Balsamina, Phosphoricum Acidum, Phosphorus, Syzygium Jambolanum,",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -170921,7 +170921,7 @@
   {
     "brand_name": "Alka-Seltzer Extra Strength",
     "generic_name": "Anhydrous Citric Acid, Sodium Bicarbonate, And Aspirin",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -171593,7 +171593,7 @@
   {
     "brand_name": "Imatinib Mesylate 400 Mg",
     "generic_name": "Imatinib Mesylate",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": 400.0,
     "is_pediatric": false
   },
@@ -173357,7 +173357,7 @@
   {
     "brand_name": "Docetaxel Anhydrous",
     "generic_name": "Docetaxel Anhydrous",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -176913,7 +176913,7 @@
   {
     "brand_name": "Herceptin",
     "generic_name": "Trastuzumab",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -177662,7 +177662,7 @@
   {
     "brand_name": "Best Choice Effervescent Antacid Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -178838,7 +178838,7 @@
   {
     "brand_name": "Imkeldi",
     "generic_name": "Imatinib Oral",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -178936,7 +178936,7 @@
   {
     "brand_name": "Ecodent Ultimate Essential Mouthcare Spicy-Cool Cinnamon",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -180392,7 +180392,7 @@
   {
     "brand_name": "Sinucleanse",
     "generic_name": "Sodium Bicarbonate, Sodium Chloride",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -180931,7 +180931,7 @@
   {
     "brand_name": "Ritalin",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -181694,7 +181694,7 @@
   {
     "brand_name": "Actoplus Met",
     "generic_name": "Pioglitazone And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -182226,7 +182226,7 @@
   {
     "brand_name": "Metformin Hydrochloride Extended-Release",
     "generic_name": "Metformin Hydrochloride Extended-Release",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -183150,7 +183150,7 @@
   {
     "brand_name": "Pregabalin Capsules, Cv",
     "generic_name": "Pregabalin Capsules, Cv",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -183395,7 +183395,7 @@
   {
     "brand_name": "Lipofen",
     "generic_name": "Fenofibrate",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -183759,7 +183759,7 @@
   {
     "brand_name": "Sinucleanse Micro-Filtered Nasal Wash System",
     "generic_name": "Sodium Chloride, Sodium Bicarbonate",
-    "drug_class": "electrolyte",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -185103,7 +185103,7 @@
   {
     "brand_name": "Buprenorphine And Naloxone Sublingual Film",
     "generic_name": "Buprenorphine And Naloxone",
-    "drug_class": "antidote",
+    "drug_class": "opioid",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -185145,7 +185145,7 @@
   {
     "brand_name": "Savaysa",
     "generic_name": "Edoxaban Tosylate",
-    "drug_class": "unknown",
+    "drug_class": "anticoagulant",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -185446,7 +185446,7 @@
   {
     "brand_name": "Stomachin Antacid",
     "generic_name": "Magnesium Carbonate And Sodium Bicarbonate",
-    "drug_class": "supplement",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -186748,7 +186748,7 @@
   {
     "brand_name": "Pioglitazone Hcl And Metformin Hcl",
     "generic_name": "Pioglitazone Hcl And Metformin Hcl",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187035,7 +187035,7 @@
   {
     "brand_name": "Rituxan Hycela",
     "generic_name": "Rituximab And Hyaluronidase",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187056,7 +187056,7 @@
   {
     "brand_name": "Pioglitazone And Metformin Hydrochloride",
     "generic_name": "Pioglitazone And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187301,7 +187301,7 @@
   {
     "brand_name": "Zolinza",
     "generic_name": "Vorinostat",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187399,7 +187399,7 @@
   {
     "brand_name": "Jornay Pm Extended-Release",
     "generic_name": "Methylphenidate Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "adhd_drug",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187504,7 +187504,7 @@
   {
     "brand_name": "Coralite Muscle And Joint Pain Relief",
     "generic_name": "Capsacin",
-    "drug_class": "unknown",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -187931,7 +187931,7 @@
   {
     "brand_name": "Coralite Medicated Heat",
     "generic_name": "Capsaicin",
-    "drug_class": "topical_analgesic",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -188274,7 +188274,7 @@
   {
     "brand_name": "Humalog Mix75/25",
     "generic_name": "Insulin Lispro",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -189534,7 +189534,7 @@
   {
     "brand_name": "Pioglitazole And Metformin Hydrochloride",
     "generic_name": "Pioglitazole And Metformin Hydrochloride",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -190493,7 +190493,7 @@
   {
     "brand_name": "D-72",
     "generic_name": "Apis Mellifera, Citrullus Colocynthis Fruit Pulp, Lycopodium Clavatum Spore, Momordica Balsamina Immature Fruit, And Phosphorus",
-    "drug_class": "unknown",
+    "drug_class": "topical_analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -192873,7 +192873,7 @@
   {
     "brand_name": "Wlp40",
     "generic_name": "Asclepias Vincetoxicum, Echinacea (Angustifolia), Hypothalamus (Suis), Cerebrum Suis, Hepar Suis, Kidney Suis, Methylcobalamin, Pancreas Suis, Stomach (Suis), Aacg-A, Aacg-B, Calcarea Carbonica, Gelsemium Sempervirens, Graphites, Nux Vomica, Phytolacca Decandra, Gambogia, 7-Oxo-Dehydroepiandrosterone-Acetate (7-Keto), Adenosinum Triphosphoricum Dinatrum, Insulinum (Suis), Sarcolacticum Acidum, Proteus (Vulgaris)",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -195099,7 +195099,7 @@
   {
     "brand_name": "Anubismed",
     "generic_name": "Sodium Bicarbonate, Aloe Barbadensis Leaf Juice, Imidazolidinyl Urea",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -196793,7 +196793,7 @@
   {
     "brand_name": "Peg-3350, Sodium Chloride, Sodium Bicarbonate And Potassium Chloride",
     "generic_name": "Polyethylene Glycol 3350, Sodium Chloride, Sodium Bicarbonate, Potassium Chloride",
-    "drug_class": "laxative",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197010,7 +197010,7 @@
   {
     "brand_name": "After Bite Kids",
     "generic_name": "Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197178,7 +197178,7 @@
   {
     "brand_name": "Zegerid Otc",
     "generic_name": "Omepraole, Sodium Bicarbonate",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197339,7 +197339,7 @@
   {
     "brand_name": "Rezvoglar Kwikpen",
     "generic_name": "Insulin Glargine-Aglr",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197486,7 +197486,7 @@
   {
     "brand_name": "Heb Extra Strength Effervescent Antacid And Pain Relief",
     "generic_name": "Aspirin, Citric Acid, Sodium Bicarbonate",
-    "drug_class": "nsaid",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -197598,7 +197598,7 @@
   {
     "brand_name": "Xylocaine Mpf",
     "generic_name": "Xylocaine Mpf",
-    "drug_class": "unknown",
+    "drug_class": "local_anesthetic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -198039,7 +198039,7 @@
   {
     "brand_name": "Toujeo Max",
     "generic_name": "Insulin Glargine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -198816,14 +198816,14 @@
   {
     "brand_name": "gabapentin",
     "generic_name": "gabapentin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "gabapentin",
     "generic_name": "gabapentin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
@@ -198837,14 +198837,14 @@
   {
     "brand_name": "pregabalin",
     "generic_name": "pregabalin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": 50.0,
     "is_pediatric": false
   },
   {
     "brand_name": "pregabalin",
     "generic_name": "pregabalin",
-    "drug_class": "anticonvulsant",
+    "drug_class": "gabapentinoid",
     "dose_mg": 75.0,
     "is_pediatric": false
   },
@@ -199068,14 +199068,14 @@
   {
     "brand_name": "natrium bikarbonat",
     "generic_name": "natrium bikarbonat",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "natrium bikarbonat",
     "generic_name": "natrium bikarbonat",
-    "drug_class": "unknown",
+    "drug_class": "alkalinizing_agent",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -200776,14 +200776,14 @@
   {
     "brand_name": "imatinib mesilat[Ca]",
     "generic_name": "imatinib mesilat[Ca]",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "imatinib mesilat[Ca]",
     "generic_name": "imatinib mesilat[Ca]",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": 400.0,
     "is_pediatric": false
   },
@@ -200888,7 +200888,7 @@
   {
     "brand_name": "trastuzumab[Ca]",
     "generic_name": "trastuzumab[Ca]",
-    "drug_class": "unknown",
+    "drug_class": "antineoplastic",
     "dose_mg": 440.0,
     "is_pediatric": false
   },
@@ -202323,14 +202323,14 @@
   {
     "brand_name": "metformin*",
     "generic_name": "metformin*",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metformin*",
     "generic_name": "metformin*",
-    "drug_class": "antidiabetic",
+    "drug_class": "biguanide",
     "dose_mg": 850.0,
     "is_pediatric": false
   },
@@ -202351,14 +202351,14 @@
   {
     "brand_name": "sitagliptin*",
     "generic_name": "sitagliptin*",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "vildagliptin*",
     "generic_name": "vildagliptin*",
-    "drug_class": "antidiabetic",
+    "drug_class": "unknown",
     "dose_mg": 50.0,
     "is_pediatric": false
   },
@@ -202372,56 +202372,56 @@
   {
     "brand_name": "insulin regular*",
     "generic_name": "insulin regular*",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "kombinasi 70% insulin NPH dan 30% insulin regular*",
     "generic_name": "kombinasi 70% insulin NPH dan 30% insulin regular*",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin detemir*",
     "generic_name": "insulin detemir*",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin glargine",
     "generic_name": "insulin glargine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin glargine",
     "generic_name": "insulin glargine",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin lispro*",
     "generic_name": "insulin lispro*",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin aspart*",
     "generic_name": "insulin aspart*",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "insulin glulisin*",
     "generic_name": "insulin glulisin*",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
@@ -202449,7 +202449,7 @@
   {
     "brand_name": "Co-formulation 70% insulin degludec (ultra-long acting insulin) dan 30% insulin aspart*",
     "generic_name": "Co-formulation 70% insulin degludec (ultra-long acting insulin) dan 30% insulin aspart*",
-    "drug_class": "antidiabetic",
+    "drug_class": "insulin",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
@@ -203380,28 +203380,28 @@
   {
     "brand_name": "fenofibrat",
     "generic_name": "fenofibrat",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": 100.0,
     "is_pediatric": false
   },
   {
     "brand_name": "fenofibrat",
     "generic_name": "fenofibrat",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
   {
     "brand_name": "gemfibrozil",
     "generic_name": "gemfibrozil",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": 300.0,
     "is_pediatric": false
   },
   {
     "brand_name": "gemfibrozil",
     "generic_name": "gemfibrozil",
-    "drug_class": "unknown",
+    "drug_class": "fibrate",
     "dose_mg": 600.0,
     "is_pediatric": false
   },
@@ -203653,7 +203653,7 @@
   {
     "brand_name": "garam oralit",
     "generic_name": "garam oralit",
-    "drug_class": "unknown",
+    "drug_class": "electrolyte",
     "dose_mg": null,
     "is_pediatric": false
   },
