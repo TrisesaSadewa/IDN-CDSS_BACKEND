@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="9.9.5 - Multi-word Drug Fix")
+app = FastAPI(title="Smart HIS Backend", version="10.0 - Diabetes & Cardio Fix")
 
 app.add_middleware(
     CORSMiddleware,
@@ -55,40 +55,57 @@ class ConsultationData(BaseModel):
 
 # --- MECHANISM-BASED CLASS RULES ---
 CLASS_RULES = {
-    # MAJOR (Red)
+    # --- MAJOR (Red) ---
     frozenset(["antiplatelet", "nsaid"]): { "severity": "Major", "description": "Pharmacodynamic Antagonism: NSAID blocks Aspirin's antiplatelet site, negating stroke protection.", "advice": "Avoid concurrent use." },
     frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots/stroke.", "advice": "Contraindicated." },
     frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction: Phenytoin induces CYP3A4, reducing Amlodipine levels.", "advice": "Monitor BP closely." },
     frozenset(["triptan", "psychotropic"]): { "severity": "Major", "description": "Serotonin Syndrome Risk: Combined use with SSRI/SNRI increases serotonin levels.", "advice": "Monitor for serotonin toxicity." },
     frozenset(["sedative_hypnotic", "opioid"]): { "severity": "Major", "description": "Additive CNS Depression.", "advice": "Strict monitoring or avoid." },
-    
-    # INTERMEDIATE (Orange)
+    frozenset(["fibrate", "statin"]): { "severity": "Major", "description": "Additive Myotoxicity: Increased risk of Rhabdomyolysis.", "advice": "Avoid if possible; monitor CK levels." },
+    frozenset(["anticoagulant", "antiplatelet"]): { "severity": "Major", "description": "Additive Bleeding Risk.", "advice": "Strict monitoring of INR/Bleeding." },
+
+    # --- INTERMEDIATE (Orange) ---
     frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy.", "advice": "Monitor BP." },
     frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
     frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
     frozenset(["anticonvulsant", "folate"]): { "severity": "Intermediate", "description": "Pharmacokinetic: Folic acid decreases Phenytoin levels; Phenytoin decreases Folate.", "advice": "Monitor Phenytoin levels and folate status." },
     frozenset(["bisphosphonate", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity: Increased risk of gastric ulceration.", "advice": "Use with caution." },
     
-    # MINOR (Yellow)
+    # Diabetes / Metabolic Interactions
+    frozenset(["nsaid", "biguanide"]): { "severity": "Intermediate", "description": "Renal Risk: NSAIDs may impair renal function, increasing risk of Metformin-induced Lactic Acidosis.", "advice": "Monitor renal function." },
+    frozenset(["nsaid", "sulfonylurea"]): { "severity": "Intermediate", "description": "Pharmacokinetic: NSAIDs may displace Sulfonylureas from protein binding, increasing hypoglycemia risk.", "advice": "Monitor blood glucose." },
+    frozenset(["nsaid", "fibrate"]): { "severity": "Intermediate", "description": "Renal/Protein Binding: Potential for increased toxicity.", "advice": "Monitor renal function." },
+    frozenset(["nsaid", "ccb"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy.", "advice": "Monitor BP." },
+    
+    frozenset(["ace-inhibitor", "biguanide"]): { "severity": "Intermediate", "description": "Renal: ACE inhibitors may decrease renal clearance of Metformin.", "advice": "Monitor renal function." },
+    frozenset(["ace-inhibitor", "sulfonylurea"]): { "severity": "Intermediate", "description": "Metabolic: ACE inhibitors may increase insulin sensitivity, potentiating hypoglycemia.", "advice": "Monitor blood glucose." },
+    
+    frozenset(["biguanide", "sulfonylurea"]): { "severity": "Intermediate", "description": "Additive Hypoglycemia Risk (Synergistic).", "advice": "Standard combo, but monitor glucose." },
+    frozenset(["biguanide", "ccb"]): { "severity": "Intermediate", "description": "Renal/Metabolic interaction.", "advice": "Monitor status." }, # Metformin x Nifedipine
+    
+    frozenset(["sulfonylurea", "fibrate"]): { "severity": "Intermediate", "description": "Metabolic: Fibrates may enhance effects of Sulfonylureas (Hypoglycemia).", "advice": "Monitor blood glucose." },
+    frozenset(["sulfonylurea", "alkalinizing_agent"]): { "severity": "Intermediate", "description": "Absorption: Sodium Bicarbonate increases absorption of Sulfonylureas, risking hypoglycemia.", "advice": "Separate dosing or monitor." },
+    
+    frozenset(["ccb", "statin"]): { "severity": "Intermediate", "description": "Pharmacokinetic: CYP3A4 competition (e.g. Nifedipine/Amlodipine x Simvastatin).", "advice": "Monitor for statin toxicity/myopathy." }, # Nifedipine x Simvastatin
+
+    # --- MINOR (Yellow) ---
     frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
     frozenset(["mucosal-protective", "antiplatelet"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
     frozenset(["nitrate", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Monitor for hypotension." },
     frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Minor pharmacokinetic interaction.", "advice": "Monitor status." },
     frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Routine monitoring." },
     frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: pH alteration.", "advice": "Monitor efficacy." },
-    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement: Salicylates can displace Phenytoin from plasma proteins.", "advice": "Monitor for signs of Phenytoin toxicity." },
+    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement: Salicylates can displace Phenytoin.", "advice": "Monitor for signs of Phenytoin toxicity." },
+    frozenset(["ace-inhibitor", "ccb"]): { "severity": "Minor", "description": "Additive Hypotension.", "advice": "Routine monitoring." }, 
+    frozenset(["ace-inhibitor", "alkalinizing_agent"]): { "severity": "Minor", "description": "Absorption/Excretion alteration.", "advice": "Separate dosing." }, 
+    frozenset(["gabapentinoid", "ccb"]): { "severity": "Minor", "description": "Additive Edema/CNS effects.", "advice": "Monitor for peripheral edema." }, 
 }
 
 # --- HELPERS ---
 def get_drug_info(drug_name: str):
     if not drug_name: return ("unknown", "unknown")
     
-    # FIX: Do NOT split by space immediately. Only remove dosage info if it's appended.
-    # We clean known prefixes/suffixes but keep multi-word names like "Asam Folat".
     clean_name = drug_name.replace("ANS ", "").lower().strip()
-    
-    # Regex to remove trailing dosage/frequency info like " 10 mg", " 3x1" if present in the name string
-    # This preserves "asam folat" but turns "asam folat 5mg" into "asam folat"
     clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip()
     
     # 1. DB Lookup
@@ -97,17 +114,25 @@ def get_drug_info(drug_name: str):
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
-    # 2. Heuristic Fallback (Safety Net)
+    # 2. Heuristic Fallback (Expanded)
     if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
+    if "meloxicam" in clean_name: return ("meloxicam", "nsaid") # ADDED
     if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
     if "omeprazole" in clean_name: return ("omeprazole", "ppi")
     if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
     if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
     if "candesartan" in clean_name: return ("candesartan", "arb")
-    if "amlodipin" in clean_name: return ("amlodipine", "ccb")
+    if "captopril" in clean_name: return ("captopril", "ace-inhibitor") # ADDED
+    if "amlodipin" in clean_name or "nifedipine" in clean_name: return ("ccb", "ccb") # ADDED
     if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
     if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
+    if "metformin" in clean_name: return ("metformin", "biguanide") # ADDED
+    if "glyburide" in clean_name or "glibenclamide" in clean_name: return ("glyburide", "sulfonylurea") # ADDED
+    if "fenofibrate" in clean_name: return ("fenofibrate", "fibrate") # ADDED
+    if "simvastatin" in clean_name: return ("simvastatin", "statin") # ADDED
+    if "gabapentin" in clean_name: return ("gabapentin", "gabapentinoid") # ADDED
+    if "bicarbonas" in clean_name or "bicarbonate" in clean_name: return ("sodium bicarbonate", "alkalinizing_agent") # ADDED
     
     return (clean_name, "unknown")
 
@@ -147,9 +172,7 @@ async def check_ddi_endpoint(payload: DDIRequest):
                 "advice": rule["advice"],
                 "source": "Mechanism Logic"
             })
-        # Check Fallback for Folate if DB says 'supplement' but logic expects 'folate'
         elif "anticonvulsant" in mech_key and "supplement" in mech_key:
-             # Heuristic check: is the supplement actually folate?
              if "folat" in gen_a or "folat" in gen_b or "folic" in gen_a or "folic" in gen_b:
                  rule = CLASS_RULES.get(frozenset(["anticonvulsant", "folate"]))
                  if rule:
@@ -249,7 +272,7 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "9.9.5"}
+def read_root(): return {"status": "active", "version": "10.0"}
 
 if __name__ == '__main__':
     import uvicorn
