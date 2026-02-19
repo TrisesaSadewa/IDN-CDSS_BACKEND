@@ -109,39 +109,14 @@ def get_drug_info(drug_name: str):
     clean_name = drug_name.replace("ANS ", "").lower().strip()
     clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip()
     
-    # --- PRE-EMPTIVE OVERRIDES ---
-    # Intercepts spelling variations and forces the engine to recognize the precise sub-class
-    overrides = {
-        "metformin": ("metformin", "biguanide"),
-        "glyburide": ("glibenclamide", "sulfonylurea"),
-        "glibenclamide": ("glibenclamide", "sulfonylurea"),
-        "glybenclamide": ("glibenclamide", "sulfonylurea"), # <-- FIX: Catches spelling with 'y'
-        "glimepiride": ("glimepiride", "sulfonylurea"),
-        "gliclazide": ("gliclazide", "sulfonylurea"),
-        "fenofibrate": ("fenofibrate", "fibrate"),
-        "bicarbonas": ("sodium bicarbonate", "alkalinizing_agent"), # <-- FIX: Catches Bicarbonas Natricus
-        "bicarbonate": ("sodium bicarbonate", "alkalinizing_agent"),
-        "gabapentin": ("gabapentin", "gabapentinoid"),
-        "meloxicam": ("meloxicam", "nsaid"),
-        "captopril": ("captopril", "ace-inhibitor"),
-        "nifedipine": ("nifedipine", "ccb"),
-        "simvastatin": ("simvastatin", "statin"),
-        "humalog": ("insulin", "insulin"),
-        "insulin": ("insulin", "insulin")
-    }
-    
-    for kw, result in overrides.items():
-        if kw in clean_name:
-            return result
-            
-    # 1. DB Lookup (Only if no specific override above caught it)
+    # 1. DB Lookup (The definitive source of truth)
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
-    # 2. Heuristic Fallback (Safety Net)
-    if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
+    # 2. Minimal Heuristic Fallback (Safety Net if DB lookup fails)
+    if "aspirin" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
     if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
     if "omeprazole" in clean_name: return ("omeprazole", "ppi")
@@ -149,8 +124,8 @@ def get_drug_info(drug_name: str):
     if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
     if "candesartan" in clean_name: return ("candesartan", "arb")
     if "amlodipin" in clean_name: return ("amlodipine", "ccb")
-    if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
-    if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
+    if "phenitoin" in clean_name: return ("phenytoin", "anticonvulsant")
+    if "folat" in clean_name: return ("folic acid", "folate")
     
     return (clean_name, "unknown")
 
