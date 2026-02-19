@@ -23,7 +23,7 @@ except Exception as e:
 # --- CONFIG ---
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
-app = FastAPI(title="Smart HIS Backend", version="9.9.1 - Phenytoin Rules")
+app = FastAPI(title="Smart HIS Backend", version="9.9.5 - Multi-word Drug Fix")
 
 app.add_middleware(
     CORSMiddleware,
@@ -82,7 +82,14 @@ CLASS_RULES = {
 # --- HELPERS ---
 def get_drug_info(drug_name: str):
     if not drug_name: return ("unknown", "unknown")
-    clean_name = drug_name.replace("ANS ", "").split()[0].lower()
+    
+    # FIX: Do NOT split by space immediately. Only remove dosage info if it's appended.
+    # We clean known prefixes/suffixes but keep multi-word names like "Asam Folat".
+    clean_name = drug_name.replace("ANS ", "").lower().strip()
+    
+    # Regex to remove trailing dosage/frequency info like " 10 mg", " 3x1" if present in the name string
+    # This preserves "asam folat" but turns "asam folat 5mg" into "asam folat"
+    clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip()
     
     # 1. DB Lookup
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
@@ -91,8 +98,6 @@ def get_drug_info(drug_name: str):
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
     # 2. Heuristic Fallback (Safety Net)
-    # This ensures that if a drug name isn't perfectly matched in the DB, 
-    # we still catch common classes for the demo.
     if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
     if "carvedilol" in clean_name or "v-bloc" in clean_name: return ("carvedilol", "beta-blocker")
@@ -102,7 +107,7 @@ def get_drug_info(drug_name: str):
     if "candesartan" in clean_name: return ("candesartan", "arb")
     if "amlodipin" in clean_name: return ("amlodipine", "ccb")
     if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
-    if "folat" in clean_name or "folic" in clean_name or "asam folat" in clean_name: return ("folic acid", "folate")
+    if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
     
     return (clean_name, "unknown")
 
@@ -131,6 +136,8 @@ async def check_ddi_endpoint(payload: DDIRequest):
         gen_b, class_b = get_drug_info(db)
         
         mech_key = frozenset([class_a, class_b])
+        
+        # Check specific rule
         if mech_key in CLASS_RULES:
             rule = CLASS_RULES[mech_key]
             results.append({
@@ -140,7 +147,20 @@ async def check_ddi_endpoint(payload: DDIRequest):
                 "advice": rule["advice"],
                 "source": "Mechanism Logic"
             })
-            
+        # Check Fallback for Folate if DB says 'supplement' but logic expects 'folate'
+        elif "anticonvulsant" in mech_key and "supplement" in mech_key:
+             # Heuristic check: is the supplement actually folate?
+             if "folat" in gen_a or "folat" in gen_b or "folic" in gen_a or "folic" in gen_b:
+                 rule = CLASS_RULES.get(frozenset(["anticonvulsant", "folate"]))
+                 if rule:
+                     results.append({
+                        "pair": [da.title(), db.title()],
+                        "severity": rule["severity"],
+                        "description": rule["description"],
+                        "advice": rule["advice"],
+                        "source": "Mechanism Logic (Heuristic)"
+                    })
+
     severity_order = {"Major": 1, "Intermediate": 2, "Moderate": 2, "Minor": 3, "Info": 4}
     results.sort(key=lambda x: severity_order.get(x["severity"], 99))
     return {"interactions": results, "safe": len(results) == 0}
@@ -229,10 +249,9 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "9.9.1"}
+def read_root(): return {"status": "active", "version": "9.9.5"}
 
 if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
