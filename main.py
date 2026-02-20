@@ -293,6 +293,26 @@ async def parse_prescription_endpoint(payload: ParseRequest):
         print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/icd/search")
+async def search_icd(q: str):
+    """
+    Queries the icd10_mit table for auto-complete suggestions.
+    Searches both the ICD-10 code and the full description.
+    """
+    if not supabase: return []
+    try:
+        safe_q = q.replace(",", "") # Prevent postgrest syntax errors
+        res = supabase.table("icd10_mit") \
+            .select("icd10_code,who_full_desc") \
+            .or_(f"icd10_code.ilike.%{safe_q}%,who_full_desc.ilike.%{safe_q}%") \
+            .limit(20) \
+            .execute()
+        
+        return [{"code": r["icd10_code"], "description": r["who_full_desc"]} for r in res.data]
+    except Exception as e:
+        print(f"ICD Search Error: {e}")
+        return []
+
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
