@@ -3698,7 +3698,7 @@
   {
     "brand_name": "obh combi",
     "generic_name": "Succus Liquiritiae, Ammonium Chloride, Paracetamol",
-    "drug_class": "analgesic",
+    "drug_class": "decongestant",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4272,14 +4272,21 @@
   {
     "brand_name": "obh kaca",
     "generic_name": "Succus Liquiritiae",
-    "drug_class": "unknown",
+    "drug_class": "decongestant",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "obh syrup",
     "generic_name": "Succus Liquiritiae",
-    "drug_class": "unknown",
+    "drug_class": "decongestant",
+    "dose_mg": null,
+    "is_pediatric": false
+  },
+  {
+    "brand_name": "obh sirup",
+    "generic_name": "Succus Liquiritiae",
+    "drug_class": "decongestant",
     "dose_mg": null,
     "is_pediatric": false
   },
