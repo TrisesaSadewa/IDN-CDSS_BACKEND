@@ -53,6 +53,21 @@ class AlternativeRequest(BaseModel):
     drug_to_replace: str
     interacting_with: str
 
+# ADDED: Data model for Nurse Triage submission
+class TriageData(BaseModel):
+    appointment_id: str
+    weight_kg: Optional[float] = None
+    height_cm: Optional[float] = None
+    systolic: Optional[int] = None
+    diastolic: Optional[int] = None
+    temperature: Optional[float] = None
+    heart_rate: Optional[int] = None
+    respiratory_rate: Optional[int] = None
+    spo2: Optional[int] = None
+    pain_score: Optional[int] = None
+    pain_location: Optional[str] = None
+    chief_complaint: Optional[str] = None # Maps to Nurse Notes
+
 class ConsultationData(BaseModel):
     doctor_id: str
     appointment_id: str
@@ -293,6 +308,19 @@ async def parse_prescription_endpoint(payload: ParseRequest):
         print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ADDED: New Triage Submission Endpoint
+@app.post("/nurse/submit-triage")
+async def submit_triage(data: TriageData):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        # Insert triage record
+        res = supabase.table("triage_notes").insert(data.model_dump(exclude_none=True)).execute()
+        # Update appointment status to show it is ready for the doctor
+        supabase.table("appointments").update({"status": "consultation"}).eq("id", data.appointment_id).execute()
+        return {"status": "success", "triage_id": res.data[0]['id']}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/icd/search")
 async def search_icd(q: str):
     """
@@ -376,3 +404,8 @@ if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+
+
+
