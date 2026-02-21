@@ -1,8 +1,6 @@
 import os
 import json
 import re
-import aiohttp 
-import asyncio
 from typing import List, Optional, Dict, Any
 from itertools import combinations
 from fastapi import FastAPI, HTTPException
@@ -26,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="11.0 - Algorithmic CDSS")
+app = FastAPI(title="Smart HIS Backend", version="11.1 - Complete Algorithmic Backend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -53,7 +51,6 @@ class AlternativeRequest(BaseModel):
     drug_to_replace: str
     interacting_with: str
 
-# ADDED: Data model for Nurse Triage submission
 class TriageData(BaseModel):
     appointment_id: str
     weight_kg: Optional[float] = None
@@ -66,7 +63,7 @@ class TriageData(BaseModel):
     spo2: Optional[int] = None
     pain_score: Optional[int] = None
     pain_location: Optional[str] = None
-    chief_complaint: Optional[str] = None # Maps to Nurse Notes
+    chief_complaint: Optional[str] = None
 
 class ConsultationData(BaseModel):
     doctor_id: str
@@ -79,6 +76,7 @@ class ConsultationData(BaseModel):
     clinical_notes: str
     therapy_instructions: str
     prescription_items: List[Dict[str, Any]]
+
 
 # --- 1. MECHANISM-BASED RULES (The "Brain") ---
 CLASS_RULES = {
@@ -143,7 +141,6 @@ CLASS_RULES = {
 }
 
 # --- 2. ALGORITHMIC THERAPEUTIC ALTERNATIVES MAP ---
-# This dictates purely logical jumps between classes that share therapeutic goals
 ALT_CLASS_MAP = {
     "nsaid": ["analgesic", "corticosteroid"],
     "ace-inhibitor": ["arb", "ccb", "beta-blocker", "thiazide_diuretic"],
@@ -231,16 +228,15 @@ async def suggest_alternative(payload: AlternativeRequest):
     candidate_classes = ALT_CLASS_MAP[class_a]
     safe_classes = []
     
-    # 1. Filter out candidate classes that trigger rules with Drug B
+    # Filter out candidate classes that trigger rules with Drug B
     for cand_class in candidate_classes:
         mech_key = frozenset([cand_class, class_b])
-        # If no explicit interaction rule exists, we algorithmically deem it "safe"
         if mech_key not in CLASS_RULES:
             safe_classes.append(cand_class)
             
     suggestions = []
     
-    # 2. Extract real drugs from the DB belonging to the surviving safe classes
+    # Extract real drugs from the DB belonging to the surviving safe classes
     if structured_drug_db and hasattr(structured_drug_db, 'DRUGS'):
         for safe_c in safe_classes:
             found = 0
@@ -251,7 +247,7 @@ async def suggest_alternative(payload: AlternativeRequest):
                         "class": safe_c.replace('_', ' ').title()
                     })
                     found += 1
-                    if found >= 2: break # Max 2 examples per safe class
+                    if found >= 2: break 
                     
     # Deduplicate by name
     unique_suggestions = list({v['generic_name']: v for v in suggestions}.values())
@@ -308,19 +304,6 @@ async def parse_prescription_endpoint(payload: ParseRequest):
         print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ADDED: New Triage Submission Endpoint
-@app.post("/nurse/submit-triage")
-async def submit_triage(data: TriageData):
-    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
-    try:
-        # Insert triage record
-        res = supabase.table("triage_notes").insert(data.model_dump(exclude_none=True)).execute()
-        # Update appointment status to show it is ready for the doctor
-        supabase.table("appointments").update({"status": "consultation"}).eq("id", data.appointment_id).execute()
-        return {"status": "success", "triage_id": res.data[0]['id']}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/api/icd/search")
 async def search_icd(q: str):
     """
@@ -340,6 +323,24 @@ async def search_icd(q: str):
     except Exception as e:
         print(f"ICD Search Error: {e}")
         return []
+
+@app.post("/nurse/submit-triage")
+async def submit_triage(data: TriageData):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        # Insert triage record
+        res = supabase.table("triage_notes").insert(data.model_dump(exclude_none=True)).execute()
+        # Update appointment status to show it is ready for the doctor
+        supabase.table("appointments").update({"status": "consultation"}).eq("id", data.appointment_id).execute()
+        return {"status": "success", "triage_id": res.data[0]['id']}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/nurse/queue")
+async def get_nurse_queue():
+    """Fetches patients waiting for nurse triage."""
+    if not supabase: return []
+    return supabase.table("appointments").select("*, patients(*)").in_("status", ["scheduled", "checked_in"]).order("queue_number").execute().data
 
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
@@ -398,14 +399,9 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "11.0 - Algorithmic CDSS"}
+def read_root(): return {"status": "active", "version": "11.1 - Complete Algorithmic Backend"}
 
 if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
-
-
-
-
