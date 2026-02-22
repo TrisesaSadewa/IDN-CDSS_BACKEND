@@ -1199,14 +1199,14 @@
   {
     "brand_name": "metilprednisolon tab 4 mg",
     "generic_name": "Metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 4.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metilprednisolon tab 16 mg",
     "generic_name": "Metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 16.0,
     "is_pediatric": false
   },
@@ -1878,21 +1878,21 @@
   {
     "brand_name": "furosemid tab 40 mg",
     "generic_name": "Furosemide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": 40.0,
     "is_pediatric": false
   },
   {
     "brand_name": "furosemid Injeksi 10 mg",
     "generic_name": "Furosemide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": 10.0,
     "is_pediatric": false
   },
   {
     "brand_name": "manitol Infusion 20%",
     "generic_name": "Manitol",
-    "drug_class": "osmotic_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -2109,14 +2109,14 @@
   {
     "brand_name": "metilprednisolon tab 8 mg",
     "generic_name": "Metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 8.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metilprednisolon Injeksi 125 mg",
     "generic_name": "Metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 125.0,
     "is_pediatric": false
   },
@@ -3586,14 +3586,14 @@
   {
     "brand_name": "NEO KAOLANA",
     "generic_name": "Attapulgite, Pectin",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "KAOLANA",
     "generic_name": "Attapulgite, Pectin",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4076,7 +4076,7 @@
   {
     "brand_name": "entrostop",
     "generic_name": "Attapulgite, Pectin",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4230,14 +4230,14 @@
   {
     "brand_name": "lasix",
     "generic_name": "Furosemide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "imodium",
     "generic_name": "Loperamide",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5217,21 +5217,21 @@
   {
     "brand_name": "H C T",
     "generic_name": "hydrochlorothiazide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "HCT",
     "generic_name": "hydrochlorothiazide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "HYDROCHLOROTHIAZIDE",
     "generic_name": "hydrochlorothiazide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5371,21 +5371,21 @@
   {
     "brand_name": "LODIAN",
     "generic_name": "loperamide",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "LOPAMID",
     "generic_name": "Loperamide",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "LOPERAMIDE",
     "generic_name": "Loperamide",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5420,7 +5420,7 @@
   {
     "brand_name": "NEW DIATAB",
     "generic_name": "attapulgite",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5602,7 +5602,7 @@
   {
     "brand_name": "attapulgite",
     "generic_name": "attapulgite",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5714,7 +5714,7 @@
   {
     "brand_name": "Furosemide",
     "generic_name": "Furosemide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5784,7 +5784,7 @@
   {
     "brand_name": "Digoxin",
     "generic_name": "Digoxin",
-    "drug_class": "cardiac_glycoside",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5924,7 +5924,7 @@
   {
     "brand_name": "Spironolacton",
     "generic_name": "Spironolactone",
-    "drug_class": "k_sparing_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6099,7 +6099,7 @@
   {
     "brand_name": "Anti-Diarrheal",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6512,7 +6512,7 @@
   {
     "brand_name": "Chlorthalidone",
     "generic_name": "Chlorthalidone",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -6988,7 +6988,7 @@
   {
     "brand_name": "Bumetanide",
     "generic_name": "Bumetanide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -7891,7 +7891,7 @@
   {
     "brand_name": "Triamterene And Hydrochlorothiazide",
     "generic_name": "Triamterene And Hydrochlorothiazide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8192,7 +8192,7 @@
   {
     "brand_name": "Osmitrol",
     "generic_name": "Mannitol",
-    "drug_class": "osmotic_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8661,7 +8661,7 @@
   {
     "brand_name": "Spironolactone And Hydrochlorothiazide",
     "generic_name": "Spironolactone And Hydrochlorothiazide",
-    "drug_class": "k_sparing_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8885,7 +8885,7 @@
   {
     "brand_name": "Loperamide Hydrochloride",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -8920,7 +8920,7 @@
   {
     "brand_name": "Torsemide",
     "generic_name": "Torsemide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -10425,7 +10425,7 @@
   {
     "brand_name": "Aridol Bronchial Challenge Test Kit",
     "generic_name": "Mannitol",
-    "drug_class": "osmotic_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -13456,7 +13456,7 @@
   {
     "brand_name": "Spironolactone",
     "generic_name": "Spironolactone",
-    "drug_class": "k_sparing_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -19728,7 +19728,7 @@
   {
     "brand_name": "Mannitol",
     "generic_name": "Mannitol",
-    "drug_class": "osmotic_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -20092,7 +20092,7 @@
   {
     "brand_name": "Anti-Diarrheal",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22759,7 +22759,7 @@
   {
     "brand_name": "Eplerenone",
     "generic_name": "Eplerenone",
-    "drug_class": "k_sparing_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -22829,7 +22829,7 @@
   {
     "brand_name": "Diuril",
     "generic_name": "Chlorothiazide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -24166,7 +24166,7 @@
   {
     "brand_name": "Anti Diarrheal",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -29395,7 +29395,7 @@
   {
     "brand_name": "Indapamide",
     "generic_name": "Indapamide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -35100,7 +35100,7 @@
   {
     "brand_name": "Inzirqo",
     "generic_name": "Hydrochlorothiazide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -39258,7 +39258,7 @@
   {
     "brand_name": "Loperamide Hcl",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -39727,7 +39727,7 @@
   {
     "brand_name": "Basic Care Loperamide Hydrochloride",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -41519,7 +41519,7 @@
   {
     "brand_name": "Inspra",
     "generic_name": "Eplerenone",
-    "drug_class": "k_sparing_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -44032,7 +44032,7 @@
   {
     "brand_name": "Good Sense Antidiarrheal",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -56737,7 +56737,7 @@
   {
     "brand_name": "Anti Diarrheal",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -57353,7 +57353,7 @@
   {
     "brand_name": "Careone Diarrhea Control",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -66768,7 +66768,7 @@
   {
     "brand_name": "Anti-Diarrheal",
     "generic_name": "Loperamide Hci",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -70198,7 +70198,7 @@
   {
     "brand_name": "Chlorothiazide",
     "generic_name": "Chlorothiazide Sodium",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -70380,7 +70380,7 @@
   {
     "brand_name": "Dg Health Anti Diarrheal",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -72648,7 +72648,7 @@
   {
     "brand_name": "Careone Diarrhea Control",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -79683,7 +79683,7 @@
   {
     "brand_name": "Loperamide Hydrochloride",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -79725,7 +79725,7 @@
   {
     "brand_name": "Equaline Loperamide Hydrochloride",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -82224,7 +82224,7 @@
   {
     "brand_name": "Injoy Diarrhea Relief",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -87313,7 +87313,7 @@
   {
     "brand_name": "Amiloride Hydrochloride And Hydrochlorothiazide",
     "generic_name": "Amiloride Hydrochloride And Hydrochlorothiazide",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -99976,7 +99976,7 @@
   {
     "brand_name": "Topcare Loperamide Hydrochloride",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -103483,7 +103483,7 @@
   {
     "brand_name": "Bumex",
     "generic_name": "Bumetanide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -109146,14 +109146,14 @@
   {
     "brand_name": "Foster And Thrive Anti-Diarrheal",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "Good Neighbor Pharmacy Loperamide Hydrochloride",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -116251,7 +116251,7 @@
   {
     "brand_name": "Foster And Thrive Anti Diarrheal",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -117042,7 +117042,7 @@
   {
     "brand_name": "Berkley And Jensen Anti Diarrheal",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -118302,7 +118302,7 @@
   {
     "brand_name": "Chlorothiazide Sodium",
     "generic_name": "Chlorothiazide Sodium",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -119506,7 +119506,7 @@
   {
     "brand_name": "Basic Care Loperamide Hydrochloride",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -124056,7 +124056,7 @@
   {
     "brand_name": "Equate Loperamide Hydrochloride",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -130398,7 +130398,7 @@
   {
     "brand_name": "Up And Up Anti Diarrheal",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -132813,7 +132813,7 @@
   {
     "brand_name": "Imodium Multi-Symptom Relief",
     "generic_name": "Loperamide Hydrochloride And Dimethicone",
-    "drug_class": "topical_protectant",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -135872,7 +135872,7 @@
   {
     "brand_name": "Soaanz",
     "generic_name": "Torsemide",
-    "drug_class": "loop_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -136082,7 +136082,7 @@
   {
     "brand_name": "Furoscix",
     "generic_name": "Furosemide Injection 80 Mg/ 10 Ml",
-    "drug_class": "loop_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": 80.0,
     "is_pediatric": false
   },
@@ -137972,7 +137972,7 @@
   {
     "brand_name": "Lanoxin",
     "generic_name": "Digoxin",
-    "drug_class": "cardiac_glycoside",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -144531,7 +144531,7 @@
   {
     "brand_name": "Thalitone",
     "generic_name": "Chlorthalidone",
-    "drug_class": "thiazide_diuretic",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -157509,7 +157509,7 @@
   {
     "brand_name": "Anti-Diarrheal, 24/7 Life By 7-Eleven",
     "generic_name": "Loperamide Hcl Tablet",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -160302,7 +160302,7 @@
   {
     "brand_name": "Private Label Distributor",
     "generic_name": "Loperamide Hcl 2 Mg",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": 2.0,
     "is_pediatric": false
   },
@@ -163529,7 +163529,7 @@
   {
     "brand_name": "Leader Anti Diarrheal",
     "generic_name": "Loperamide Hcl",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -166210,7 +166210,7 @@
   {
     "brand_name": "Teruflex Blood Bag System With Diversion Blood Sampling Arm Anticoagulant Cpd With Optisol Red Cell Preservative Solution For Collection Of 500Ml Of Blood",
     "generic_name": "Dextrose Monohydrate, Trisodium Citrate Dihydrate, Anhydrous Citric Acid, Sodium Phosphate, Monobasic, Unspecified Form, Anhydrous Dextrose, Sodium Chloride, Mannitol, And Adenine",
-    "drug_class": "osmotic_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
@@ -166595,7 +166595,7 @@
   {
     "brand_name": "Good Neighbor Pharmacy Anti Diarrheal",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -168464,7 +168464,7 @@
   {
     "brand_name": "Guna-Diur",
     "generic_name": "Amiloride - Apis Mellifera - Berberis Vulgaris Fruit - Hieracium Pilosella Flowering Top - Hydrochlorothiazide - Solidago Virgaurea Flowering Top - Spironolactone - Sus Scrofa Pituitary Gland -",
-    "drug_class": "k_sparing_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -175373,7 +175373,7 @@
   {
     "brand_name": "Teruflex Blood With Diversion Blood Sampling Arm Anticoagulant Cpd With Optisol Red Cell Preservative For Collection Of 450Ml Of Blood",
     "generic_name": "Dextrose Monohydrate, Trisodium Citrate Dihydrate, Anhydrous Citric Acid, Sodium Phosphate, Monobasic, Unspecified Form, Sodium Chloride, Mannitol, And Adenine",
-    "drug_class": "osmotic_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": 450.0,
     "is_pediatric": false
   },
@@ -176654,7 +176654,7 @@
   {
     "brand_name": "Dg Health Anti Diarrheal",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -196800,7 +196800,7 @@
   {
     "brand_name": "Good Sense Anti Diarrheal",
     "generic_name": "Loperamide Hydrochloride",
-    "drug_class": "unknown",
+    "drug_class": "antidiarrheal",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -201280,14 +201280,14 @@
   {
     "brand_name": "metilprednisolon[Ca]",
     "generic_name": "metilprednisolon[Ca]",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 4.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metilprednisolon[Ca]",
     "generic_name": "metilprednisolon[Ca]",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 16.0,
     "is_pediatric": false
   },
@@ -202092,14 +202092,14 @@
   {
     "brand_name": "furosemid",
     "generic_name": "furosemid",
-    "drug_class": "loop_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": 40.0,
     "is_pediatric": false
   },
   {
     "brand_name": "furosemid",
     "generic_name": "furosemid",
-    "drug_class": "loop_diuretic",
+    "drug_class": "diuretic",
     "dose_mg": 10.0,
     "is_pediatric": false
   },
@@ -202659,35 +202659,35 @@
   {
     "brand_name": "metilprednisolon",
     "generic_name": "metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 4.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metilprednisolon",
     "generic_name": "metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 8.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metilprednisolon",
     "generic_name": "metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 16.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metilprednisolon",
     "generic_name": "metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 125.0,
     "is_pediatric": false
   },
   {
     "brand_name": "metilprednisolon",
     "generic_name": "metilprednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 500.0,
     "is_pediatric": false
   },
@@ -203814,7 +203814,7 @@
   {
     "brand_name": "prednisolon",
     "generic_name": "prednisolon",
-    "drug_class": "corticosteroid",
+    "drug_class": "unknown",
     "dose_mg": 10.0,
     "is_pediatric": false
   },
@@ -204465,14 +204465,14 @@
   {
     "brand_name": "domperidon",
     "generic_name": "domperidon",
-    "drug_class": "unknown",
+    "drug_class": "antiemetic",
     "dose_mg": 10.0,
     "is_pediatric": false
   },
   {
     "brand_name": "domperidon",
     "generic_name": "domperidon",
-    "drug_class": "unknown",
+    "drug_class": "antiemetic",
     "dose_mg": 5.0,
     "is_pediatric": false
   },
