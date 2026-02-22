@@ -24,7 +24,7 @@ except ImportError as e:
 SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
 
-app = FastAPI(title="Smart HIS Backend", version="11.1 - Complete Algorithmic Backend")
+app = FastAPI(title="Smart HIS Backend", version="11.4 - Master Dose Extraction")
 
 app.add_middleware(
     CORSMiddleware,
@@ -78,65 +78,59 @@ class ConsultationData(BaseModel):
     prescription_items: List[Dict[str, Any]]
 
 
-# --- 1. MECHANISM-BASED RULES (The "Brain") ---
+# --- 1. MECHANISM-BASED RULES ---
 CLASS_RULES = {
     # --- MAJOR (Red) ---
-    frozenset(["anticoagulant", "nsaid"]): { "severity": "Major", "description": "Additive Bleeding Risk: NSAIDs inhibit platelet aggregation and cause gastric irritation, increasing bleeding risk with anticoagulants.", "advice": "Avoid concurrent use." },
-    frozenset(["anticoagulant", "antiplatelet"]): { "severity": "Major", "description": "Additive Bleeding Risk: Concurrent use significantly increases risk of major hemorrhage.", "advice": "Strict monitoring of INR/Bleeding." },
+    frozenset(["anticoagulant", "nsaid"]): { "severity": "Major", "description": "Additive Bleeding Risk.", "advice": "Avoid concurrent use." },
+    frozenset(["anticoagulant", "antiplatelet"]): { "severity": "Major", "description": "Additive Bleeding Risk.", "advice": "Strict monitoring of INR/Bleeding." },
     frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots/stroke.", "advice": "Contraindicated." },
-    frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction: Anticonvulsants (e.g., Phenytoin) induce CYP3A4, reducing CCB levels.", "advice": "Monitor BP closely." },
-    frozenset(["triptan", "psychotropic"]): { "severity": "Major", "description": "Serotonin Syndrome Risk: Combined use with SSRI/SNRI increases serotonin levels.", "advice": "Monitor for serotonin toxicity." },
+    frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction.", "advice": "Monitor BP closely." },
+    frozenset(["triptan", "psychotropic"]): { "severity": "Major", "description": "Serotonin Syndrome Risk.", "advice": "Monitor for serotonin toxicity." },
     frozenset(["sedative_hypnotic", "opioid"]): { "severity": "Major", "description": "Additive CNS Depression.", "advice": "Strict monitoring or avoid." },
-    frozenset(["fibrate", "statin"]): { "severity": "Major", "description": "Additive Myotoxicity: Increased risk of Rhabdomyolysis.", "advice": "Avoid if possible; monitor CK levels." },
+    frozenset(["fibrate", "statin"]): { "severity": "Major", "description": "Additive Myotoxicity.", "advice": "Avoid if possible; monitor CK levels." },
 
     # --- INTERMEDIATE (Orange) ---
-    frozenset(["antiplatelet", "nsaid"]): { "severity": "Intermediate", "description": "Pharmacodynamic Antagonism: NSAID blocks antiplatelet site, negating stroke protection.", "advice": "Avoid concurrent use or space out dosing." },
-    frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy.", "advice": "Monitor BP." },
-    frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
-    frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics: Additive risk of renal impairment.", "advice": "Monitor renal function." },
-    frozenset(["anticonvulsant", "folate"]): { "severity": "Intermediate", "description": "Pharmacokinetic: Folic acid decreases Phenytoin levels; Phenytoin decreases Folate.", "advice": "Monitor Phenytoin levels and folate status." },
-    frozenset(["bisphosphonate", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity: Increased risk of gastric ulceration.", "advice": "Use with caution." },
-    
-    # Diabetes / Metabolic
-    frozenset(["nsaid", "biguanide"]): { "severity": "Intermediate", "description": "Renal Risk: NSAIDs may impair renal function, increasing risk of Metformin-induced Lactic Acidosis.", "advice": "Monitor renal function." },
-    frozenset(["nsaid", "sulfonylurea"]): { "severity": "Intermediate", "description": "Pharmacokinetic: NSAIDs may displace Sulfonylureas from protein binding, increasing hypoglycemia risk.", "advice": "Monitor blood glucose." },
-    frozenset(["nsaid", "fibrate"]): { "severity": "Intermediate", "description": "Renal/Protein Binding: Potential for increased toxicity.", "advice": "Monitor renal function." },
-    frozenset(["nsaid", "ccb"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce antihypertensive efficacy.", "advice": "Monitor BP." },
-    frozenset(["ace-inhibitor", "biguanide"]): { "severity": "Intermediate", "description": "Renal: ACE inhibitors may decrease renal clearance of Metformin.", "advice": "Monitor renal function." },
-    frozenset(["ace-inhibitor", "sulfonylurea"]): { "severity": "Intermediate", "description": "Metabolic: ACE inhibitors may increase insulin sensitivity, potentiating hypoglycemia.", "advice": "Monitor blood glucose." },
-    frozenset(["biguanide", "sulfonylurea"]): { "severity": "Intermediate", "description": "Additive Hypoglycemia Risk (Synergistic).", "advice": "Standard combo, but monitor glucose." },
+    frozenset(["antiplatelet", "nsaid"]): { "severity": "Intermediate", "description": "Pharmacodynamic Antagonism.", "advice": "Avoid concurrent use or space out dosing." },
+    frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP." },
+    frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics.", "advice": "Monitor renal function." },
+    frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics.", "advice": "Monitor renal function." },
+    frozenset(["anticonvulsant", "folate"]): { "severity": "Intermediate", "description": "Pharmacokinetic Interaction.", "advice": "Monitor Phenytoin levels." },
+    frozenset(["bisphosphonate", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity.", "advice": "Use with caution." },
+    frozenset(["nsaid", "biguanide"]): { "severity": "Intermediate", "description": "Renal Risk.", "advice": "Monitor renal function." },
+    frozenset(["nsaid", "sulfonylurea"]): { "severity": "Intermediate", "description": "Pharmacokinetic displacement.", "advice": "Monitor blood glucose." },
+    frozenset(["nsaid", "fibrate"]): { "severity": "Intermediate", "description": "Renal/Protein Binding.", "advice": "Monitor renal function." },
+    frozenset(["nsaid", "ccb"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP." },
+    frozenset(["ace-inhibitor", "biguanide"]): { "severity": "Intermediate", "description": "Renal competition.", "advice": "Monitor renal function." },
+    frozenset(["ace-inhibitor", "sulfonylurea"]): { "severity": "Intermediate", "description": "Metabolic.", "advice": "Monitor blood glucose." },
+    frozenset(["biguanide", "sulfonylurea"]): { "severity": "Intermediate", "description": "Additive Hypoglycemia Risk.", "advice": "Standard combo, but monitor glucose." },
     frozenset(["biguanide", "ccb"]): { "severity": "Intermediate", "description": "Renal/Metabolic interaction.", "advice": "Monitor status." }, 
-    frozenset(["sulfonylurea", "fibrate"]): { "severity": "Intermediate", "description": "Metabolic: Fibrates may enhance effects of Sulfonylureas (Hypoglycemia).", "advice": "Monitor blood glucose." },
-    frozenset(["sulfonylurea", "alkalinizing_agent"]): { "severity": "Intermediate", "description": "Absorption: Sodium Bicarbonate increases absorption of Sulfonylureas, risking hypoglycemia.", "advice": "Separate dosing or monitor." },
-    frozenset(["ccb", "statin"]): { "severity": "Intermediate", "description": "Pharmacokinetic: CYP3A4 competition (e.g. Nifedipine/Amlodipine x Simvastatin).", "advice": "Monitor for statin toxicity/myopathy." }, 
-
-    # Diuretics
+    frozenset(["sulfonylurea", "fibrate"]): { "severity": "Intermediate", "description": "Metabolic.", "advice": "Monitor blood glucose." },
+    frozenset(["sulfonylurea", "alkalinizing_agent"]): { "severity": "Intermediate", "description": "Absorption alteration.", "advice": "Separate dosing or monitor." },
+    frozenset(["ccb", "statin"]): { "severity": "Intermediate", "description": "Pharmacokinetic CYP3A4 competition.", "advice": "Monitor for statin toxicity/myopathy." }, 
     frozenset(["k_sparing_diuretic", "beta-blocker"]): { "severity": "Intermediate", "description": "Additive Hypotension.", "advice": "Monitor BP." },
-    frozenset(["k_sparing_diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: Corticosteroids may antagonize the diuretic effect via fluid retention.", "advice": "Monitor fluid status." },
-    frozenset(["k_sparing_diuretic", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism & Renal Risk: NSAIDs reduce diuretic efficacy and increase hyperkalemia risk.", "advice": "Monitor renal function and potassium." },
-    frozenset(["loop_diuretic", "cardiac_glycoside"]): { "severity": "Intermediate", "description": "Toxicity Risk: Diuretic-induced hypokalemia increases the risk of Digoxin toxicity.", "advice": "Monitor potassium and Digoxin levels closely." },
+    frozenset(["k_sparing_diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor fluid status." },
+    frozenset(["k_sparing_diuretic", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism & Renal Risk.", "advice": "Monitor renal function and potassium." },
+    frozenset(["loop_diuretic", "cardiac_glycoside"]): { "severity": "Intermediate", "description": "Toxicity Risk.", "advice": "Monitor potassium and Digoxin levels closely." },
     frozenset(["loop_diuretic", "beta-blocker"]): { "severity": "Intermediate", "description": "Additive Hypotension.", "advice": "Monitor BP." },
-    frozenset(["loop_diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Electrolyte Imbalance: Corticosteroids can exacerbate loop diuretic-induced hypokalemia.", "advice": "Monitor potassium levels." },
-    frozenset(["loop_diuretic", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: NSAIDs reduce diuretic efficacy.", "advice": "Monitor BP and fluid status." },
-    
-    # Corticosteroid & Cardiovascular
-    frozenset(["anticoagulant", "corticosteroid"]): { "severity": "Intermediate", "description": "GI Risk: Corticosteroids increase risk of gastrointestinal ulceration and bleeding.", "advice": "Monitor for GI bleeding." },
-    frozenset(["cardiac_glycoside", "beta-blocker"]): { "severity": "Intermediate", "description": "Additive Bradycardia: Both drugs slow AV node conduction.", "advice": "Monitor heart rate and ECG." },
-    frozenset(["cardiac_glycoside", "corticosteroid"]): { "severity": "Intermediate", "description": "Toxicity Risk: Corticosteroid-induced hypokalemia increases the risk of Digoxin toxicity.", "advice": "Monitor potassium levels." },
-    frozenset(["beta-blocker", "corticosteroid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism: Corticosteroids cause fluid retention, antagonizing antihypertensive effects.", "advice": "Monitor BP." },
-    frozenset(["corticosteroid", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity: Increased risk of gastrointestinal ulceration.", "advice": "Use with caution; consider gastroprotection." },
+    frozenset(["loop_diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Electrolyte Imbalance.", "advice": "Monitor potassium levels." },
+    frozenset(["loop_diuretic", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP and fluid status." },
+    frozenset(["anticoagulant", "corticosteroid"]): { "severity": "Intermediate", "description": "GI Risk.", "advice": "Monitor for GI bleeding." },
+    frozenset(["cardiac_glycoside", "beta-blocker"]): { "severity": "Intermediate", "description": "Additive Bradycardia.", "advice": "Monitor heart rate and ECG." },
+    frozenset(["cardiac_glycoside", "corticosteroid"]): { "severity": "Intermediate", "description": "Toxicity Risk.", "advice": "Monitor potassium levels." },
+    frozenset(["beta-blocker", "corticosteroid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP." },
+    frozenset(["corticosteroid", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity.", "advice": "Use with caution; consider gastroprotection." },
 
     # --- MINOR (Yellow) ---
-    frozenset(["k_sparing_diuretic", "cardiac_glycoside"]): { "severity": "Minor", "description": "Pharmacokinetic: Spironolactone may increase Digoxin levels or interfere with assays.", "advice": "Monitor Digoxin levels." },
+    frozenset(["k_sparing_diuretic", "cardiac_glycoside"]): { "severity": "Minor", "description": "Pharmacokinetic interaction.", "advice": "Monitor Digoxin levels." },
     frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
     frozenset(["mucosal-protective", "antiplatelet"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
     frozenset(["nitrate", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Monitor for hypotension." },
     frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Minor pharmacokinetic interaction.", "advice": "Monitor status." },
     frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Routine monitoring." },
     frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: pH alteration.", "advice": "Monitor efficacy." },
-    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement: Salicylates can displace Phenytoin.", "advice": "Monitor for signs of Phenytoin toxicity." },
+    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement.", "advice": "Monitor for signs of Phenytoin toxicity." },
     frozenset(["ace-inhibitor", "ccb"]): { "severity": "Minor", "description": "Additive Hypotension.", "advice": "Routine monitoring." }, 
-    frozenset(["ace-inhibitor", "alkalinizing_agent"]): { "severity": "Minor", "description": "Absorption/Excretion alteration.", "advice": "Separate dosing." }, 
+    frozenset(["ace-inhibitor", "alkalinizing_agent"]): { "severity": "Minor", "description": "Absorption alteration.", "advice": "Separate dosing." }, 
     frozenset(["gabapentinoid", "ccb"]): { "severity": "Minor", "description": "Additive Edema/CNS effects.", "advice": "Monitor for peripheral edema." }, 
 }
 
@@ -166,7 +160,7 @@ def get_drug_info(drug_name: str):
     clean_name = drug_name.replace("ANS ", "").lower().strip()
     clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip() 
     
-    # 1. Overrides to catch spelling variations strictly
+    # 1. Broad Overrides for exact clinical alignment
     if "notisil" in clean_name or "warfarin" in clean_name: return ("warfarin", "anticoagulant")
     if "clopidogrel" in clean_name: return ("clopidogrel", "antiplatelet")
     if "spironolacton" in clean_name: return ("spironolactone", "k_sparing_diuretic")
@@ -188,8 +182,28 @@ def get_drug_info(drug_name: str):
     if "nifedipine" in clean_name or "amlodipin" in clean_name: return ("ccb", "ccb")
     if "simvastatin" in clean_name: return ("simvastatin", "statin")
     if "humalog" in clean_name or "insulin" in clean_name: return ("insulin", "insulin")
+    if "obh" in clean_name: return ("obh", "antitussive")
     
-    # 2. General Safeties
+    # Excipients, GI, Antivertigo & Antibiotics Overrides
+    if "sirplus" in clean_name or "syrplus" in clean_name: return ("sirplus", "pharmaceutical_excipient")
+    if "l-bio" in clean_name or "lacto-b" in clean_name: return ("probiotic", "probiotic")
+    if "betahistin" in clean_name or "merislon" in clean_name: return ("betahistine", "antivertigo")
+    if "ondansetron" in clean_name: return ("ondansetron", "antiemetic")
+    if "vosedon" in clean_name or "domperidon" in clean_name: return ("domperidone", "antiemetic")
+    if "diagit" in clean_name: return ("attapulgite", "antidiarrheal")
+    if "spasminal" in clean_name: return ("hyoscine", "antispasmodic")
+    if "santagesik" in clean_name: return ("metamizole", "analgesic")
+    if "sanprima" in clean_name: return ("cotrimoxazole", "antibiotic")
+    if "lopamid" in clean_name or "loperamid" in clean_name: return ("loperamide", "antidiarrheal")
+    if "ranitidine" in clean_name: return ("ranitidine", "h2-blocker")
+    if "amoxsan" in clean_name: return ("amoxicillin", "antibiotic")
+    if "tremenza" in clean_name: return ("pseudoephedrine", "decongestant")
+    if "lasal" in clean_name: return ("salbutamol", "bronchodilator")
+    if "trilac" in clean_name: return ("triamcinolone", "corticosteroid")
+    if "zinc" in clean_name: return ("zinc", "supplement")
+    if "cobazym" in clean_name: return ("cobamamide", "supplement")
+    
+    # General Safeties
     if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
     if "omeprazole" in clean_name: return ("omeprazole", "ppi")
@@ -198,7 +212,7 @@ def get_drug_info(drug_name: str):
     if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
     if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
     
-    # 3. DB Lookup
+    # DB Lookup
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
@@ -206,52 +220,59 @@ def get_drug_info(drug_name: str):
 
     return (clean_name, "unknown")
 
+
 def extract_frequency(text: str) -> str:
-    """Robust extraction of frequencies, prioritizing HIS DB structures."""
+    """Robust extraction of frequencies, capturing # and : delimiters."""
     if not text: return "1 x 1"
     
-    # 1. HIS Structural String Format (NAME : QTY : SIG)
-    parts = text.split(':')
+    # Splits on either : or #
+    parts = re.split(r'[:#]', text)
     if len(parts) >= 3:
         sig_part = parts[-1].strip()
-        if any(k in sig_part.lower() for k in ['dd', 'x', '-', 'bab', 'imm', 'prn', 'k/p']):
+        # Accept valid signature lengths gracefully
+        if len(sig_part) >= 2:
             return sig_part
             
-    # 2. Regex Fallbacks for complex racikan text
+    # Fallback RegExes
     m = re.search(r'\d+\s*(?:tab|tablet|pulv|bungkus)?\s*/\s*BAB', text, re.IGNORECASE)
     if m: return m.group(0).strip()
-    
     m = re.search(r'(?:s\s*)?\d+\s*dd\s*(?:[a-zA-Z]+\s+)?\d+(?:/\d+)?(?:[.,]\d+)?(?:\s*[a-zA-Z]+)?', text, re.IGNORECASE)
     if m: return m.group(0).strip()
-    
     m = re.search(r'\d+\s*[xX]\s*\d+(?:/\d+)?(?:[.,]\d+)?(?:\s*[a-zA-Z]+)?', text, re.IGNORECASE)
     if m: return m.group(0).strip()
-    
     m = re.search(r'\d+-\d+-\d+', text)
     if m: return m.group(0).strip()
-    
     m = re.search(r'\b(imm|prn|k/p|k\.p)\b', text, re.IGNORECASE)
     if m: return m.group(0).strip()
     
     return "1 x 1"
 
+
 def extract_dose_text(text: str) -> Optional[str]:
-    """Robust extraction of fractions (1/4 tablet, 0.25 tabs) and reverse fractions (sach 1/2)."""
+    """Upgraded dosage extraction capable of finding fractionated prescriptions."""
     if not text: return None
     
-    # Isolate to just the name segment if formatted as NAME : QTY : SIG
-    parts = text.split(':')
-    text_to_search = parts[0] if len(parts) >= 3 else text
+    # Isolate the drug name segment
+    text_to_search = re.split(r'[:#]', text)[0]
         
-    # Catch: 1/4 tablet, 0.8mg, 10 MG, 1.5 ml
-    match1 = re.search(r'(\d+/\d+|\d+[.,]\d+|\d+)\s*(mg|g|mcg|ml|iu|tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule)\b', text_to_search, re.IGNORECASE)
+    # Match standard doses and fractions (1/4 tablet, 80 MG)
+    match1 = re.search(r'(\d+/\d+|\d+[.,]\d+|\d+)\s*(mg|g|mcg|ml|cc|iu|tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule|drop|drops)\b', text_to_search, re.IGNORECASE)
     if match1:
         return f"{match1.group(1)} {match1.group(2).lower()}"
         
-    # Catch: sach 1/2, tab 1/4
-    match2 = re.search(r'\b(tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule)\s+(\d+/\d+|\d+[.,]\d+)', text_to_search, re.IGNORECASE)
+    # Match reverse fractions (sach 1/2)
+    match2 = re.search(r'\b(tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule|drop|drops)\s+(\d+/\d+|\d+[.,]\d+|\d+)', text_to_search, re.IGNORECASE)
     if match2:
         return f"{match2.group(2)} {match2.group(1).lower()}"
+        
+    # Deep Fallback: If not found in the name, scan the entire raw line (for things like "3 dd 1 ml")
+    match3 = re.search(r'(\d+/\d+|\d+[.,]\d+|\d+)\s*(mg|g|mcg|ml|cc|iu|tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule|drop|drops)\b', text, re.IGNORECASE)
+    if match3:
+        return f"{match3.group(1)} {match3.group(2).lower()}"
+        
+    match4 = re.search(r'\b(tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule|drop|drops)\s+(\d+/\d+|\d+[.,]\d+|\d+)', text, re.IGNORECASE)
+    if match4:
+        return f"{match4.group(2)} {match4.group(1).lower()}"
         
     return None
 
@@ -259,10 +280,6 @@ def extract_dose_text(text: str) -> Optional[str]:
 
 @app.post("/api/suggest-alternative")
 async def suggest_alternative(payload: AlternativeRequest):
-    """
-    Algorithmic Endpoint: Determines safe replacement drugs by analyzing 
-    classes and resolving them against the conflict rules logic.
-    """
     gen_a, class_a = get_drug_info(payload.drug_to_replace)
     gen_b, class_b = get_drug_info(payload.interacting_with)
     
@@ -272,7 +289,6 @@ async def suggest_alternative(payload: AlternativeRequest):
     candidate_classes = ALT_CLASS_MAP[class_a]
     safe_classes = []
     
-    # Filter out candidate classes that trigger rules with Drug B
     for cand_class in candidate_classes:
         mech_key = frozenset([cand_class, class_b])
         if mech_key not in CLASS_RULES:
@@ -280,7 +296,6 @@ async def suggest_alternative(payload: AlternativeRequest):
             
     suggestions = []
     
-    # Extract real drugs from the DB belonging to the surviving safe classes
     if structured_drug_db and hasattr(structured_drug_db, 'DRUGS'):
         for safe_c in safe_classes:
             found = 0
@@ -293,7 +308,6 @@ async def suggest_alternative(payload: AlternativeRequest):
                     found += 1
                     if found >= 2: break 
                     
-    # Deduplicate by name
     unique_suggestions = list({v['generic_name']: v for v in suggestions}.values())
     return {"alternatives": unique_suggestions}
 
@@ -328,17 +342,56 @@ async def check_ddi_endpoint(payload: DDIRequest):
 async def parse_prescription_endpoint(payload: ParseRequest):
     if not ner_engine: raise HTTPException(status_code=500, detail="NER Parser not loaded. Check server logs.")
     try:
-        lines = payload.text.split('\n')
+        text = payload.text
+        
+        # Safely split bulk pasted chunks
+        if "|||" in text:
+            lines = [l.strip() for l in text.split("|||") if l.strip()]
+        elif ";" in text:
+            lines = [l.strip() for l in text.split(";") if l.strip()]
+        else:
+            lines = text.split('\n')
+            
         parsed_drugs = ner_engine.extract_drugs(lines)
         
+        # Force fallback if NER completely misses complex items
+        if not parsed_drugs and lines:
+            parsed_drugs = [{"original_text": line} for line in lines]
+            
         frontend_drugs = []
         for d in parsed_drugs:
-            freq = extract_frequency(d.get('original_text', ''))
-            dosage = f"{d.get('dose_mg', '')} mg" if d.get('dose_mg') else "Unknown dose"
+            orig = d.get('original_text', '')
+            if not orig: continue
             
+            freq = extract_frequency(orig)
+            
+            # --- PRIORITY DOSAGE EXTRACTION ---
+            # Text extraction dominates DB extraction. This fixes "80 MG" being overridden by "None" or "100mg"
+            text_dose = extract_dose_text(orig)
+            
+            if text_dose:
+                dosage = text_dose
+            elif d.get('dose_mg'):
+                dosage = f"{d.get('dose_mg')} mg"
+            else:
+                dosage = "Unknown dose"
+            
+            # --- BRAND EXTRACTION ---
+            b_name = d.get('brand_name', 'Unknown')
+            if (not b_name or b_name.lower() == 'unknown'):
+                parts = re.split(r'[:#]', orig)
+                b_name = parts[0].replace("ANS ", "").replace("*", "").strip()
+                
+            # --- CLASS OVERRIDE ---
+            d_class = str(d.get('class', 'unknown')).strip()
+            if not d_class or d_class.lower() in ['unknown', 'unknown class', 'none']:
+                _, d_class = get_drug_info(b_name)
+                if d_class.lower() == 'unknown':
+                    _, d_class = get_drug_info(orig)
+                
             frontend_drugs.append({
-                "drugName": d.get('brand_name', 'Unknown'),
-                "drugClass": d.get('class', 'unknown'),
+                "drugName": b_name,
+                "drugClass": d_class,
                 "dosage": dosage,
                 "frequency": freq
             })
@@ -350,13 +403,9 @@ async def parse_prescription_endpoint(payload: ParseRequest):
 
 @app.get("/api/icd/search")
 async def search_icd(q: str):
-    """
-    Queries the icd10_mit table for auto-complete suggestions.
-    Searches both the ICD-10 code and the full description.
-    """
     if not supabase: return []
     try:
-        safe_q = q.replace(",", "") # Prevent postgrest syntax errors
+        safe_q = q.replace(",", "") 
         res = supabase.table("icd10_mit") \
             .select("icd10_code,who_full_desc") \
             .or_(f"icd10_code.ilike.%{safe_q}%,who_full_desc.ilike.%{safe_q}%") \
@@ -372,9 +421,7 @@ async def search_icd(q: str):
 async def submit_triage(data: TriageData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # Insert triage record
         res = supabase.table("triage_notes").insert(data.model_dump(exclude_none=True)).execute()
-        # Update appointment status to show it is ready for the doctor
         supabase.table("appointments").update({"status": "consultation"}).eq("id", data.appointment_id).execute()
         return {"status": "success", "triage_id": res.data[0]['id']}
     except Exception as e:
@@ -382,7 +429,6 @@ async def submit_triage(data: TriageData):
 
 @app.get("/nurse/queue")
 async def get_nurse_queue():
-    """Fetches patients waiting for nurse triage."""
     if not supabase: return []
     return supabase.table("appointments").select("*, patients(*)").in_("status", ["scheduled", "checked_in"]).order("queue_number").execute().data
 
@@ -443,10 +489,12 @@ async def get_patient_profile(user_id: str):
     return res.data[0] if res.data else {"mrn": "N/A"}
 
 @app.get("/")
-def read_root(): return {"status": "active", "version": "11.1 - Complete Algorithmic Backend"}
+def read_root(): return {"status": "active", "version": "11.4 - Master Dose Extraction"}
 
 if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+
 
