@@ -207,9 +207,53 @@ def get_drug_info(drug_name: str):
     return (clean_name, "unknown")
 
 def extract_frequency(text: str) -> str:
-    match = re.search(r'(\d+\s*[xX]\s*[\d\.,/]+)|(\d+\s*dd\s*[\d\.,/]+)|(s\s*\d+\s*dd)', text, re.IGNORECASE)
-    if match: return match.group(0)
+    """Robust extraction of frequencies, prioritizing HIS DB structures."""
+    if not text: return "1 x 1"
+    
+    # 1. HIS Structural String Format (NAME : QTY : SIG)
+    parts = text.split(':')
+    if len(parts) >= 3:
+        sig_part = parts[-1].strip()
+        if any(k in sig_part.lower() for k in ['dd', 'x', '-', 'bab', 'imm', 'prn', 'k/p']):
+            return sig_part
+            
+    # 2. Regex Fallbacks for complex racikan text
+    m = re.search(r'\d+\s*(?:tab|tablet|pulv|bungkus)?\s*/\s*BAB', text, re.IGNORECASE)
+    if m: return m.group(0).strip()
+    
+    m = re.search(r'(?:s\s*)?\d+\s*dd\s*(?:[a-zA-Z]+\s+)?\d+(?:/\d+)?(?:[.,]\d+)?(?:\s*[a-zA-Z]+)?', text, re.IGNORECASE)
+    if m: return m.group(0).strip()
+    
+    m = re.search(r'\d+\s*[xX]\s*\d+(?:/\d+)?(?:[.,]\d+)?(?:\s*[a-zA-Z]+)?', text, re.IGNORECASE)
+    if m: return m.group(0).strip()
+    
+    m = re.search(r'\d+-\d+-\d+', text)
+    if m: return m.group(0).strip()
+    
+    m = re.search(r'\b(imm|prn|k/p|k\.p)\b', text, re.IGNORECASE)
+    if m: return m.group(0).strip()
+    
     return "1 x 1"
+
+def extract_dose_text(text: str) -> Optional[str]:
+    """Robust extraction of fractions (1/4 tablet, 0.25 tabs) and reverse fractions (sach 1/2)."""
+    if not text: return None
+    
+    # Isolate to just the name segment if formatted as NAME : QTY : SIG
+    parts = text.split(':')
+    text_to_search = parts[0] if len(parts) >= 3 else text
+        
+    # Catch: 1/4 tablet, 0.8mg, 10 MG, 1.5 ml
+    match1 = re.search(r'(\d+/\d+|\d+[.,]\d+|\d+)\s*(mg|g|mcg|ml|iu|tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule)\b', text_to_search, re.IGNORECASE)
+    if match1:
+        return f"{match1.group(1)} {match1.group(2).lower()}"
+        
+    # Catch: sach 1/2, tab 1/4
+    match2 = re.search(r'\b(tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule)\s+(\d+/\d+|\d+[.,]\d+)', text_to_search, re.IGNORECASE)
+    if match2:
+        return f"{match2.group(2)} {match2.group(1).lower()}"
+        
+    return None
 
 # --- ENDPOINTS ---
 
@@ -405,3 +449,4 @@ if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
