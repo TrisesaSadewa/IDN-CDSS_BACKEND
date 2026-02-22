@@ -3698,7 +3698,7 @@
   {
     "brand_name": "obh combi",
     "generic_name": "Succus Liquiritiae, Ammonium Chloride, Paracetamol",
-    "drug_class": "decongestant",
+    "drug_class": "analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4272,21 +4272,14 @@
   {
     "brand_name": "obh kaca",
     "generic_name": "Succus Liquiritiae",
-    "drug_class": "decongestant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "obh syrup",
     "generic_name": "Succus Liquiritiae",
-    "drug_class": "decongestant",
-    "dose_mg": null,
-    "is_pediatric": false
-  },
-  {
-    "brand_name": "obh sirup",
-    "generic_name": "Succus Liquiritiae",
-    "drug_class": "decongestant",
+    "drug_class": "unknown",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4321,7 +4314,7 @@
   {
     "brand_name": "sirplus",
     "generic_name": "Sirup pemanis",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -4727,21 +4720,21 @@
   {
     "brand_name": "BETAHISTIN MESYLATE",
     "generic_name": "Betahistin Mesylate",
-    "drug_class": "unknown",
+    "drug_class": "antivertigo",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "BETAHISTINE MESYLATE",
     "generic_name": "Betahistin Mesylate",
-    "drug_class": "unknown",
+    "drug_class": "antivertigo",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "BETAHISTINE",
     "generic_name": "Betahistin Mesylate",
-    "drug_class": "unknown",
+    "drug_class": "antivertigo",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5357,7 +5350,7 @@
   {
     "brand_name": "L-BIO",
     "generic_name": "Lactobacillus acidophilus",
-    "drug_class": "unknown",
+    "drug_class": "probiotic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5448,14 +5441,14 @@
   {
     "brand_name": "PROBIOKID",
     "generic_name": "probiotic, prebiotic",
-    "drug_class": "unknown",
+    "drug_class": "probiotic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "PROBIOSTIM",
     "generic_name": "probiotic, prebiotic",
-    "drug_class": "unknown",
+    "drug_class": "probiotic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -10299,7 +10292,7 @@
   {
     "brand_name": "Alcostat",
     "generic_name": "Taraxacum Officinale, Avena Sativa, Passiflora Incarnata, Aurum Metallicum, Capsicum Annuum, Chelidonium Majus, Lachesis Mutus, Lycopodium Clavatum, Nox Vomica, Quercus Glandium Spiritus, Sulphuricum Acidum, Ethylicum, Carcinosin, Saccharum Officinale",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -14093,7 +14086,7 @@
   {
     "brand_name": "Intimate",
     "generic_name": "Natrum Carbonicum, Saccharum Officinale, Lithium Carbonicum, Placenta Totalis Suis, Lac Caninum, Anacardium Orientale, Aurum Muriaticum Natronatum, Camphora, Germanium Metallicum, Helleborus Niger, Magnesia Oxydata, Rhus Glabra, Stramonium, Thuja Occidentalis, Dna (Human), Oxytocin, Hydrogen, Neon, Lac Materna Humanum",
-    "drug_class": "topical_analgesic",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -14877,7 +14870,7 @@
   {
     "brand_name": "Saccharum Officinale",
     "generic_name": "Saccharum Officinale",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -18419,7 +18412,7 @@
   {
     "brand_name": "A04 Deep Antitox",
     "generic_name": "Allium Cepa, Allium Sativum, Aloe Socotrina, Arsenicum Iodatum, Asterias Rubens, Baptisia Tinctoria, Calcarea Iodata, Candida Albicans, Carbo Vegetabilis, Chelidonium Majus, Cina, Cinchona Officinalis, Colchicum Autumnale, Echinacea Angustifolia, Echinacea Purpurea, Indolum, Lac Vaccinum, Lacticum Acidum, Millefolium, Saccharum Officinale, Sarcolacticum Acidum, Scrophularia Nodosa, Skatolum, Solidago Virgaurea, Sulphur, Uricum Acidum",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -18944,7 +18937,7 @@
   {
     "brand_name": "Habit",
     "generic_name": "Chamomilla, Natrum Phosphoricum, Valeriana Officinalis, Passiflora Incarnata, Argentum Nitricum, Caladium Seguinum, Cinchona Officinalis, Muriaticum Acidum, Saccharum Officinale, Avena Sativa, Tabacum, Cerebrum Suis, Serotonin (Hydrochloride), Argemone Mexicana, Agaricus Muscarius, Arsenicum Album, Aurum Metallicum, Ipecacuanha, Sepia, Hypothalamus (Bovine), Vipera Berus",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -46909,7 +46902,7 @@
   {
     "brand_name": "Shame",
     "generic_name": "Adrenalinum, Agnus Castus, Aloe, Ambra Grisea, Aurum Muriaticum Natronatum, Baryta Carbonica, Calcarea Iodata, Candida Albicans, Cerebrum Suis, Cinchona Officinalis, Digitalis Purpurea, Hypothalamus Suis, Ignatia Amara, Lac Defloratum, Lycopodium Clavatum, Natrum Muriaticum, Rhus Glabra, Saccharum Officinale, Serotonin (Hydrochloride), Staphysagria, Thuja Occidentalis",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -53972,7 +53965,7 @@
   {
     "brand_name": "Saccharum Officinale",
     "generic_name": "Sucrose",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -63254,7 +63247,7 @@
   {
     "brand_name": "Focus",
     "generic_name": "Adenosinum Cyclophosphoricum, Adrenalinum, Aethusa Cynapium, Alpha-Ketoglutaricum Acidum, Ambra Grisea, Baryta Carbonica, Candida Albicans, Carboneum Sulphuratum, Cerebrum Suis, Ginkgo Biloba, Helleborus Niger, Hypothalamus Suis, Hyoscyamus Niger, Iodium, Phosphorus, Saccharum Officinale, Sarcolacticum Acid, Silicea, Tarentula Hispana, Veratrum Album",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -65942,7 +65935,7 @@
   {
     "brand_name": "Gut Brain Spectrum",
     "generic_name": "Abrotanum (Artemisia Abrotanum), Aethusa Cynapium, Baptisia Tinctoria, Cicuta Virosa, Cuprum Metallicum, Mezereum, Bufo Rana, Lac Materna Humanum, Saccharum Officinale, Serotonin (Hydrochloride), Alumina, Calcarea Phosphorica, Candida Albicans, Carcinosin, Lac Caninum, Mercurius Solubilis, Natrum Muriaticum, Propionic Acid, Sulphur, Thuja Occidentalis, Formalinum, Morbillinum",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -86277,7 +86270,7 @@
   {
     "brand_name": "B03 Sinus Relief",
     "generic_name": "Allium Cepa, Calcarea Iodata, Calcarea Sulphurica, Echinacea Angustifolia, Echinacea Purpurea, Euphorbium Officinarum, Hepar Sulphuris Calcareum, Histaminum Hydrochloricum, Hydrastis Canadensis, Kali Bichromicum, Kali Muriaticum, Kali Sulphuricum, Lac Defloratum, Luffa Operculata, Mercurius Sulphuratus Ruber, Phosphorus, Pulsatilla Vulgaris, Saccharum Lactis, Thuja Occidentalis",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -91989,7 +91982,7 @@
   {
     "brand_name": "Focus",
     "generic_name": "Ginkgo Biloba, Alpha-Ketoglutaricum Acidum, Iodium, Phosphorus, Sarcolacticum Acid, Saccharum Officinale, Adenosinum Cyclophosphoricum, Cerebrum Suis, Hypothalamus Suis, Silicea, Adrenalinum, Ambra Grisea, Carboneum Sulphuratum, Tarentula Hispana, Aethusa Cynapium, Baryta Carbonica, Helleborus Niger, Veratrum Album, Candida Albicans, Hyoscyamus Niger",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -110938,7 +110931,7 @@
   {
     "brand_name": "Lactistat",
     "generic_name": "Arsenicum Album, Calcarea Carbonica, Cocculus Indicus, Graphites, Hydrofluoricum Acidum, Lachesis Mutus, Lacticum Acidum, Rhus Tox, Ruta Graveolens, Sarcolacticum Acidum, Saccharum Officinale",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -115348,7 +115341,7 @@
   {
     "brand_name": "Cand Plus",
     "generic_name": "Hydrastis Canadensis, Berberis Vulgaris, Borax, Saccharum Officinale, Caffeinum, Gallicum Acidum, Indolum, Allium Sativum, Echinacea (Angustifolia), Asafoetida, Acetaldehyde, Folliculinum, Lycopodium Clavatum, Phytolacca Decandra, Pulsatilla (Pratensis), Sepia, Ustilago Maidis, Torula Cerevisiae",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -120521,7 +120514,7 @@
   {
     "brand_name": "Pms Relief",
     "generic_name": "Agnus Castus, Cimicifuga Racemosa, Kali Carbonicum, Lycopodium Clavatum, Saccharum Officinale, Thyroidinum (Bovine), Hypothalamus Suis, Aristolochia Clematitis, Folliculinum, Aurum Sulphuratum, Candida Albicans, Cocculus Indicus, Conium Maculatum, Cyclamen Europaeum, Elaps Corallinus, Lac Caninum, Lachesis Mutus, Magnesia Carbonica, Pulsatilla (Pratensis), Stannum Metallicum",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -167736,7 +167729,7 @@
   {
     "brand_name": "Argentum Saccharum",
     "generic_name": "Argentum Saccharum",
-    "drug_class": "unknown",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -181561,7 +181554,7 @@
   {
     "brand_name": "Terramed Just Think Comfort Gynocare Probiotics For Vaginal Use",
     "generic_name": "Oleuropein,Hydrastis Canadensis,Borax,Calendula Officinalis,Lactobacillus Fermentum",
-    "drug_class": "unknown",
+    "drug_class": "probiotic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -186083,7 +186076,7 @@
   {
     "brand_name": "Sugar Cravings",
     "generic_name": "Cinnamic Acid, Phloridzinum, Argentum Nitricum, Adenosinum Triphosphoricum Dinatrum, Beet Sugar, Dextrose, D-Ribose, Fructose, Lycopodium Clavatum, Maple Sugar, Saccharum Lactis, Saccharum Officinale, Sarcolacticum Acidum, Malvin, Adrenocorticotrophin, Dysentery Bacillus, Morgan Gaertner",
-    "drug_class": "electrolyte",
+    "drug_class": "pharmaceutical_excipient",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -200377,14 +200370,14 @@
   {
     "brand_name": "betahistin",
     "generic_name": "betahistin",
-    "drug_class": "unknown",
+    "drug_class": "antivertigo",
     "dose_mg": 6.0,
     "is_pediatric": false
   },
   {
     "brand_name": "betahistin",
     "generic_name": "betahistin",
-    "drug_class": "unknown",
+    "drug_class": "antivertigo",
     "dose_mg": 24.0,
     "is_pediatric": false
   },
