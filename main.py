@@ -401,6 +401,12 @@ async def parse_prescription_endpoint(payload: ParseRequest):
         print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/resolve-drug-class")
+async def resolve_drug_class(q: str):
+    """Utility to determine drug class using the backend's master logic."""
+    _, d_class = get_drug_info(q)
+    return {"drug_class": d_class}
+
 @app.get("/api/icd/search")
 async def search_icd(q: str):
     if not supabase: return []
@@ -495,6 +501,5 @@ if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
 
 
