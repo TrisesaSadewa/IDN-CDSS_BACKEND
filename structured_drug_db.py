@@ -46,10 +46,10 @@ class DrugDatabase:
                 if drug.generic_name:
                     self.index[drug.generic_name.lower()] = drug
             
-            print(f"✅ Database loaded successfully: {len(self.drugs)} drugs active.")
+            print(f"[OK] Database loaded successfully: {len(self.drugs)} drugs active.")
             
         except Exception as e:
-            print(f"❌ Error loading database: {e}")
+            print(f"[ERROR] Error loading database: {e}")
 
     def get_all(self):
         return self.drugs
