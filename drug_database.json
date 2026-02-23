@@ -4272,14 +4272,14 @@
   {
     "brand_name": "obh kaca",
     "generic_name": "Succus Liquiritiae",
-    "drug_class": "unknown",
+    "drug_class": "analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
   {
     "brand_name": "obh syrup",
     "generic_name": "Succus Liquiritiae",
-    "drug_class": "unknown",
+    "drug_class": "analgesic",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -5784,7 +5784,7 @@
   {
     "brand_name": "Digoxin",
     "generic_name": "Digoxin",
-    "drug_class": "unknown",
+    "drug_class": "glycoside",
     "dose_mg": null,
     "is_pediatric": false
   },
@@ -137972,7 +137972,7 @@
   {
     "brand_name": "Lanoxin",
     "generic_name": "Digoxin",
-    "drug_class": "unknown",
+    "drug_class": "glycoside",
     "dose_mg": null,
     "is_pediatric": false
   },
