@@ -76,10 +76,6 @@ class ConsultationData(BaseModel):
     clinical_notes: str
     therapy_instructions: str
     prescription_items: List[Dict[str, Any]]
-    # Hybrid Coding Fields
-    clinical_code: Optional[str] = None
-    clinical_system: Optional[str] = "ICD-10"
-
 
 
 # --- 1. MECHANISM-BASED RULES ---
@@ -413,9 +409,6 @@ async def resolve_drug_class(q: str):
 
 @app.get("/api/icd/search")
 async def search_icd(q: str):
-    """
-    Standard ICD-10 search for backward compatibility.
-    """
     if not supabase: return []
     try:
         safe_q = q.replace(",", "") 
@@ -429,57 +422,6 @@ async def search_icd(q: str):
     except Exception as e:
         print(f"ICD Search Error: {e}")
         return []
-
-@app.get("/api/terminology/search")
-async def hybrid_terminology_search(q: str):
-    """
-    Hybrid Broker: Searches local ICD-10 and mocks ICD-11/SNOMED results.
-    Demonstrates international granularity mapping to local billing codes.
-    """
-    if not supabase: return []
-    try:
-        # 1. Local ICD-10 Fetch
-        safe_q = q.replace(",", "")
-        res = supabase.table("icd10_mit") \
-            .select("icd10_code,who_full_desc") \
-            .or_(f"icd10_code.ilike.%{safe_q}%,who_full_desc.ilike.%{safe_q}%") \
-            .limit(10) \
-            .execute()
-        
-        results = []
-        for r in res.data:
-            results.append({
-                "code": r["icd10_code"],
-                "description": r["who_full_desc"],
-                "system": "ICD-10",
-                "billing_equivalent": r["icd10_code"], # Maps to self
-                "premium": False
-            })
-
-        # 2. MOCK ICD-11 / SNOMED Synergy (The "Gap" demonstration)
-        # In a real app, this would call the WHO API or Ontoserver
-        mocks = [
-            {"match": "gerd", "code": "DD90.2", "desc": "Gastro-oesophageal reflux disease with oesophagitis", "sys": "ICD-11", "map": "K21.0"},
-            {"match": "gastritis", "code": "DA51.0", "desc": "Acute haemorrhagic gastritis", "sys": "ICD-11", "map": "K29.0"},
-            {"match": "diabetes", "code": "5A11", "desc": "Type 2 diabetes mellitus", "sys": "ICD-11", "map": "E11.9"},
-            {"match": "asthma", "code": "CA23.0", "desc": "Allergic asthma", "sys": "ICD-11", "map": "J45.0"}
-        ]
-        
-        for m in mocks:
-            if q.lower() in m["match"] or q.lower() in m["desc"].lower():
-                results.append({
-                    "code": m["code"],
-                    "description": m["desc"],
-                    "system": m["sys"],
-                    "billing_equivalent": m["map"],
-                    "premium": True
-                })
-        
-        return results
-    except Exception as e:
-        print(f"Hybrid Search Error: {e}")
-        return []
-
 
 @app.post("/nurse/submit-triage")
 async def submit_triage(data: TriageData):
@@ -501,12 +443,7 @@ async def submit_consultation(data: ConsultationData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
         subjective = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
-        
-        # Enriched assessment with dual-coding audit
-        assessment = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\n"
-        if data.clinical_code and data.clinical_code != data.icd10_code:
-            assessment += f"CLINICAL ({data.clinical_system}): {data.clinical_code}\n"
-        assessment += f"NOTES: {data.clinical_notes}"
+        assessment = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nNOTES: {data.clinical_notes}"
         
         res = supabase.table("consultations").insert({
             "appointment_id": data.appointment_id,
@@ -515,10 +452,7 @@ async def submit_consultation(data: ConsultationData):
             "objective": "Recorded in Triage",
             "assessment": assessment,
             "plan": data.therapy_instructions,
-            "prescription_raw_text": json.dumps(data.prescription_items),
-            # Save the new hybrid fields
-            "clinical_code": data.clinical_code or data.icd10_code,
-            "clinical_system": data.clinical_system or "ICD-10"
+            "prescription_raw_text": json.dumps(data.prescription_items)
         }).execute()
         
         consult_id = res.data[0]['id']
@@ -527,7 +461,6 @@ async def submit_consultation(data: ConsultationData):
         return {"status": "success", "consultation_id": consult_id, "interactions": []}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/patient/history")
 async def get_patient_history(patient_id: str):
