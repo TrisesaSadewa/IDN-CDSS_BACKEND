@@ -7,6 +7,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
+import aiohttp
+import asyncio
 
 # --- IMPORT LOCAL MODULES ---
 ner_engine = None
@@ -132,6 +134,22 @@ CLASS_RULES = {
     frozenset(["ace-inhibitor", "ccb"]): { "severity": "Minor", "description": "Additive Hypotension.", "advice": "Routine monitoring." }, 
     frozenset(["ace-inhibitor", "alkalinizing_agent"]): { "severity": "Minor", "description": "Absorption alteration.", "advice": "Separate dosing." }, 
     frozenset(["gabapentinoid", "ccb"]): { "severity": "Minor", "description": "Additive Edema/CNS effects.", "advice": "Monitor for peripheral edema." }, 
+
+    # --- NEW MASTER ALIGNMENT RULES ---
+    frozenset(["antituberculosis", "oral_contraceptive"]): { "severity": "Major", "description": "Metabolic Induction (CYP3A4): Contraceptive failure risk.", "advice": "Use non-hormonal backup method." },
+    frozenset(["antifungal", "statin"]): { "severity": "Major", "description": "CYP3A4 Inhibition: High risk of Rhabdomyolysis.", "advice": "Avoid combinations like Simvastatin; monitor for muscle pain." },
+    frozenset(["beta-blocker", "insulin"]): { "severity": "Major", "description": "Hypoglycemia Masking: Masks tachycardia/tremors.", "advice": "Monitor glucose frequently; watch for sweating." },
+    frozenset(["beta-blocker", "sulfonylurea"]): { "severity": "Major", "description": "Hypoglycemia Masking.", "advice": "Strict glucose monitoring." },
+    frozenset(["psychotropic", "sedative_hypnotic"]): { "severity": "Major", "description": "Severe CNS Depression.", "advice": "Avoid concurrent use." },
+    frozenset(["antineoplastic", "nsaid"]): { "severity": "Major", "description": "Reduced Renal Clearance: Risk of methotrexate toxicity.", "advice": "Contraindicated with High-dose MTX." },
+    frozenset(["antiviral", "statin"]): { "severity": "Major", "description": "Pharmacokinetic Interference: Elevated statin levels.", "advice": "Adjust statin dose or switch therapy." },
+    frozenset(["antacid", "antibiotic"]): { "severity": "Intermediate", "description": "Chelation: Significantly reduced antibiotic absorption.", "advice": "Separate dosing by at least 2 hours." },
+    frozenset(["ppi", "antifungal"]): { "severity": "Intermediate", "description": "pH-dependent absorption reduction.", "advice": "Avoid concurrent use or monitor for failure." },
+    frozenset(["diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Additive Hypokalemia Risk.", "advice": "Monitor serum potassium levels." },
+    frozenset(["thyroid", "supplement"]): { "severity": "Intermediate", "description": "Reduced levothyroxine absorption (Fe/Ca).", "advice": "Separate dosing by 4 hours." },
+    frozenset(["bisphosphonate", "antacid"]): { "severity": "Intermediate", "description": "Significantly reduced absorption.", "advice": "Take bisphosphonate 30 mins before any other drug/food." },
+    frozenset(["h2-blocker", "antifungal"]): { "severity": "Intermediate", "description": "Reduced absorption (pH effect).", "advice": "Space out or monitor." },
+    frozenset(["opioid", "psychotropic"]): { "severity": "Major", "description": "Additive CNS/Respiratory Depression.", "advice": "Monitor strictly or avoid." },
 }
 
 # --- 2. ALGORITHMIC THERAPEUTIC ALTERNATIVES MAP ---
@@ -150,7 +168,12 @@ ALT_CLASS_MAP = {
     "thiazide_diuretic": ["loop_diuretic", "k_sparing_diuretic"],
     "k_sparing_diuretic": ["loop_diuretic", "thiazide_diuretic"],
     "antiplatelet": ["anticoagulant"],
-    "anticoagulant": ["antiplatelet"]
+    "anticoagulant": ["antiplatelet"],
+    "ppi": ["h2-blocker", "mucosal-protective", "antacid"],
+    "h2-blocker": ["ppi", "mucosal-protective"],
+    "antifungal": ["antibiotic"],
+    "statins": ["fibrate"],
+    "antihistamine": ["leukotriene_inhibitor", "corticosteroid"]
 }
 
 # --- HELPERS ---
@@ -184,6 +207,24 @@ def get_drug_info(drug_name: str):
     if "humalog" in clean_name or "insulin" in clean_name: return ("insulin", "insulin")
     if "obh" in clean_name: return ("obh", "antitussive")
     
+    if "omega" in clean_name or "fish oil" in clean_name: return ("omega-3", "supplement")
+    if "levothyroxin" in clean_name or "thyrax" in clean_name: return ("levothyroxine", "thyroid")
+    if "methotrexate" in clean_name or "mtx" in clean_name: return ("methotrexate", "antineoplastic")
+    if "rifampicin" in clean_name or "rifampin" in clean_name or "rimstar" in clean_name: return ("rifampicin", "antituberculosis")
+    if "ketoconazole" in clean_name or "fluconazole" in clean_name or "itraconazole" in clean_name: return ("azole", "antifungal")
+    if "acyclovir" in clean_name or "asiklovir" in clean_name: return ("acyclovir", "antiviral")
+    if "enalapril" in clean_name or "lisinopril" in clean_name or "ramipril" in clean_name: return ("ace-inhibitor", "ace-inhibitor")
+    if "losartan" in clean_name or "valsartan" in clean_name or "irbesartan" in clean_name: return ("arb", "arb")
+    if "amlodipin" in clean_name or "diltiazem" in clean_name or "verapamil" in clean_name: return ("ccb", "ccb")
+    if "hydrochlorothiazide" in clean_name or "hct" in clean_name: return ("hct", "diuretic")
+    if "furosemid" in clean_name: return ("furosemide", "diuretic")
+    if "prednison" in clean_name: return ("prednisone", "corticosteroid")
+    if "alprazolam" in clean_name or "diazepam" in clean_name: return ("benzodiazepine", "sedative_hypnotic")
+    if "sertraline" in clean_name or "fluoxetine" in clean_name: return ("ssri", "psychotropic")
+    if "paracetamol" in clean_name or "panadol" in clean_name: return ("paracetamol", "analgesic")
+    if "antacid" in clean_name or "promag" in clean_name or "mylanta" in clean_name: return ("antacid", "antacid")
+    if "alendronate" in clean_name: return ("alendronate", "bisphosphonate")
+    
     # Excipients, GI, Antivertigo & Antibiotics Overrides
     if "sirplus" in clean_name or "syrplus" in clean_name: return ("sirplus", "pharmaceutical_excipient")
     if "l-bio" in clean_name or "lacto-b" in clean_name: return ("probiotic", "probiotic")
@@ -196,7 +237,7 @@ def get_drug_info(drug_name: str):
     if "sanprima" in clean_name: return ("cotrimoxazole", "antibiotic")
     if "lopamid" in clean_name or "loperamid" in clean_name: return ("loperamide", "antidiarrheal")
     if "ranitidine" in clean_name: return ("ranitidine", "h2-blocker")
-    if "amoxsan" in clean_name: return ("amoxicillin", "antibiotic")
+    if "amoxsan" in clean_name or "amoxicillin" in clean_name: return ("amoxicillin", "antibiotic")
     if "tremenza" in clean_name: return ("pseudoephedrine", "decongestant")
     if "lasal" in clean_name: return ("salbutamol", "bronchodilator")
     if "trilac" in clean_name: return ("triamcinolone", "corticosteroid")
@@ -206,7 +247,7 @@ def get_drug_info(drug_name: str):
     # General Safeties
     if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
-    if "omeprazole" in clean_name: return ("omeprazole", "ppi")
+    if "omeprazole" in clean_name or "lanzoprazole" in clean_name: return ("ppi", "ppi")
     if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
     if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
     if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
@@ -219,6 +260,33 @@ def get_drug_info(drug_name: str):
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
 
     return (clean_name, "unknown")
+
+
+async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optional[str]:
+    """Queries OpenFDA for drug-specific interaction warnings."""
+    if not drug_name or drug_name == "unknown": return None
+    
+    url = f"https://api.fda.gov/drug/label.json?search=drug_interactions:{drug_name}&limit=1"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "results" in data:
+                        label = data["results"][0]
+                        interaction_text = label.get("drug_interactions", [""])[0]
+                        
+                        # Match target drug name in the text
+                        if drug_target.lower() in interaction_text.lower():
+                            # Extract a snippet around the target drug for brevity
+                            pattern = rf'[^.]*?{re.escape(drug_target)}[^.]*\.'
+                            match = re.search(pattern, interaction_text, re.IGNORECASE)
+                            if match:
+                                return match.group(0).strip()
+                            return interaction_text[:300] + "..."
+    except Exception as e:
+        print(f"FDA API Error for {drug_name}: {e}")
+    return None
 
 
 def extract_frequency(text: str) -> str:
@@ -324,14 +392,39 @@ async def check_ddi_endpoint(payload: DDIRequest):
         gen_b, class_b = get_drug_info(db)
         mech_key = frozenset([class_a, class_b])
         
+        # 1. Check Mechanistic Rules
+        description = None
+        severity = "Info"
+        advice = "Monitor clinical status."
+        source = "Heuristic"
+        
         if mech_key in CLASS_RULES:
             rule = CLASS_RULES[mech_key]
+            severity = rule["severity"]
+            description = rule["description"]
+            advice = rule["advice"]
+            source = "Clinical Algorithm"
+
+        # 2. Dynamic Enrichment from FDA
+        # We check both directions because labels differ
+        fda_warning = await get_fda_interaction_warning(gen_a, gen_b)
+        if not fda_warning:
+            fda_warning = await get_fda_interaction_warning(gen_b, gen_a)
+            
+        if fda_warning:
+            description = fda_warning
+            source = "OpenFDA Regulatory Label"
+            # If FDA mentions it, elevate severity to at least Intermediate if it was Info
+            if severity == "Info":
+                severity = "Intermediate"
+
+        if description or mech_key in CLASS_RULES:
             results.append({
                 "pair": [da.title(), db.title()],
-                "severity": rule["severity"],
-                "description": rule["description"],
-                "advice": rule["advice"],
-                "source": "Algorithm"
+                "severity": severity,
+                "description": description or "Interaction suspected via class-mechanism logic.",
+                "advice": advice,
+                "source": source
             })
 
     severity_order = {"Major": 1, "Intermediate": 2, "Moderate": 2, "Minor": 3, "Info": 4}
