@@ -79,6 +79,12 @@ class ConsultationData(BaseModel):
     therapy_instructions: str
     prescription_items: List[Dict[str, Any]]
 
+class BookingRequest(BaseModel):
+    patient_id: str
+    doctor_id: str
+    date: str
+    time: str
+
 
 # --- 1. MECHANISM-BASED RULES ---
 CLASS_RULES = {
@@ -586,6 +592,59 @@ async def get_appointment_detail(appt_id: str):
 async def get_patient_profile(user_id: str):
     res = supabase.table("patients").select("*").eq("id", user_id).execute()
     return res.data[0] if res.data else {"mrn": "N/A"}
+
+@app.get("/patient/doctors")
+async def get_patient_doctors():
+    if not supabase: return []
+    # Fetch profiles with role 'doctor'
+    res = supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute()
+    return res.data
+
+@app.get("/patient/appointments")
+async def get_patient_appointments(patient_id: str):
+    if not supabase: return []
+    try:
+        # Fetch appointments and join with doctor profiles
+        res = supabase.table("appointments") \
+            .select("*, doctor:profiles!doctor_id(full_name, specialization)") \
+            .eq("patient_id", patient_id) \
+            .order("scheduled_time", desc=True) \
+            .execute()
+        return res.data
+    except Exception as e:
+        print(f"Fetch appointments error: {e}")
+        return []
+
+@app.post("/patient/book-appointment")
+async def book_appointment(data: BookingRequest):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        scheduled_time = f"{data.date}T{data.time}:00"
+        
+        # Get next queue number for that day
+        today_res = supabase.table("appointments") \
+            .select("queue_number") \
+            .gte("scheduled_time", f"{data.date}T00:00:00") \
+            .lte("scheduled_time", f"{data.date}T23:59:59") \
+            .order("queue_number", desc=True) \
+            .limit(1) \
+            .execute()
+            
+        next_q = 1
+        if today_res.data:
+            next_q = (today_res.data[0]['queue_number'] or 0) + 1
+            
+        res = supabase.table("appointments").insert({
+            "patient_id": data.patient_id,
+            "doctor_id": data.doctor_id,
+            "scheduled_time": scheduled_time,
+            "status": "scheduled",
+            "queue_number": next_q
+        }).execute()
+        
+        return {"status": "success", "appointment": res.data[0]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 def read_root(): return {"status": "active", "version": "11.4 - Master Dose Extraction"}
