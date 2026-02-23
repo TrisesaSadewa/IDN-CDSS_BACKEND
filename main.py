@@ -452,7 +452,7 @@ async def submit_consultation(data: ConsultationData):
             "objective": "Recorded in Triage",
             "assessment": assessment,
             "plan": data.therapy_instructions,
-            "prescription_raw_text": str(data.prescription_items)
+            "prescription_raw_text": json.dumps(data.prescription_items)
         }).execute()
         
         consult_id = res.data[0]['id']
@@ -501,5 +501,3 @@ if __name__ == '__main__':
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
-
