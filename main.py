@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 import aiohttp
 import asyncio
+import datetime
 
 # --- IMPORT LOCAL MODULES ---
 ner_engine = None
@@ -84,6 +85,33 @@ class BookingRequest(BaseModel):
     doctor_id: str
     date: str
     time: str
+
+class StaffCreateRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str
+    specialization: Optional[str] = None
+
+class PatientCreateRequest(BaseModel):
+    email: str
+    password: str
+    name: str
+    dob: str
+    gender: str
+    nik: str
+    phone_number: str
+    address: str
+    allergies: Optional[str] = None
+    insurance_provider: Optional[str] = None
+    insurance_number: Optional[str] = None
+    insurance_coverage_limit: Optional[float] = None
+    insurance_plan_type: Optional[str] = None
+    emergency_name: Optional[str] = None
+    emergency_relationship: Optional[str] = None
+    emergency_phone: Optional[str] = None
+    consent_data_processing: Optional[bool] = True
+    consent_notifications: Optional[bool] = False
 
 
 # --- 1. MECHANISM-BASED RULES ---
@@ -644,6 +672,86 @@ async def book_appointment(data: BookingRequest):
         
         return {"status": "success", "appointment": res.data[0]}
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/admin/create-staff")
+async def create_staff(data: StaffCreateRequest):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        # 1. Create User in Auth (Admin Bypass Confirmation)
+        new_user = supabase.auth.admin.create_user({
+            "email": data.email,
+            "password": data.password,
+            "user_metadata": {"full_name": data.name},
+            "email_confirm": True
+        })
+        
+        user_id = new_user.user.id
+        
+        # 2. Create Profile
+        supabase.table("profiles").insert({
+            "id": user_id,
+            "email": data.email,
+            "full_name": data.name,
+            "role": data.role,
+            "specialization": data.specialization
+        }).execute()
+        
+        return {"status": "success", "user_id": user_id}
+    except Exception as e:
+        print(f"Create Staff Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/admin/create-patient")
+async def create_patient(data: PatientCreateRequest):
+    if not supabase: raise HTTPException(status_code=500, detail="DB Error")
+    try:
+        # 1. Create User in Auth
+        new_user = supabase.auth.admin.create_user({
+            "email": data.email,
+            "password": data.password,
+            "user_metadata": {"full_name": data.name},
+            "email_confirm": True
+        })
+        
+        user_id = new_user.user.id
+        
+        # 2. Generate MRN
+        mrn = f"HIS-{datetime.datetime.now().strftime('%Y%m%d')}-{str(abs(hash(data.nik)) % 10000).zfill(4)}"
+        
+        # 3. Create Patient Record
+        supabase.table("patients").insert({
+            "id": user_id,
+            "full_name": data.name,
+            "dob": data.dob,
+            "gender": data.gender,
+            "nik": data.nik,
+            "phone_number": data.phone_number,
+            "address": data.address,
+            "mrn": mrn,
+            "insurance_provider": data.insurance_provider,
+            "insurance_number": data.insurance_number,
+            "insurance_plan_type": data.insurance_plan_type,
+            "insurance_coverage_limit": data.insurance_coverage_limit,
+            "allergies": data.allergies,
+            "emergency_name": data.emergency_name,
+            "emergency_relationship": data.emergency_relationship,
+            "emergency_phone": data.emergency_phone,
+            "consent_data_processing": data.consent_data_processing,
+            "consent_notifications": data.consent_notifications
+        }).execute()
+        
+        # 4. Create Profile entry
+        supabase.table("profiles").insert({
+            "id": user_id,
+            "email": data.email,
+            "full_name": data.name,
+            "role": "patient"
+        }).execute()
+        
+        return {"status": "success", "user_id": user_id, "mrn": mrn}
+    except Exception as e:
+        print(f"Create Patient Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
