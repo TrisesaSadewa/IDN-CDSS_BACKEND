@@ -114,102 +114,7 @@ class PatientCreateRequest(BaseModel):
     consent_notifications: Optional[bool] = False
 
 
-# --- 1. MECHANISM-BASED RULES ---
-CLASS_RULES = {
-    # --- MAJOR (Red) ---
-    frozenset(["anticoagulant", "nsaid"]): { "severity": "Major", "description": "Additive Bleeding Risk.", "advice": "Avoid concurrent use." },
-    frozenset(["anticoagulant", "antiplatelet"]): { "severity": "Major", "description": "Additive Bleeding Risk.", "advice": "Strict monitoring of INR/Bleeding." },
-    frozenset(["hemostatic", "oral_contraceptive"]): { "severity": "Major", "description": "Additive Thrombogenic Effect: High risk of clots/stroke.", "advice": "Contraindicated." },
-    frozenset(["ccb", "anticonvulsant"]): { "severity": "Major", "description": "Metabolic Induction.", "advice": "Monitor BP closely." },
-    frozenset(["triptan", "psychotropic"]): { "severity": "Major", "description": "Serotonin Syndrome Risk.", "advice": "Monitor for serotonin toxicity." },
-    frozenset(["sedative_hypnotic", "opioid"]): { "severity": "Major", "description": "Additive CNS Depression.", "advice": "Strict monitoring or avoid." },
-    frozenset(["fibrate", "statin"]): { "severity": "Major", "description": "Additive Myotoxicity.", "advice": "Avoid if possible; monitor CK levels." },
-
-    # --- INTERMEDIATE (Orange) ---
-    frozenset(["antiplatelet", "nsaid"]): { "severity": "Intermediate", "description": "Pharmacodynamic Antagonism.", "advice": "Avoid concurrent use or space out dosing." },
-    frozenset(["beta-blocker", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP." },
-    frozenset(["ace-inhibitor", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics.", "advice": "Monitor renal function." },
-    frozenset(["arb", "nsaid"]): { "severity": "Intermediate", "description": "Renal Hemodynamics.", "advice": "Monitor renal function." },
-    frozenset(["anticonvulsant", "folate"]): { "severity": "Intermediate", "description": "Pharmacokinetic Interaction.", "advice": "Monitor Phenytoin levels." },
-    frozenset(["bisphosphonate", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity.", "advice": "Use with caution." },
-    frozenset(["nsaid", "biguanide"]): { "severity": "Intermediate", "description": "Renal Risk.", "advice": "Monitor renal function." },
-    frozenset(["nsaid", "sulfonylurea"]): { "severity": "Intermediate", "description": "Pharmacokinetic displacement.", "advice": "Monitor blood glucose." },
-    frozenset(["nsaid", "fibrate"]): { "severity": "Intermediate", "description": "Renal/Protein Binding.", "advice": "Monitor renal function." },
-    frozenset(["nsaid", "ccb"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP." },
-    frozenset(["ace-inhibitor", "biguanide"]): { "severity": "Intermediate", "description": "Renal competition.", "advice": "Monitor renal function." },
-    frozenset(["ace-inhibitor", "sulfonylurea"]): { "severity": "Intermediate", "description": "Metabolic.", "advice": "Monitor blood glucose." },
-    frozenset(["biguanide", "sulfonylurea"]): { "severity": "Intermediate", "description": "Additive Hypoglycemia Risk.", "advice": "Standard combo, but monitor glucose." },
-    frozenset(["biguanide", "ccb"]): { "severity": "Intermediate", "description": "Renal/Metabolic interaction.", "advice": "Monitor status." }, 
-    frozenset(["sulfonylurea", "fibrate"]): { "severity": "Intermediate", "description": "Metabolic.", "advice": "Monitor blood glucose." },
-    frozenset(["sulfonylurea", "alkalinizing_agent"]): { "severity": "Intermediate", "description": "Absorption alteration.", "advice": "Separate dosing or monitor." },
-    frozenset(["ccb", "statin"]): { "severity": "Intermediate", "description": "Pharmacokinetic CYP3A4 competition.", "advice": "Monitor for statin toxicity/myopathy." }, 
-    frozenset(["k_sparing_diuretic", "beta-blocker"]): { "severity": "Intermediate", "description": "Additive Hypotension.", "advice": "Monitor BP." },
-    frozenset(["k_sparing_diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor fluid status." },
-    frozenset(["k_sparing_diuretic", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism & Renal Risk.", "advice": "Monitor renal function and potassium." },
-    frozenset(["loop_diuretic", "cardiac_glycoside"]): { "severity": "Intermediate", "description": "Toxicity Risk.", "advice": "Monitor potassium and Digoxin levels closely." },
-    frozenset(["loop_diuretic", "beta-blocker"]): { "severity": "Intermediate", "description": "Additive Hypotension.", "advice": "Monitor BP." },
-    frozenset(["loop_diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Electrolyte Imbalance.", "advice": "Monitor potassium levels." },
-    frozenset(["loop_diuretic", "nsaid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP and fluid status." },
-    frozenset(["anticoagulant", "corticosteroid"]): { "severity": "Intermediate", "description": "GI Risk.", "advice": "Monitor for GI bleeding." },
-    frozenset(["cardiac_glycoside", "beta-blocker"]): { "severity": "Intermediate", "description": "Additive Bradycardia.", "advice": "Monitor heart rate and ECG." },
-    frozenset(["cardiac_glycoside", "corticosteroid"]): { "severity": "Intermediate", "description": "Toxicity Risk.", "advice": "Monitor potassium levels." },
-    frozenset(["beta-blocker", "corticosteroid"]): { "severity": "Intermediate", "description": "Physiologic Antagonism.", "advice": "Monitor BP." },
-    frozenset(["corticosteroid", "nsaid"]): { "severity": "Intermediate", "description": "Additive GI Toxicity.", "advice": "Use with caution; consider gastroprotection." },
-
-    # --- MINOR (Yellow) ---
-    frozenset(["k_sparing_diuretic", "cardiac_glycoside"]): { "severity": "Minor", "description": "Pharmacokinetic interaction.", "advice": "Monitor Digoxin levels." },
-    frozenset(["mucosal-protective", "beta-blocker"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
-    frozenset(["mucosal-protective", "antiplatelet"]): { "severity": "Minor", "description": "Absorption Interference.", "advice": "Separate dosing by 2 hours." },
-    frozenset(["nitrate", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Monitor for hypotension." },
-    frozenset(["nitrate", "ppi"]): { "severity": "Minor", "description": "Minor pharmacokinetic interaction.", "advice": "Monitor status." },
-    frozenset(["beta-blocker", "antiplatelet"]): { "severity": "Minor", "description": "Additive Hemodynamics.", "advice": "Routine monitoring." },
-    frozenset(["antiplatelet", "ppi"]): { "severity": "Minor", "description": "Pharmacokinetic: pH alteration.", "advice": "Monitor efficacy." },
-    frozenset(["anticonvulsant", "antiplatelet"]): { "severity": "Minor", "description": "Protein Binding Displacement.", "advice": "Monitor for signs of Phenytoin toxicity." },
-    frozenset(["ace-inhibitor", "ccb"]): { "severity": "Minor", "description": "Additive Hypotension.", "advice": "Routine monitoring." }, 
-    frozenset(["ace-inhibitor", "alkalinizing_agent"]): { "severity": "Minor", "description": "Absorption alteration.", "advice": "Separate dosing." }, 
-    frozenset(["gabapentinoid", "ccb"]): { "severity": "Minor", "description": "Additive Edema/CNS effects.", "advice": "Monitor for peripheral edema." }, 
-
-    # --- NEW MASTER ALIGNMENT RULES ---
-    frozenset(["antituberculosis", "oral_contraceptive"]): { "severity": "Major", "description": "Metabolic Induction (CYP3A4): Contraceptive failure risk.", "advice": "Use non-hormonal backup method." },
-    frozenset(["antifungal", "statin"]): { "severity": "Major", "description": "CYP3A4 Inhibition: High risk of Rhabdomyolysis.", "advice": "Avoid combinations like Simvastatin; monitor for muscle pain." },
-    frozenset(["beta-blocker", "insulin"]): { "severity": "Major", "description": "Hypoglycemia Masking: Masks tachycardia/tremors.", "advice": "Monitor glucose frequently; watch for sweating." },
-    frozenset(["beta-blocker", "sulfonylurea"]): { "severity": "Major", "description": "Hypoglycemia Masking.", "advice": "Strict glucose monitoring." },
-    frozenset(["psychotropic", "sedative_hypnotic"]): { "severity": "Major", "description": "Severe CNS Depression.", "advice": "Avoid concurrent use." },
-    frozenset(["antineoplastic", "nsaid"]): { "severity": "Major", "description": "Reduced Renal Clearance: Risk of methotrexate toxicity.", "advice": "Contraindicated with High-dose MTX." },
-    frozenset(["antiviral", "statin"]): { "severity": "Major", "description": "Pharmacokinetic Interference: Elevated statin levels.", "advice": "Adjust statin dose or switch therapy." },
-    frozenset(["antacid", "antibiotic"]): { "severity": "Intermediate", "description": "Chelation: Significantly reduced antibiotic absorption.", "advice": "Separate dosing by at least 2 hours." },
-    frozenset(["ppi", "antifungal"]): { "severity": "Intermediate", "description": "pH-dependent absorption reduction.", "advice": "Avoid concurrent use or monitor for failure." },
-    frozenset(["diuretic", "corticosteroid"]): { "severity": "Intermediate", "description": "Additive Hypokalemia Risk.", "advice": "Monitor serum potassium levels." },
-    frozenset(["thyroid", "supplement"]): { "severity": "Intermediate", "description": "Reduced levothyroxine absorption (Fe/Ca).", "advice": "Separate dosing by 4 hours." },
-    frozenset(["bisphosphonate", "antacid"]): { "severity": "Intermediate", "description": "Significantly reduced absorption.", "advice": "Take bisphosphonate 30 mins before any other drug/food." },
-    frozenset(["h2-blocker", "antifungal"]): { "severity": "Intermediate", "description": "Reduced absorption (pH effect).", "advice": "Space out or monitor." },
-    frozenset(["opioid", "psychotropic"]): { "severity": "Major", "description": "Additive CNS/Respiratory Depression.", "advice": "Monitor strictly or avoid." },
-}
-
-# --- 2. ALGORITHMIC THERAPEUTIC ALTERNATIVES MAP ---
-ALT_CLASS_MAP = {
-    "nsaid": ["analgesic", "corticosteroid"],
-    "ace-inhibitor": ["arb", "ccb", "beta-blocker", "thiazide_diuretic"],
-    "arb": ["ace-inhibitor", "ccb", "beta-blocker", "thiazide_diuretic"],
-    "ccb": ["ace-inhibitor", "arb", "beta-blocker", "thiazide_diuretic"],
-    "beta-blocker": ["ccb", "ace-inhibitor", "arb", "thiazide_diuretic"],
-    "sulfonylurea": ["biguanide", "antidiabetic_other", "insulin"],
-    "biguanide": ["sulfonylurea", "antidiabetic_other", "insulin"],
-    "statin": ["fibrate"], 
-    "fibrate": ["statin"],
-    "corticosteroid": ["nsaid", "analgesic"],
-    "loop_diuretic": ["thiazide_diuretic", "k_sparing_diuretic"],
-    "thiazide_diuretic": ["loop_diuretic", "k_sparing_diuretic"],
-    "k_sparing_diuretic": ["loop_diuretic", "thiazide_diuretic"],
-    "antiplatelet": ["anticoagulant"],
-    "anticoagulant": ["antiplatelet"],
-    "ppi": ["h2-blocker", "mucosal-protective", "antacid"],
-    "h2-blocker": ["ppi", "mucosal-protective"],
-    "antifungal": ["antibiotic"],
-    "statins": ["fibrate"],
-    "antihistamine": ["leukotriene_inhibitor", "corticosteroid"]
-}
-
+# DATABASE RULE LOOKUPS (Dynamically Fetched)
 # --- HELPERS ---
 def get_drug_info(drug_name: str):
     if not drug_name: return ("unknown", "unknown")
@@ -382,18 +287,24 @@ def extract_dose_text(text: str) -> Optional[str]:
 
 @app.post("/api/suggest-alternative")
 async def suggest_alternative(payload: AlternativeRequest):
+    if not supabase: return {"alternatives": []}
+    
     gen_a, class_a = get_drug_info(payload.drug_to_replace)
     gen_b, class_b = get_drug_info(payload.interacting_with)
     
-    if class_a not in ALT_CLASS_MAP:
+    res_alt = supabase.table("therapeutic_alternatives").select("alternative_class").eq("target_class", class_a).order("priority").execute()
+    candidate_classes = [r["alternative_class"] for r in res_alt.data] if res_alt.data else []
+    
+    if not candidate_classes:
         return {"alternatives": []}
         
-    candidate_classes = ALT_CLASS_MAP[class_a]
     safe_classes = []
     
     for cand_class in candidate_classes:
-        mech_key = frozenset([cand_class, class_b])
-        if mech_key not in CLASS_RULES:
+        c1, c2 = sorted([cand_class, class_b])
+        rule_res = supabase.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
+        
+        if not rule_res.data:
             safe_classes.append(cand_class)
             
     suggestions = []
@@ -415,6 +326,7 @@ async def suggest_alternative(payload: AlternativeRequest):
 
 @app.post("/api/check-ddi")
 async def check_ddi_endpoint(payload: DDIRequest):
+    if not supabase: raise HTTPException(status_code=500, detail="Database connection not available")
     drugs = [d for d in payload.drugs if d]
     results = []
     
@@ -424,20 +336,24 @@ async def check_ddi_endpoint(payload: DDIRequest):
     for da, db in pairs:
         gen_a, class_a = get_drug_info(da)
         gen_b, class_b = get_drug_info(db)
-        mech_key = frozenset([class_a, class_b])
+        c1, c2 = sorted([class_a, class_b])
         
-        # 1. Check Mechanistic Rules
+        # 1. Check Mechanistic Rules in Database
+        rule_res = supabase.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
+        
         description = None
         severity = "Info"
         advice = "Monitor clinical status."
         source = "Heuristic"
+        has_local_rule = False
         
-        if mech_key in CLASS_RULES:
-            rule = CLASS_RULES[mech_key]
-            severity = rule["severity"]
-            description = rule["description"]
-            advice = rule["advice"]
-            source = "Clinical Algorithm"
+        if rule_res.data:
+            has_local_rule = True
+            rule_data = rule_res.data[0]
+            severity = rule_data["severity"]
+            description = rule_data["description"]
+            advice = rule_data["advice"]
+            source = "Local Knowledge Base"
 
         # 2. Dynamic Enrichment from FDA
         # We check both directions because labels differ
@@ -447,12 +363,14 @@ async def check_ddi_endpoint(payload: DDIRequest):
             
         if fda_warning:
             description = fda_warning
-            source = "OpenFDA Regulatory Label"
+            source = "OpenFDA Regulatory API"
             # If FDA mentions it, elevate severity to at least Intermediate if it was Info
-            if severity == "Info":
+            if "must not be used" in fda_warning.lower() or "contraindicated" in fda_warning.lower():
+                severity = "Major"
+            elif severity == "Info":
                 severity = "Intermediate"
 
-        if description or mech_key in CLASS_RULES:
+        if description or has_local_rule:
             results.append({
                 "pair": [da.title(), db.title()],
                 "severity": severity,
