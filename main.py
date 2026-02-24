@@ -356,19 +356,19 @@ async def check_ddi_endpoint(payload: DDIRequest):
             source = "Local Knowledge Base"
 
         # 2. Dynamic Enrichment from FDA
-        # We check both directions because labels differ
-        fda_warning = await get_fda_interaction_warning(gen_a, gen_b)
-        if not fda_warning:
-            fda_warning = await get_fda_interaction_warning(gen_b, gen_a)
-            
-        if fda_warning:
-            description = fda_warning
-            source = "OpenFDA Regulatory API"
-            # If FDA mentions it, elevate severity to at least Intermediate if it was Info
-            if "must not be used" in fda_warning.lower() or "contraindicated" in fda_warning.lower():
-                severity = "Major"
-            elif severity == "Info":
-                severity = "Intermediate"
+        if not has_local_rule:
+            # We check both directions because labels differ
+            fda_warning = await get_fda_interaction_warning(gen_a, gen_b)
+            if not fda_warning:
+                fda_warning = await get_fda_interaction_warning(gen_b, gen_a)
+                
+            if fda_warning:
+                description = fda_warning
+                source = "OpenFDA Regulatory API"
+                if "must not be used" in fda_warning.lower() or "contraindicated" in fda_warning.lower():
+                    severity = "Major"
+                else:
+                    severity = "Intermediate"
 
         if description or has_local_rule:
             results.append({
