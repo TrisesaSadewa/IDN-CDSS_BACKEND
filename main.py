@@ -396,10 +396,32 @@ async def check_ddi_endpoint(payload: DDIRequest):
                     continue 
                 elif any(phrase in warn_lower for phrase in major_phrases):
                     severity = "Major"
+                    advice = "Contraindicated/Major Risk: Avoid concurrent administration."
                 else:
                     severity = "Intermediate"
+                    advice = "Monitor closely for adverse reactions or altered efficacy."
 
         if description or has_local_rule:
+            
+            # --- Advice Enhancement ---
+            # Transform generic advice into medically specific and actionable guidelines
+            if advice == "Monitor BP.":
+                advice = "Monitor blood pressure (maintain target < 140/90 mmHg or appropriate to patient baseline)."
+            elif advice == "Routine monitoring.":
+                advice = "Routine monitoring for onset of generalized adverse side effects."
+            elif advice == "Monitor clinical status.":
+                advice = "Careful monitoring of clinical status and progression of symptoms."
+            elif advice == "Monitor Digoxin levels.":
+                advice = "Monitor serum Digoxin levels closely (narrow therapeutic window, target 0.5-0.9 ng/mL)."
+            elif advice == "Avoid concurrent use or space out dosing.":
+                advice = "Avoid concurrent use. If strictly required, space out dosing by at least 4 to 6 hours."
+            elif advice == "Avoid concurrent use.":
+                advice = "Avoid concurrent use. Consider alternatives, or stagger dosing by 6+ hours to minimize interaction."
+            elif advice == "Monitor renal function and potassium.":
+                advice = "Monitor serum creatinine, eGFR, and hyperkalemia risk (target Potassium 3.5-5.0 mEq/L)."
+            elif advice == "Monitor potassium levels.":
+                advice = "Monitor serum potassium levels frequently to avoid hypo/hyperkalemic events."
+
             results.append({
                 "pair": [da.title(), db.title()],
                 "severity": severity,
