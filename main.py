@@ -383,7 +383,18 @@ async def check_ddi_endpoint(payload: DDIRequest):
             if fda_warning:
                 description = fda_warning
                 source = "OpenFDA Regulatory API"
-                if "must not be used" in fda_warning.lower() or "contraindicated" in fda_warning.lower():
+                warn_lower = fda_warning.lower()
+                
+                # Check for negative/safe statements first
+                safe_phrases = ["no clinically significant", "did not affect", "no interaction", "not clinically significant"]
+                major_phrases = ["must not be used", "contraindicated", "avoid concurrent", "avoid coadministration", "severe", "fatal", "not recommended"]
+                
+                is_safe = any(phrase in warn_lower for phrase in safe_phrases)
+                
+                if is_safe:
+                    # If it explicitly says it's safe, we don't return it as an interaction at all to avoid confusing the user
+                    continue 
+                elif any(phrase in warn_lower for phrase in major_phrases):
                     severity = "Major"
                 else:
                     severity = "Intermediate"
