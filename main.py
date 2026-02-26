@@ -47,8 +47,13 @@ except Exception as e:
 class ParseRequest(BaseModel):
     text: str
 
+class MedicationItem(BaseModel):
+    name: str
+    frequency: Optional[str] = "Anytime"
+
 class DDIRequest(BaseModel):
-    drugs: List[str]
+    medications: Optional[List[MedicationItem]] = None
+    drugs: Optional[List[str]] = None
 
 class AlternativeRequest(BaseModel):
     drug_to_replace: str
@@ -342,28 +347,101 @@ async def suggest_alternative(payload: AlternativeRequest):
     unique_suggestions = list({v['generic_name']: v for v in suggestions}.values())
     return {"alternatives": unique_suggestions}
 
+def get_administration_slots(frequency: Optional[str]) -> set:
+    """Categorizes frequency strings into clinical administration slots."""
+    if not frequency or frequency.lower() in ["unknown", "none", "nan"]:
+        return {"ANYTIME"}
+    
+    freq = (frequency or "Anytime").lower()
+    slots = set()
+    
+    # 1. Dash Pattern (e.g. 1-0-1 or 1-1-1-1)
+    dash_m = re.search(r'(\d+)-(\d+)-(\d+)(?:-(\d+))?', freq)
+    if dash_m:
+        if int(dash_m.group(1)) > 0: slots.add("MORNING")
+        if int(dash_m.group(2)) > 0: slots.add("AFTERNOON")
+        if int(dash_m.group(3)) > 0: slots.add("EVENING")
+        if dash_m.group(4) and int(dash_m.group(4)) > 0: slots.add("NIGHT")
+        return slots if slots else {"ANYTIME"}
+
+    # 2. "Anytime" or "Special" Keywords (PRN, As Needed, After doing something)
+    anytime_keywords = ["prn", "k/p", "kp", "needed", "whenever", "anytime", "urgent", "imm", "pagi/siang/sore", "setiap"]
+    if any(k in freq for k in anytime_keywords):
+        return {"ANYTIME"}
+    
+    # 3. Indonesian & English Time Keywords
+    if "pagi" in freq or "morning" in freq or "am" in freq: slots.add("MORNING")
+    if "siang" in freq or "afternoon" in freq or "diner" in freq: slots.add("AFTERNOON")
+    if "sore" in freq or "evening" in freq: slots.add("EVENING")
+    if "malam" in freq or "night" in freq or "bedtime" in freq or "hs" in freq: slots.add("NIGHT")
+    
+    if slots: return slots
+
+    # 4. Numeric frequencies (3x1, 2x1)
+    if "3 x 1" in freq or "3dd1" in freq or "tid" in freq or "t.i.d" in freq:
+        return {"MORNING", "AFTERNOON", "EVENING"}
+    if "2 x 1" in freq or "2dd1" in freq or "bid" in freq or "b.i.d" in freq:
+        return {"MORNING", "EVENING"}
+    if "1 x 1" in freq or "1dd1" in freq or "od" in freq or "o.d" in freq:
+        return {"MORNING"}
+    
+    return {"ANYTIME"}
+
 @app.post("/api/check-ddi")
 async def check_ddi_endpoint(payload: DDIRequest):
     if not supabase: raise HTTPException(status_code=500, detail="Database connection not available")
-    drugs = [d for d in payload.drugs if d]
+    
+    # Normalize input into a standard list of {name, frequency, slots}
+    med_list = []
+    if payload.medications:
+        for m in payload.medications:
+            if m.name:
+                med_list.append({
+                    "name": m.name,
+                    "frequency": m.frequency or "Anytime",
+                    "slots": get_administration_slots(m.frequency)
+                })
+    elif payload.drugs:
+        for dname in payload.drugs:
+            if dname:
+                med_list.append({
+                    "name": dname,
+                    "frequency": "Anytime",
+                    "slots": {"ANYTIME"}
+                })
+
     results = []
+    if not med_list or len(med_list) < 2: 
+        return {"interactions": [], "safe": True, "timing_safe": True}
     
-    if len(drugs) < 2: return {"interactions": [], "safe": True}
-    
-    pairs = list(combinations(drugs, 2))
-    for da, db in pairs:
+    # Check all pairs
+    pairs = list(combinations(med_list, 2))
+    for ma, mb in pairs:
+        # TIMING FILTER: Only check if they share a timing slot OR one is ANYTIME
+        shared_slots = ma["slots"].intersection(mb["slots"])
+        is_anytime = "ANYTIME" in ma["slots"] or "ANYTIME" in mb["slots"]
+        
+        if not shared_slots and not is_anytime:
+            continue
+            
+        da = ma["name"]
+        db = mb["name"]
+        
         gen_a, class_a = get_drug_info(da)
         gen_b, class_b = get_drug_info(db)
+        
+        # Avoid checking same drug vs same drug (e.g. Paracetamol + Paracetamol)
+        if gen_a == gen_b: continue
+
         c1, c2 = sorted([class_a, class_b])
-        
-        # 1. Check Mechanistic Rules in Database
-        rule_res = supabase.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
-        
         description = None
         severity = "Info"
         advice = "Monitor clinical status."
         source = "Heuristic"
         has_local_rule = False
+        
+        # 1. Check Mechanistic Rules in Database
+        rule_res = supabase.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
         
         if rule_res.data:
             has_local_rule = True
@@ -375,7 +453,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
 
         # 2. Dynamic Enrichment from FDA
         if not has_local_rule:
-            # We check both directions because labels differ
             fda_warning = await get_fda_interaction_warning(gen_a, gen_b)
             if not fda_warning:
                 fda_warning = await get_fda_interaction_warning(gen_b, gen_a)
@@ -385,14 +462,10 @@ async def check_ddi_endpoint(payload: DDIRequest):
                 source = "OpenFDA Regulatory API"
                 warn_lower = fda_warning.lower()
                 
-                # Check for negative/safe statements first
                 safe_phrases = ["no clinically significant", "did not affect", "no interaction", "not clinically significant"]
                 major_phrases = ["must not be used", "contraindicated", "avoid concurrent", "avoid coadministration", "severe", "fatal", "not recommended"]
                 
-                is_safe = any(phrase in warn_lower for phrase in safe_phrases)
-                
-                if is_safe:
-                    # If it explicitly says it's safe, we don't return it as an interaction at all to avoid confusing the user
+                if any(phrase in warn_lower for phrase in safe_phrases):
                     continue 
                 elif any(phrase in warn_lower for phrase in major_phrases):
                     severity = "Major"
@@ -402,9 +475,7 @@ async def check_ddi_endpoint(payload: DDIRequest):
                     advice = "Monitor closely for adverse reactions or altered efficacy."
 
         if description or has_local_rule:
-            
-            # --- Advice Enhancement ---
-            # Transform generic advice into medically specific and actionable guidelines
+            # Advice Enhancement
             if advice == "Monitor BP.":
                 advice = "Monitor blood pressure (maintain target < 140/90 mmHg or appropriate to patient baseline)."
             elif advice == "Routine monitoring.":
@@ -422,10 +493,17 @@ async def check_ddi_endpoint(payload: DDIRequest):
             elif advice == "Monitor potassium levels.":
                 advice = "Monitor serum potassium levels frequently to avoid hypo/hyperkalemic events."
 
+            # Construct slot info for UI
+            time_info = "At the same time"
+            if shared_slots:
+                time_info = "Same time: " + ", ".join(shared_slots)
+            elif is_anytime:
+                time_info = "Potential overlap (PRN/Anytime drug)"
+
             results.append({
                 "pair": [da.title(), db.title()],
                 "severity": severity,
-                "description": description or "Interaction suspected via class-mechanism logic.",
+                "description": f"[{time_info}] {description or 'Interaction suspected via class-mechanism logic.'}",
                 "advice": advice,
                 "source": source
             })
