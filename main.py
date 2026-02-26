@@ -348,43 +348,64 @@ async def suggest_alternative(payload: AlternativeRequest):
     return {"alternatives": unique_suggestions}
 
 def get_administration_slots(frequency: Optional[str]) -> set:
-    """Categorizes frequency strings into clinical administration slots."""
-    if not frequency or frequency.lower() in ["unknown", "none", "nan"]:
+    """Categorizes frequency strings into clinical administration slots with robust pattern matching."""
+    if not frequency:
         return {"ANYTIME"}
     
-    freq = (frequency or "Anytime").lower()
+    freq = frequency.lower().strip()
+    if freq in ["unknown", "none", "nan", ""]:
+        return {"ANYTIME"}
+    
     slots = set()
     
-    # 1. Dash Pattern (e.g. 1-0-1 or 1-1-1-1)
+    # 1. SPECIAL CASE: PRN / Anytime Keywords
+    anytime_keywords = ["prn", "k/p", "kp", "needed", "whenever", "anytime", "urgent", "imm", "setiap", "kapanpun", "whenever", "as needed"]
+    if any(k in freq for k in anytime_keywords):
+        return {"ANYTIME"}
+
+    # 2. Dash Pattern (e.g. 1-0-1 or 1-1-1-1)
     dash_m = re.search(r'(\d+)-(\d+)-(\d+)(?:-(\d+))?', freq)
     if dash_m:
         if int(dash_m.group(1)) > 0: slots.add("MORNING")
         if int(dash_m.group(2)) > 0: slots.add("AFTERNOON")
         if int(dash_m.group(3)) > 0: slots.add("EVENING")
         if dash_m.group(4) and int(dash_m.group(4)) > 0: slots.add("NIGHT")
-        return slots if slots else {"ANYTIME"}
+        if slots: return slots
 
-    # 2. "Anytime" or "Special" Keywords (PRN, As Needed, After doing something)
-    anytime_keywords = ["prn", "k/p", "kp", "needed", "whenever", "anytime", "urgent", "imm", "pagi/siang/sore", "setiap"]
-    if any(k in freq for k in anytime_keywords):
-        return {"ANYTIME"}
+    # 3. Numeric Pattern: N x M, NddM, N x c M, N.X.M
+    # Handles: 3x1, 3 x 1, 3dd1, 3 dd 1, 3xc1, 3 x c 1, 3*1, tid, bid, od
+    norm_freq = freq.replace(' ', '')
     
-    # 3. Indonesian & English Time Keywords
-    if "pagi" in freq or "morning" in freq or "am" in freq: slots.add("MORNING")
-    if "siang" in freq or "afternoon" in freq or "diner" in freq: slots.add("AFTERNOON")
-    if "sore" in freq or "evening" in freq: slots.add("EVENING")
-    if "malam" in freq or "night" in freq or "bedtime" in freq or "hs" in freq: slots.add("NIGHT")
+    # Common medical abbreviations
+    if "tid" in norm_freq or "t.i.d" in norm_freq or "3dd" in norm_freq:
+        slots.update(["MORNING", "AFTERNOON", "EVENING"])
+    elif "bid" in norm_freq or "b.i.d" in norm_freq or "2dd" in norm_freq:
+        slots.update(["MORNING", "EVENING"])
+    elif "od" in norm_freq or "o.d" in norm_freq or "1dd" in norm_freq:
+        slots.add("MORNING")
+    
+    if not slots:
+        # Regex for NxM patterns (capture N)
+        numeric_m = re.search(r'(\d+)\s*[xX*Dd]+\s*(?:c|cap|tab|tablet|kapsul)?\s*(\d+)', freq)
+        if numeric_m:
+            times = int(numeric_m.group(1))
+            if times >= 4:
+                slots.update(["MORNING", "AFTERNOON", "EVENING", "NIGHT"])
+            elif times == 3:
+                slots.update(["MORNING", "AFTERNOON", "EVENING"])
+            elif times == 2:
+                slots.update(["MORNING", "EVENING"])
+            elif times == 1:
+                slots.add("MORNING")
+
+    # 4. Indonesian & English Time Keywords
+    if any(k in freq for k in ["pagi", "morning", "am"]): slots.add("MORNING")
+    if any(k in freq for k in ["siang", "afternoon", "diner", "lunch", "siang"]): slots.add("AFTERNOON")
+    if any(k in freq for k in ["sore", "evening"]): slots.add("EVENING")
+    if any(k in freq for k in ["malam", "night", "bedtime", "hs", "bed"]): slots.add("NIGHT")
     
     if slots: return slots
 
-    # 4. Numeric frequencies (3x1, 2x1)
-    if "3 x 1" in freq or "3dd1" in freq or "tid" in freq or "t.i.d" in freq:
-        return {"MORNING", "AFTERNOON", "EVENING"}
-    if "2 x 1" in freq or "2dd1" in freq or "bid" in freq or "b.i.d" in freq:
-        return {"MORNING", "EVENING"}
-    if "1 x 1" in freq or "1dd1" in freq or "od" in freq or "o.d" in freq:
-        return {"MORNING"}
-    
     return {"ANYTIME"}
 
 @app.post("/api/check-ddi")
