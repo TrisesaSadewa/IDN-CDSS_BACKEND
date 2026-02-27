@@ -53,8 +53,9 @@ class IndonesianDrugParser:
         
         # 1. HARD IGNORE: If it's clearly equipment, we return an empty string
         # This boosts Specificity by ensuring these aren't processed as drugs.
+        # Fixed: r'^ans\s+' was too broad and swallowed "ANS drug_name" lines.
         equipment_ignore = [
-            r'^ans\s+', r'^jarum\b', r'^spuit\b', r'^infus\b', r'^abocath\b', r'^alkohol\b'
+            r'^jarum\b', r'^spuit\b', r'^infus\b', r'^abocath\b', r'^alkohol\b'
         ]
         for pattern in equipment_ignore:
             if re.search(pattern, text):
