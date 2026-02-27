@@ -1,47 +1,64 @@
 import re
+
 # Check for safe import to prevent crashes if DB format is wrong
 try:
-    from structured_drug_db import DRUGS
+    from structured_drug_db import DRUGS, Drug
 except ImportError:
     DRUGS = []
-    print("WARNING: Could not import DRUGS from structured_drug_db")
+    # Mock Drug class for manual injection if needed
+    class Drug:
+        def __init__(self, brand_name, generic_name, drug_class, dose_mg=None):
+            self.brand_name = brand_name
+            self.generic_name = generic_name
+            self.drug_class = drug_class
+            self.dose_mg = dose_mg
 
 class IndonesianDrugParser:
     def __init__(self):
         self.BRAND_MAP = {}
         self.MAX_WORD_LENGTH = 0
         
+        # Load from the dynamic database (which now fetches from Supabase)
         print(f"Building NER Map from {len(DRUGS)} entries...")
-        
         for drug in DRUGS:
-            # SAFETY CHECK: Ensure we are using the new Drug object format
             if not hasattr(drug, 'brand_name'):
                 continue
+            self._map_drug(drug)
 
-            # Map Brand Name
-            if drug.brand_name and drug.brand_name.lower() != "unknown":
-                key = drug.brand_name.lower()
+    def _map_drug(self, drug):
+        # Map Brand Name
+        if drug.brand_name and drug.brand_name.lower() != "unknown":
+            key = drug.brand_name.lower()
+            self.BRAND_MAP[key] = drug
+            self._update_max_length(key)
+        
+        # Map Generic Name
+        if drug.generic_name and len(drug.generic_name) > 3:
+            key = drug.generic_name.lower()
+            if key not in self.BRAND_MAP:
                 self.BRAND_MAP[key] = drug
                 self._update_max_length(key)
-            
-            # Map Generic Name (if long enough to be unique)
-            if drug.generic_name and len(drug.generic_name) > 3:
-                key = drug.generic_name.lower()
-                if key not in self.BRAND_MAP:
-                    self.BRAND_MAP[key] = drug
-                    self._update_max_length(key)
 
     def _update_max_length(self, text):
-        # Track the maximum number of words in a drug name for N-gram windowing
         word_count = len(text.split())
         if word_count > self.MAX_WORD_LENGTH:
             self.MAX_WORD_LENGTH = word_count
 
     def clean_text(self, raw_text):
-        """Removes Indonesian prescription noise."""
-        text = raw_text.lower().strip()
+        """Removes Indonesian prescription noise and identifies equipment to ignore."""
+        if not raw_text: return ""
+        text = str(raw_text).lower().strip()
         
-        # Patterns to remove (dosage instructions)
+        # 1. HARD IGNORE: If it's clearly equipment, we return an empty string
+        # This boosts Specificity by ensuring these aren't processed as drugs.
+        equipment_ignore = [
+            r'^ans\s+', r'^jarum\b', r'^spuit\b', r'^infus\b', r'^abocath\b', r'^alkohol\b'
+        ]
+        for pattern in equipment_ignore:
+            if re.search(pattern, text):
+                return "" # Tell parser to ignore this entire line
+
+        # 2. DOSAGE & ADMINISTRATIVE PATTERNS (Noise Removal)
         patterns = [
             r'\b\d+\s*x\s*[\d\.,/]+',   # 3 x 1
             r'\b\d+\s*dd\s*[\d\.,/]+',  # 3 dd 1
@@ -54,14 +71,16 @@ class IndonesianDrugParser:
         for p in patterns:
             text = re.sub(p, ' ', text)
             
-        # FIX: Added hyphen (-) to allowed characters so 'v-bloc' is preserved
+        # Keep hyphens for drugs like v-bloc
         text = re.sub(r'[^\w\s-]', ' ', text) 
         return " ".join(text.split())
 
     def extract_drugs(self, prescription_list):
         detected_drugs = []
+        if not prescription_list: return []
         
         for line in prescription_list:
+            if not line: continue
             cleaned_line = self.clean_text(line)
             words = cleaned_line.split()
             n = len(words)
