@@ -129,7 +129,7 @@ def get_drug_info(drug_name: str):
     
     # 1. Broad Overrides for exact clinical alignment
     if "notisil" in clean_name or "warfarin" in clean_name: return ("warfarin", "anticoagulant")
-    if "clopidogrel" in clean_name: return ("clopidogrel", "antiplatelet")
+    if "clopidogrel" in clean_name or "plavix" in clean_name: return ("clopidogrel", "antiplatelet")
     if "spironolacton" in clean_name: return ("spironolactone", "k_sparing_diuretic")
     if "furosemide" in clean_name or "furosemid" in clean_name: return ("furosemide", "loop_diuretic")
     if "digoxin" in clean_name: return ("digoxin", "cardiac_glycoside")
@@ -189,7 +189,8 @@ def get_drug_info(drug_name: str):
     if "cobazym" in clean_name: return ("cobamamide", "supplement")
     
     # General Safeties
-    if "aspirin" in clean_name or "aspilet" in clean_name or "nospirinal" in clean_name: return ("acetylsalicylic acid", "antiplatelet")
+    if any(k in clean_name for k in ["miniaspi", "aspirin", "aspilet", "nospirinal", "thrombo", "ascadia", "farmasal"]): 
+        return ("acetylsalicylic acid", "antiplatelet")
     if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
     if "omeprazole" in clean_name or "lanzoprazole" in clean_name: return ("ppi", "ppi")
     if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
@@ -373,7 +374,6 @@ def get_administration_slots(frequency: Optional[str]) -> set:
         if slots: return slots
 
     # 3. Numeric Pattern: N x M, NddM, N x c M, N.X.M
-    # Handles: 3x1, 3 x 1, 3dd1, 3 dd 1, 3xc1, 3 x c 1, 3*1, tid, bid, od
     norm_freq = freq.replace(' ', '')
     
     # Common medical abbreviations
