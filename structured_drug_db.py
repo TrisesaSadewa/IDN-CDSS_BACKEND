@@ -1,5 +1,7 @@
 import json
 import os
+import sys
+import io
 from dataclasses import dataclass
 from typing import Optional, List, Dict
 from supabase import create_client, Client
@@ -67,10 +69,10 @@ class DrugDatabase:
                 if drug.generic_name and drug.generic_name.lower() != "unknown":
                     self.index[drug.generic_name.lower()] = drug
             
-            print(f"✅ Database loaded from Supabase: {len(self.drugs)} entries active.")
+            print(f"SUCCESS: Database loaded from Supabase: {len(self.drugs)} entries active.")
             
         except Exception as e:
-            print(f"❌ Error loading database from Supabase: {e}")
+            print(f"ERROR: Loading database from Supabase: {e}")
             print("Attempting to fallback to local drug_database.json...")
             self._load_local_fallback()
 
@@ -95,9 +97,9 @@ class DrugDatabase:
                         self.index[drug.brand_name.lower()] = drug
                     if drug.generic_name:
                         self.index[drug.generic_name.lower()] = drug
-                print(f"✅ Loaded {len(self.drugs)} drugs from local fallback.")
+                print(f"SUCCESS: Loaded {len(self.drugs)} drugs from local fallback.")
             except Exception as e:
-                print(f"Fallack failed: {e}")
+                print(f"Fallback failed: {e}")
 
     def get_all(self):
         return self.drugs
@@ -106,3 +108,4 @@ class DrugDatabase:
 db_instance = DrugDatabase()
 DRUGS = db_instance.get_all()
 DRUG_INDEX = db_instance.index
+
