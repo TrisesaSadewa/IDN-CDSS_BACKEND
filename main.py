@@ -602,6 +602,38 @@ async def resolve_drug_class(q: str):
     _, d_class = get_drug_info(q)
     return {"drug_class": d_class}
 
+@app.get("/api/recommend-drugs")
+async def recommend_drugs(diagnosis: str):
+    if not supabase: return {"recommendations": []}
+    try:
+        safe_diag = diagnosis.replace("'", "")
+        res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%{safe_diag}%").limit(100).execute()
+        
+        if not res.data:
+            return {"recommendations": []}
+            
+        drug_counts = {}
+        for row in res.data:
+            raw_text = row.get("prescription_raw_text")
+            if raw_text:
+                try:
+                    items = json.loads(raw_text)
+                    for item in items:
+                        name = item.get("name")
+                        if name:
+                            clean_name = name.lower().strip()
+                            drug_counts[clean_name] = drug_counts.get(clean_name, 0) + 1
+                except:
+                    pass
+                    
+        sorted_drugs = sorted(drug_counts.items(), key=lambda x: x[1], reverse=True)
+        top_drugs = [{"name": name.title(), "count": count} for name, count in sorted_drugs[:5]]
+        
+        return {"recommendations": top_drugs}
+    except Exception as e:
+        print(f"Recommendation error: {e}")
+        return {"recommendations": []}
+
 @app.get("/api/icd/search")
 async def search_icd(q: str):
     if not supabase: return []
