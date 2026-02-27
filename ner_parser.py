@@ -1,4 +1,6 @@
 import re
+import sys
+import io
 
 # Check for safe import to prevent crashes if DB format is wrong
 try:
@@ -113,3 +115,4 @@ class IndonesianDrugParser:
 
 # Create the parser instance
 parser = IndonesianDrugParser()
+
