@@ -1,120 +1,118 @@
-import re
+import json
+import os
 import sys
 import io
+from dataclasses import dataclass
+from typing import Optional, List, Dict
+from supabase import create_client, Client
 
-# Check for safe import to prevent crashes if DB format is wrong
-try:
-    from structured_drug_db import DRUGS, Drug
-except ImportError:
-    DRUGS = []
-    # Mock Drug class for manual injection if needed
-    class Drug:
-        def __init__(self, brand_name, generic_name, drug_class, dose_mg=None):
-            self.brand_name = brand_name
-            self.generic_name = generic_name
-            self.drug_class = drug_class
-            self.dose_mg = dose_mg
+@dataclass
+class Drug:
+    brand_name: str
+    generic_name: str
+    drug_class: str
+    dose_mg: Optional[float] = None
+    is_pediatric: bool = False
 
-class IndonesianDrugParser:
-    def __init__(self):
-        self.BRAND_MAP = {}
-        self.MAX_WORD_LENGTH = 0
+class DrugDatabase:
+    def __init__(self, json_path='drug_database.json'):
+        self.drugs: List[Drug] = []
+        self.index: Dict[str, Drug] = {} 
         
-        # Load from the dynamic database (which now fetches from Supabase)
-        print(f"Building NER Map from {len(DRUGS)} entries...")
-        for drug in DRUGS:
-            if not hasattr(drug, 'brand_name'):
-                continue
-            self._map_drug(drug)
-
-    def _map_drug(self, drug):
-        # Map Brand Name
-        if drug.brand_name and drug.brand_name.lower() != "unknown":
-            key = drug.brand_name.lower()
-            self.BRAND_MAP[key] = drug
-            self._update_max_length(key)
+        # SUPABASE CONFIG (Mirroring main.py)
+        self.url = "https://crywwqleinnwoacithmw.supabase.co"
+        self.key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
         
-        # Map Generic Name
-        if drug.generic_name and len(drug.generic_name) > 3:
-            key = drug.generic_name.lower()
-            if key not in self.BRAND_MAP:
-                self.BRAND_MAP[key] = drug
-                self._update_max_length(key)
+        self.load_data()
 
-    def _update_max_length(self, text):
-        word_count = len(text.split())
-        if word_count > self.MAX_WORD_LENGTH:
-            self.MAX_WORD_LENGTH = word_count
-
-    def clean_text(self, raw_text):
-        """Removes Indonesian prescription noise and identifies equipment to ignore."""
-        if not raw_text: return ""
-        text = str(raw_text).lower().strip()
-        
-        # 1. HARD IGNORE: If it's clearly equipment, we return an empty string
-        # This boosts Specificity by ensuring these aren't processed as drugs.
-        # Fixed: r'^ans\s+' was too broad and swallowed "ANS drug_name" lines.
-        equipment_ignore = [
-            r'^jarum\b', r'^spuit\b', r'^infus\b', r'^abocath\b', r'^alkohol\b'
-        ]
-        for pattern in equipment_ignore:
-            if re.search(pattern, text):
-                return "" # Tell parser to ignore this entire line
-
-        # 2. DOSAGE & ADMINISTRATIVE PATTERNS (Noise Removal)
-        patterns = [
-            r'^ans\s+',                 # Strip inventory prefix
-            r'\b\d+\s*x\s*[\d\.,/]+',   # 3 x 1
-            r'\b\d+\s*dd\s*[\d\.,/]+',  # 3 dd 1
-            r'\bs\s*\d+\s*dd',          # S 3 dd
-            r'\bno\s*[xivlc]+',         # No XII
-            r'\bno\s*\d+',              # No 10
-            r'\btab\b|\bcaps\b|\bcap\b|\bsyr\b|\bcth\b|\bbungkus\b|\bsachet\b|\bfls\b|\btube\b|\binj\b'
-        ]
-        
-        for p in patterns:
-            text = re.sub(p, ' ', text)
+    def load_data(self):
+        """Loads drugs from the Supabase knowledge_map table in batches."""
+        try:
+            supabase: Client = create_client(self.url, self.key)
+            print("Fetching drug dictionary from Supabase Knowledge Map...")
             
-        # Keep hyphens for drugs like v-bloc
-        text = re.sub(r'[^\w\s-]', ' ', text) 
-        return " ".join(text.split())
-
-    def extract_drugs(self, prescription_list):
-        detected_drugs = []
-        if not prescription_list: return []
-        
-        for line in prescription_list:
-            if not line: continue
-            cleaned_line = self.clean_text(line)
-            words = cleaned_line.split()
-            n = len(words)
-            i = 0
+            all_rows = []
+            page_size = 1000
+            offset = 0
             
-            # Greedy N-Gram Matcher
-            while i < n:
-                match_found = False
-                window_limit = min(self.MAX_WORD_LENGTH, n - i)
-                for length in range(window_limit, 0, -1):
-                    phrase = " ".join(words[i : i + length])
-                    
-                    if phrase in self.BRAND_MAP:
-                        drug_obj = self.BRAND_MAP[phrase]
-                        detected_drugs.append({
-                            "brand_name": drug_obj.brand_name,
-                            "generic": drug_obj.generic_name,
-                            "class": drug_obj.drug_class,
-                            "dose_mg": drug_obj.dose_mg,
-                            "original_text": line
-                        })
-                        i += length 
-                        match_found = True
-                        break
+            while True:
+                res = supabase.table("knowledge_map") \
+                    .select("local_term, openfda_term") \
+                    .range(offset, offset + page_size - 1) \
+                    .execute()
                 
-                if not match_found:
-                    i += 1
+                rows = res.data
+                if not rows:
+                    break
+                    
+                all_rows.extend(rows)
+                offset += page_size
+                
+                # Safety break if it gets too huge, though we expect ~56k
+                if offset > 100000: break 
             
-        return detected_drugs
+            self.drugs = []
+            for d in all_rows:
+                local_name = d.get('local_term', 'Unknown')
+                # openfda_term in this DB often represents the Target Generic or Class
+                class_or_generic = d.get('openfda_term', 'unknown')
+                
+                # Check fhir_coding for metadata
+                fhir = d.get('fhir_coding', {})
+                display_generic = fhir.get('display', local_name) if isinstance(fhir, dict) else local_name
+                
+                self.drugs.append(Drug(
+                    brand_name=local_name,
+                    generic_name=display_generic,
+                    drug_class=class_or_generic, # Use openfda_term as class for now
+                    dose_mg=None,
+                    is_pediatric=False
+                ))
+            
+            # Create Fast Lookup Index
+            for drug in self.drugs:
+                if drug.brand_name and drug.brand_name.lower() != "unknown":
+                    self.index[drug.brand_name.lower()] = drug
+                if drug.generic_name and drug.generic_name.lower() != "unknown":
+                    self.index[drug.generic_name.lower()] = drug
+            
+            print(f"SUCCESS: Database loaded from Supabase: {len(self.drugs)} entries active.")
+            
+        except Exception as e:
+            print(f"ERROR: Loading database from Supabase: {e}")
+            print("Attempting to fallback to local drug_database.json...")
+            self._load_local_fallback()
 
-# Create the parser instance
-parser = IndonesianDrugParser()
+    def _load_local_fallback(self):
+        json_path = os.path.join(os.path.dirname(__file__), 'drug_database.json')
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    raw_list = json.load(f)
+                self.drugs = [
+                    Drug(
+                        brand_name=d.get('brand_name', 'Unknown'),
+                        generic_name=d.get('generic_name', 'Unknown'),
+                        drug_class=d.get('drug_class', 'unknown'),
+                        dose_mg=d.get('dose_mg'),
+                        is_pediatric=d.get('is_pediatric', False)
+                    ) 
+                    for d in raw_list
+                ]
+                for drug in self.drugs:
+                    if drug.brand_name and drug.brand_name != "Unknown":
+                        self.index[drug.brand_name.lower()] = drug
+                    if drug.generic_name:
+                        self.index[drug.generic_name.lower()] = drug
+                print(f"SUCCESS: Loaded {len(self.drugs)} drugs from local fallback.")
+            except Exception as e:
+                print(f"Fallback failed: {e}")
+
+    def get_all(self):
+        return self.drugs
+
+# --- SINGLETON INSTANCE ---
+db_instance = DrugDatabase()
+DRUGS = db_instance.get_all()
+DRUG_INDEX = db_instance.index
 
