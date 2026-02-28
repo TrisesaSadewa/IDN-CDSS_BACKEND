@@ -703,6 +703,48 @@ async def search_icd(q: str):
         print(f"ICD Search Error: {e}")
         return []
 
+@app.get("/api/analyze-symptoms")
+async def analyze_symptoms(cc: str):
+    if not supabase: return {"suggestions": []}
+    try:
+        # Search for consultations where subjective mentions this complaint
+        res = supabase.table("consultations").select("assessment").ilike("subjective", f"%{cc}%").limit(50).execute()
+        
+        suggestions = {}
+        for row in res.data:
+            asmt = row.get("assessment", "")
+            # Pattern: PRIMARY: Diagnosis Name [ICD-CODE]
+            match = re.search(r"PRIMARY: (.*?) \[(.*?)\]", asmt)
+            if match:
+                diag = match.group(1).strip()
+                code = match.group(2).strip()
+                key = (diag, code)
+                suggestions[key] = suggestions.get(key, 0) + 1
+            else:
+                # Basic cleanup for unstructured entries
+                clean_asmt = asmt.replace("PRIMARY: ", "").split("\n")[0].strip()
+                if clean_asmt and len(clean_asmt) > 3:
+                     # Check if it has something that looks like an ICD code at the end
+                     code_match = re.search(r"\[(.*?)\]$", clean_asmt)
+                     if code_match:
+                         code = code_match.group(1)
+                         diag = clean_asmt.replace(f"[{code}]", "").strip()
+                         suggestions[(diag, code)] = suggestions.get((diag, code), 0) + 1
+                     else:
+                         suggestions[(clean_asmt, "Unknown")] = suggestions.get((clean_asmt, "Unknown"), 0) + 1
+        
+        # Sort and take top 5
+        sorted_suggestions = sorted(suggestions.items(), key=lambda x: x[1], reverse=True)
+        return {
+            "suggestions": [
+                {"diagnosis": k[0], "code": k[1], "count": v} 
+                for k, v in sorted_suggestions[:5]
+            ]
+        }
+    except Exception as e:
+        print(f"Symptom analysis error: {e}")
+        return {"suggestions": []}
+
 @app.post("/nurse/submit-triage")
 async def submit_triage(data: TriageData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
