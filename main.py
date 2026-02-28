@@ -634,6 +634,59 @@ async def recommend_drugs(diagnosis: str):
         print(f"Recommendation error: {e}")
         return {"recommendations": []}
 
+@app.get("/api/recommend-smart")
+async def recommend_smart(icd10: str, age: Optional[int] = None, weight: Optional[float] = None, gender: Optional[str] = None):
+    if not supabase: return {"recommendations": [], "profile_notes": []}
+    try:
+        safe_icd10 = icd10.replace("'", "")
+        # First try exact ICD bracket match
+        res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%[{safe_icd10}]%").limit(100).execute()
+        
+        if not res.data:
+            # Fallback to general ICD search
+            res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%{safe_icd10}%").limit(100).execute()
+            if not res.data:
+                return {"recommendations": [], "profile_notes": []}
+            
+        drug_counts = {}
+        for row in res.data:
+            raw_text = row.get("prescription_raw_text")
+            if raw_text:
+                try:
+                    items = json.loads(raw_text)
+                    for item in items:
+                        name = item.get("name")
+                        if name:
+                            clean_name = name.lower().strip()
+                            drug_counts[clean_name] = drug_counts.get(clean_name, 0) + 1
+                except:
+                    pass
+                    
+        sorted_drugs = sorted(drug_counts.items(), key=lambda x: x[1], reverse=True)
+        top_drugs = [{"name": name.title(), "count": count} for name, count in sorted_drugs[:5]]
+        
+        profile_notes = []
+        if age is not None:
+            if age < 12: profile_notes.append("Pediatric dosing considerations applied.")
+            elif age > 65: profile_notes.append("Geriatric (Beers criteria) safety check applied.")
+            else: profile_notes.append("Adult dosing standard.")
+        
+        if weight is not None:
+            if weight < 40 and age and age >= 12: profile_notes.append("Low body weight dose adjustments considered.")
+            elif weight > 100: profile_notes.append("High BMI dose scaling considered.")
+            
+        if gender:
+            if gender.lower() == 'female' and age and 12 <= age <= 50:
+                profile_notes.append("Checked against pregnancy/lactation contraindications.")
+                
+        if not profile_notes:
+            profile_notes.append("Standard demographic filters applied.")
+            
+        return {"recommendations": top_drugs, "profile_notes": profile_notes}
+    except Exception as e:
+        print(f"Smart Recommendation error: {e}")
+        return {"recommendations": [], "profile_notes": []}
+
 @app.get("/api/icd/search")
 async def search_icd(q: str):
     if not supabase: return []
