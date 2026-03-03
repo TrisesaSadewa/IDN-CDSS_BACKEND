@@ -43,6 +43,34 @@ except Exception as e:
     print(f"Supabase Connection Failed: {e}")
     supabase = None
 
+# --- DYNAMIC METADATA CACHE ---
+CLASS_MOA = {}
+
+def load_class_metadata():
+    """Fetches drug class metadata (MoA, etc.) from Supabase and caches locally."""
+    global CLASS_MOA
+    if not supabase: return
+    try:
+        print("Loading Drug Class Metadata from Supabase...")
+        res = supabase.table("drug_class_metadata").select("*").execute()
+        if res.data:
+            # Simple MoA lookup for backend interaction checks
+            CLASS_MOA = {item['class_key']: item['moa_description'] for item in res.data}
+            # Entire object for UI guide consumption
+            global FULL_CLASS_METADATA_CACHE
+            FULL_CLASS_METADATA_CACHE = res.data
+            print(f"SUCCESS: {len(CLASS_MOA)} drug classes metadata loaded.")
+    except Exception as e:
+        print(f"ERROR: Failed to load drug class metadata: {e}")
+        CLASS_MOA = {}
+        FULL_CLASS_METADATA_CACHE = []
+
+# Global cache for the Guide UI
+FULL_CLASS_METADATA_CACHE = []
+
+# Load on startup
+load_class_metadata()
+
 # --- MODELS ---
 class ParseRequest(BaseModel):
     text: str
@@ -121,88 +149,24 @@ class PatientCreateRequest(BaseModel):
 
 # DATABASE RULE LOOKUPS (Dynamically Fetched)
 # --- HELPERS ---
+
 def get_drug_info(drug_name: str):
     if not drug_name: return ("unknown", "unknown")
     
     clean_name = drug_name.replace("ANS ", "").lower().strip()
     clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip() 
     
-    # 1. Broad Overrides for exact clinical alignment
-    if "notisil" in clean_name or "warfarin" in clean_name: return ("warfarin", "anticoagulant")
-    if "clopidogrel" in clean_name or "plavix" in clean_name: return ("clopidogrel", "antiplatelet")
-    if "spironolacton" in clean_name: return ("spironolactone", "k_sparing_diuretic")
-    if "furosemide" in clean_name or "furosemid" in clean_name: return ("furosemide", "loop_diuretic")
-    if "digoxin" in clean_name: return ("digoxin", "cardiac_glycoside")
-    if "v-bloc" in clean_name or "carvedilol" in clean_name: return ("carvedilol", "beta-blocker")
-    if "methyl" in clean_name and "prednisolon" in clean_name: return ("methylprednisolone", "corticosteroid")
-    if "meloxicam" in clean_name: return ("meloxicam", "nsaid")
-    if "candesartan" in clean_name: return ("candesartan", "arb")
-    if "cetirizine" in clean_name: return ("cetirizine", "antihistamine")
-    if "metformin" in clean_name: return ("metformin", "biguanide")
-    if "glyburide" in clean_name or "glibenclamide" in clean_name or "glybenclamide" in clean_name: return ("glibenclamide", "sulfonylurea")
-    if "glimepiride" in clean_name: return ("glimepiride", "sulfonylurea")
-    if "gliclazide" in clean_name: return ("gliclazide", "sulfonylurea")
-    if "fenofibrate" in clean_name: return ("fenofibrate", "fibrate")
-    if "bicarbonas" in clean_name or "bicarbonate" in clean_name: return ("sodium bicarbonate", "alkalinizing_agent")
-    if "gabapentin" in clean_name: return ("gabapentin", "gabapentinoid")
-    if "captopril" in clean_name: return ("captopril", "ace-inhibitor")
-    if "nifedipine" in clean_name or "amlodipin" in clean_name: return ("ccb", "ccb")
-    if "simvastatin" in clean_name: return ("simvastatin", "statin")
-    if "humalog" in clean_name or "insulin" in clean_name: return ("insulin", "insulin")
-    if "obh" in clean_name: return ("obh", "antitussive")
-    
-    if "omega" in clean_name or "fish oil" in clean_name: return ("omega-3", "supplement")
-    if "levothyroxin" in clean_name or "thyrax" in clean_name: return ("levothyroxine", "thyroid")
-    if "methotrexate" in clean_name or "mtx" in clean_name: return ("methotrexate", "antineoplastic")
-    if "rifampicin" in clean_name or "rifampin" in clean_name or "rimstar" in clean_name: return ("rifampicin", "antituberculosis")
-    if "ketoconazole" in clean_name or "fluconazole" in clean_name or "itraconazole" in clean_name: return ("azole", "antifungal")
-    if "acyclovir" in clean_name or "asiklovir" in clean_name: return ("acyclovir", "antiviral")
-    if "enalapril" in clean_name or "lisinopril" in clean_name or "ramipril" in clean_name: return ("ace-inhibitor", "ace-inhibitor")
-    if "losartan" in clean_name or "valsartan" in clean_name or "irbesartan" in clean_name: return ("arb", "arb")
-    if "amlodipin" in clean_name or "diltiazem" in clean_name or "verapamil" in clean_name: return ("ccb", "ccb")
-    if "hydrochlorothiazide" in clean_name or "hct" in clean_name: return ("hct", "diuretic")
-    if "furosemid" in clean_name: return ("furosemide", "diuretic")
-    if "prednison" in clean_name: return ("prednisone", "corticosteroid")
-    if "alprazolam" in clean_name or "diazepam" in clean_name: return ("benzodiazepine", "sedative_hypnotic")
-    if "sertraline" in clean_name or "fluoxetine" in clean_name: return ("ssri", "psychotropic")
-    if "paracetamol" in clean_name or "panadol" in clean_name: return ("paracetamol", "analgesic")
-    if "antacid" in clean_name or "promag" in clean_name or "mylanta" in clean_name: return ("antacid", "antacid")
-    if "alendronate" in clean_name: return ("alendronate", "bisphosphonate")
-    
-    # Excipients, GI, Antivertigo & Antibiotics Overrides
-    if "sirplus" in clean_name or "syrplus" in clean_name: return ("sirplus", "pharmaceutical_excipient")
-    if "l-bio" in clean_name or "lacto-b" in clean_name: return ("probiotic", "probiotic")
-    if "betahistin" in clean_name or "merislon" in clean_name: return ("betahistine", "antivertigo")
-    if "ondansetron" in clean_name: return ("ondansetron", "antiemetic")
-    if "vosedon" in clean_name or "domperidon" in clean_name: return ("domperidone", "antiemetic")
-    if "diagit" in clean_name: return ("attapulgite", "antidiarrheal")
-    if "spasminal" in clean_name: return ("hyoscine", "antispasmodic")
-    if "santagesik" in clean_name: return ("metamizole", "analgesic")
-    if "sanprima" in clean_name: return ("cotrimoxazole", "antibiotic")
-    if "lopamid" in clean_name or "loperamid" in clean_name: return ("loperamide", "antidiarrheal")
-    if "ranitidine" in clean_name: return ("ranitidine", "h2-blocker")
-    if "amoxsan" in clean_name or "amoxicillin" in clean_name: return ("amoxicillin", "antibiotic")
-    if "tremenza" in clean_name: return ("pseudoephedrine", "decongestant")
-    if "lasal" in clean_name: return ("salbutamol", "bronchodilator")
-    if "trilac" in clean_name: return ("triamcinolone", "corticosteroid")
-    if "zinc" in clean_name: return ("zinc", "supplement")
-    if "cobazym" in clean_name: return ("cobamamide", "supplement")
-    
-    # General Safeties
-    if any(k in clean_name for k in ["miniaspi", "aspirin", "aspilet", "nospirinal", "thrombo", "ascadia", "farmasal"]): 
-        return ("acetylsalicylic acid", "antiplatelet")
-    if "ibuprofen" in clean_name: return ("ibuprofen", "nsaid")
-    if "omeprazole" in clean_name or "lanzoprazole" in clean_name: return ("ppi", "ppi")
-    if "sucralfate" in clean_name: return ("sucralfate", "mucosal-protective")
-    if "nitro" in clean_name or "isdn" in clean_name: return ("nitroglycerin", "nitrate")
-    if "phenitoin" in clean_name or "phenytoin" in clean_name: return ("phenytoin", "anticonvulsant")
-    if "folat" in clean_name or "folic" in clean_name: return ("folic acid", "folate")
-    
-    # DB Lookup
+    # Database Lookup (Structured index from Supabase knowledge_map + generic_classes)
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
             return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
+        
+        # Fallback: Check if first word of the name exists in index
+        first_word = clean_name.split()[0]
+        drug_obj_fallback = structured_drug_db.DRUG_INDEX.get(first_word)
+        if drug_obj_fallback and drug_obj_fallback.drug_class and drug_obj_fallback.drug_class.lower() != "unknown":
+            return (drug_obj_fallback.generic_name.lower(), drug_obj_fallback.drug_class.lower())
 
     return (clean_name, "unknown")
 
@@ -526,12 +490,15 @@ async def check_ddi_endpoint(payload: DDIRequest):
                 "severity": severity,
                 "description": f"[{time_info}] {description or 'Interaction suspected via class-mechanism logic.'}",
                 "advice": advice,
-                "source": source
+                "source": source,
+                "drug_a_moa": CLASS_MOA.get(class_a, "Mechanism unclassified."),
+                "drug_b_moa": CLASS_MOA.get(class_b, "Mechanism unclassified.")
             })
 
     severity_order = {"Major": 1, "Intermediate": 2, "Moderate": 2, "Minor": 3, "Info": 4}
     results.sort(key=lambda x: severity_order.get(x["severity"], 99))
     return {"interactions": results, "safe": len(results) == 0}
+
 
 @app.post("/api/parse-prescription")
 async def parse_prescription_endpoint(payload: ParseRequest):
@@ -595,6 +562,24 @@ async def parse_prescription_endpoint(payload: ParseRequest):
     except Exception as e:
         print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/drug-class-guide")
+async def get_drug_class_guide():
+    """Returns formatted class metadata for the frontend guide UI."""
+    if not FULL_CLASS_METADATA_CACHE:
+        # Re-fetch if cache is empty
+        load_class_metadata()
+    
+    # Format list into dictionary as expected by HTML/JS (mapped by display_name or class_key)
+    guide_data = {}
+    for item in FULL_CLASS_METADATA_CACHE:
+        if item.get('display_name') and item.get('common_drugs'):
+            guide_data[item['display_name']] = {
+                "desc": item['general_description'],
+                "moa": item['moa_description'],
+                "drugs": item['common_drugs'] or []
+            }
+    return guide_data
 
 @app.get("/api/resolve-drug-class")
 async def resolve_drug_class(q: str):
