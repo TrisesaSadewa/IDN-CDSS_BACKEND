@@ -117,6 +117,9 @@ class ConsultationData(BaseModel):
     clinical_notes: str
     therapy_instructions: str
     prescription_items: List[Dict[str, Any]]
+    lab_requests: Optional[List[Dict[str, Any]]] = []
+    ddi_pharmacy_notes: Optional[str] = None
+    ddi_monitoring_notes: Optional[str] = None
 
 class BookingRequest(BaseModel):
     patient_id: str
@@ -715,7 +718,7 @@ async def submit_consultation(data: ConsultationData):
         subjective = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
         assessment = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nNOTES: {data.clinical_notes}"
         
-        res = supabase.table("consultations").insert({
+        consult_payload = {
             "appointment_id": data.appointment_id,
             "doctor_id": data.doctor_id,
             "subjective": subjective,
@@ -723,7 +726,13 @@ async def submit_consultation(data: ConsultationData):
             "assessment": assessment,
             "plan": data.therapy_instructions,
             "prescription_raw_text": json.dumps(data.prescription_items)
-        }).execute()
+        }
+        if data.ddi_pharmacy_notes:
+            consult_payload["ddi_pharmacy_notes"] = data.ddi_pharmacy_notes
+        if data.ddi_monitoring_notes:
+            consult_payload["ddi_monitoring_notes"] = data.ddi_monitoring_notes
+        
+        res = supabase.table("consultations").insert(consult_payload).execute()
         
         consult_id = res.data[0]['id']
         supabase.table("appointments").update({"status": "pharmacy"}).eq("id", data.appointment_id).execute()
