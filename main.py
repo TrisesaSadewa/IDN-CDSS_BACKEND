@@ -934,6 +934,22 @@ async def create_patient(data: PatientCreateRequest):
         print(f"Create Patient Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/fda-label")
+async def get_fda_label(drug: str):
+    """Fetches full structured label data from OpenFDA."""
+    import urllib.parse
+    q_name = urllib.parse.quote(f'"{drug}"')
+    url = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_name}+openfda.brand_name:{q_name})&limit=1"
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                return {"error": f"FDA API returned {response.status}", "results": []}
+    except Exception as e:
+        return {"error": str(e), "results": []}
+
 @app.get("/")
 def read_root(): return {"status": "active", "version": "11.4 - Master Dose Extraction"}
 
