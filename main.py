@@ -1,7 +1,9 @@
 import os
 import json
 import re
-from typing import List, Optional, Dict, Any
+import time
+import functools
+from typing import List, Optional, Dict, Any, Tuple
 from itertools import combinations
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -79,7 +81,7 @@ FULL_CLASS_METADATA_CACHE = []
 load_class_metadata()
 
 # --- DDI RULES CACHE (Pre-loaded for concurrency) ---
-DDI_RULES_CACHE = {}  # key: (class_a, class_b) sorted -> rule dict
+DDI_RULES_CACHE = {}
 
 def load_ddi_rules_cache():
     global DDI_RULES_CACHE
@@ -100,7 +102,25 @@ def load_ddi_rules_cache():
 load_ddi_rules_cache()
 
 # Thread pool for FDA API calls (non-blocking)
-_fda_executor = concurrent.futures.ThreadPoolExecutor(max_workers=6, thread_name_prefix="fda-api")
+_fda_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10, thread_name_prefix="fda-api")
+
+# --- FDA RESULT CACHE (avoids duplicate external API calls) ---
+_fda_cache = {}       # key: (drug_a, drug_b) -> {"result": str|None, "ts": float}
+_FDA_CACHE_TTL = 3600  # 1 hour TTL
+
+def _get_cached_fda(drug_a: str, drug_b: str):
+    key = tuple(sorted([drug_a.lower(), drug_b.lower()]))
+    entry = _fda_cache.get(key)
+    if entry and (time.time() - entry["ts"] < _FDA_CACHE_TTL):
+        return entry["result"], True  # (result, was_cached)
+    return None, False
+
+def _set_cached_fda(drug_a: str, drug_b: str, result):
+    key = tuple(sorted([drug_a.lower(), drug_b.lower()]))
+    _fda_cache[key] = {"result": result, "ts": time.time()}
+
+# --- DRUG INFO CACHE (avoids repeated string parsing) ---
+_drug_info_cache = {}
 
 # --- MODELS ---
 class ParseRequest(BaseModel):
@@ -181,25 +201,33 @@ class PatientCreateRequest(BaseModel):
     consent_notifications: Optional[bool] = False
 
 
-def get_drug_info(drug_name: str):
+def get_drug_info(drug_name: str) -> Tuple[str, str]:
     if not drug_name: return ("unknown", "unknown")
+    
+    # Check in-memory cache first
+    cache_key = drug_name.lower().strip()
+    if cache_key in _drug_info_cache:
+        return _drug_info_cache[cache_key]
     
     clean_name = drug_name.replace("ANS ", "").lower().strip()
     clean_name = re.sub(r'\s+\d+.*$', '', clean_name).strip() 
+    
+    result = (clean_name, "unknown")
     
     # Database Lookup (Structured index from Supabase knowledge_map + generic_classes)
     if structured_drug_db and hasattr(structured_drug_db, 'DRUG_INDEX'):
         drug_obj = structured_drug_db.DRUG_INDEX.get(clean_name)
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
-            return (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
-        
-        # Fallback: Check if first word of the name exists in index
-        first_word = clean_name.split()[0]
-        drug_obj_fallback = structured_drug_db.DRUG_INDEX.get(first_word)
-        if drug_obj_fallback and drug_obj_fallback.drug_class and drug_obj_fallback.drug_class.lower() != "unknown":
-            return (drug_obj_fallback.generic_name.lower(), drug_obj_fallback.drug_class.lower())
+            result = (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
+        else:
+            # Fallback: Check if first word of the name exists in index
+            first_word = clean_name.split()[0]
+            drug_obj_fallback = structured_drug_db.DRUG_INDEX.get(first_word)
+            if drug_obj_fallback and drug_obj_fallback.drug_class and drug_obj_fallback.drug_class.lower() != "unknown":
+                result = (drug_obj_fallback.generic_name.lower(), drug_obj_fallback.drug_class.lower())
 
-    return (clean_name, "unknown")
+    _drug_info_cache[cache_key] = result
+    return result
 
 
 def _sync_fda_interaction_warning(drug_name: str, drug_target: str) -> Optional[str]:
@@ -418,6 +446,11 @@ async def check_ddi_endpoint(payload: DDIRequest):
         return {"interactions": [], "safe": True, "timing_safe": True}
     
     pairs = list(combinations(med_list, 2))
+
+    # PHASE 1: Fast in-memory rule matching (no I/O)
+    local_results = []
+    fda_needed = []  # pairs that need FDA fallback
+
     for ma, mb in pairs:
         shared_slots = ma["slots"].intersection(mb["slots"])
         is_anytime = "ANYTIME" in ma["slots"] or "ANYTIME" in mb["slots"]
@@ -434,77 +467,114 @@ async def check_ddi_endpoint(payload: DDIRequest):
         if gen_a == gen_b: continue
 
         c1, c2 = sorted([class_a, class_b])
-        description = None
-        severity = "Info"
-        advice = "Monitor clinical status."
-        source = "Heuristic"
-        has_local_rule = False
-        
-        # --- FAST: In-memory cache lookup instead of DB query per pair ---
         cached_rule = DDI_RULES_CACHE.get((c1, c2))
         
         if cached_rule:
-            has_local_rule = True
-            severity = cached_rule["severity"]
-            description = cached_rule["description"]
-            advice = cached_rule["advice"]
-            source = "Local Knowledge Base"
-
-        if not has_local_rule:
-            fda_warning = await get_fda_interaction_warning(gen_a, gen_b)
-            if not fda_warning:
-                fda_warning = await get_fda_interaction_warning(gen_b, gen_a)
-                
-            if fda_warning:
-                description = fda_warning
-                source = "OpenFDA Regulatory API"
-                warn_lower = fda_warning.lower()
-                
-                safe_phrases = ["no clinically significant", "did not affect", "no interaction", "not clinically significant"]
-                major_phrases = ["must not be used", "contraindicated", "avoid concurrent", "avoid coadministration", "severe", "fatal", "not recommended"]
-                
-                if any(phrase in warn_lower for phrase in safe_phrases):
-                    continue 
-                elif any(phrase in warn_lower for phrase in major_phrases):
-                    severity = "Major"
-                    advice = "Contraindicated/Major Risk: Avoid concurrent administration."
-                else:
-                    severity = "Intermediate"
-                    advice = "Monitor closely for adverse reactions or altered efficacy."
-
-        if description or has_local_rule:
-            if advice == "Monitor BP.":
-                advice = "Monitor blood pressure (maintain target < 140/90 mmHg or appropriate to patient baseline)."
-            elif advice == "Routine monitoring.":
-                advice = "Routine monitoring for onset of generalized adverse side effects."
-            elif advice == "Monitor clinical status.":
-                advice = "Careful monitoring of clinical status and progression of symptoms."
-            elif advice == "Monitor Digoxin levels.":
-                advice = "Monitor serum Digoxin levels closely (narrow therapeutic window, target 0.5-0.9 ng/mL)."
-            elif advice == "Avoid concurrent use or space out dosing.":
-                advice = "Avoid concurrent use. If strictly required, space out dosing by at least 4 to 6 hours."
-            elif advice == "Avoid concurrent use.":
-                advice = "Avoid concurrent use. Consider alternatives, or stagger dosing by 6+ hours to minimize interaction."
-            elif advice == "Monitor renal function and potassium.":
-                advice = "Monitor serum creatinine, eGFR, and hyperkalemia risk (target Potassium 3.5-5.0 mEq/L)."
-            elif advice == "Monitor potassium levels.":
-                advice = "Monitor serum potassium levels frequently to avoid hypo/hyperkalemic events."
-
-            time_info = "At the same time"
-            if shared_slots:
-                time_info = "Same time: " + ", ".join(shared_slots)
-            elif is_anytime:
-                time_info = "Potential overlap (PRN/Anytime drug)"
-
-            results.append({
-                "pair": [da.title(), db.title()],
-                "severity": severity,
-                "description": f"[{time_info}] {description or 'Interaction suspected via class-mechanism logic.'}",
-                "advice": advice,
-                "source": source,
-                "drug_a_moa": CLASS_MOA.get(class_a, "Mechanism unclassified."),
-                "drug_b_moa": CLASS_MOA.get(class_b, "Mechanism unclassified.")
+            local_results.append({
+                "da": da, "db": db, "gen_a": gen_a, "gen_b": gen_b,
+                "class_a": class_a, "class_b": class_b,
+                "severity": cached_rule["severity"],
+                "description": cached_rule["description"],
+                "advice": cached_rule["advice"],
+                "source": "Local Knowledge Base",
+                "shared_slots": shared_slots, "is_anytime": is_anytime
             })
+        else:
+            # Check FDA cache first before queuing network call
+            cached_fda, was_cached = _get_cached_fda(gen_a, gen_b)
+            if was_cached:
+                if cached_fda:  # cached non-None result
+                    fda_needed.append({
+                        "da": da, "db": db, "gen_a": gen_a, "gen_b": gen_b,
+                        "class_a": class_a, "class_b": class_b,
+                        "fda_result": cached_fda,
+                        "shared_slots": shared_slots, "is_anytime": is_anytime
+                    })
+                # cached None = no interaction found, skip
+            else:
+                fda_needed.append({
+                    "da": da, "db": db, "gen_a": gen_a, "gen_b": gen_b,
+                    "class_a": class_a, "class_b": class_b,
+                    "fda_result": None,  # needs fetch
+                    "shared_slots": shared_slots, "is_anytime": is_anytime
+                })
+
+    # PHASE 2: Parallel FDA lookups for uncached pairs (all at once!)
+    items_needing_fetch = [p for p in fda_needed if p["fda_result"] is None]
+    if items_needing_fetch:
+        async def _fetch_fda_pair(pair_info):
+            gen_a, gen_b = pair_info["gen_a"], pair_info["gen_b"]
+            result = await get_fda_interaction_warning(gen_a, gen_b)
+            if not result:
+                result = await get_fda_interaction_warning(gen_b, gen_a)
+            _set_cached_fda(gen_a, gen_b, result)
+            pair_info["fda_result"] = result
+        
+        await asyncio.gather(*[_fetch_fda_pair(p) for p in items_needing_fetch])
+
+    # PHASE 3: Build final results
+    results = []
+    
+    # Helper to expand advice text
+    def _expand_advice(advice):
+        advice_map = {
+            "Monitor BP.": "Monitor blood pressure (maintain target < 140/90 mmHg or appropriate to patient baseline).",
+            "Routine monitoring.": "Routine monitoring for onset of generalized adverse side effects.",
+            "Monitor clinical status.": "Careful monitoring of clinical status and progression of symptoms.",
+            "Monitor Digoxin levels.": "Monitor serum Digoxin levels closely (narrow therapeutic window, target 0.5-0.9 ng/mL).",
+            "Avoid concurrent use or space out dosing.": "Avoid concurrent use. If strictly required, space out dosing by at least 4 to 6 hours.",
+            "Avoid concurrent use.": "Avoid concurrent use. Consider alternatives, or stagger dosing by 6+ hours to minimize interaction.",
+            "Monitor renal function and potassium.": "Monitor serum creatinine, eGFR, and hyperkalemia risk (target Potassium 3.5-5.0 mEq/L).",
+            "Monitor potassium levels.": "Monitor serum potassium levels frequently to avoid hypo/hyperkalemic events."
+        }
+        return advice_map.get(advice, advice)
+
+    def _time_label(shared_slots, is_anytime):
+        if shared_slots:
+            return "Same time: " + ", ".join(shared_slots)
+        elif is_anytime:
+            return "Potential overlap (PRN/Anytime drug)"
+        return "At the same time"
+
+    # Add local rule results
+    for item in local_results:
+        results.append({
+            "pair": [item["da"].title(), item["db"].title()],
+            "severity": item["severity"],
+            "description": f"[{_time_label(item['shared_slots'], item['is_anytime'])}] {item['description'] or 'Interaction suspected via class-mechanism logic.'}",
+            "advice": _expand_advice(item["advice"]),
+            "source": item["source"],
+            "drug_a_moa": CLASS_MOA.get(item["class_a"], "Mechanism unclassified."),
+            "drug_b_moa": CLASS_MOA.get(item["class_b"], "Mechanism unclassified.")
+        })
+
+    # Add FDA fallback results
+    safe_phrases = ["no clinically significant", "did not affect", "no interaction", "not clinically significant"]
+    major_phrases = ["must not be used", "contraindicated", "avoid concurrent", "avoid coadministration", "severe", "fatal", "not recommended"]
+
+    for item in fda_needed:
+        fda_warning = item["fda_result"]
+        if not fda_warning:
+            continue
+        warn_lower = fda_warning.lower()
+        if any(phrase in warn_lower for phrase in safe_phrases):
+            continue
+        elif any(phrase in warn_lower for phrase in major_phrases):
+            severity = "Major"
+            advice = "Contraindicated/Major Risk: Avoid concurrent administration."
+        else:
+            severity = "Intermediate"
+            advice = "Monitor closely for adverse reactions or altered efficacy."
+
+        results.append({
+            "pair": [item["da"].title(), item["db"].title()],
+            "severity": severity,
+            "description": f"[{_time_label(item['shared_slots'], item['is_anytime'])}] {fda_warning}",
+            "advice": advice,
+            "source": "OpenFDA Regulatory API",
+            "drug_a_moa": CLASS_MOA.get(item["class_a"], "Mechanism unclassified."),
+            "drug_b_moa": CLASS_MOA.get(item["class_b"], "Mechanism unclassified.")
+        })
 
     severity_order = {"Major": 1, "Intermediate": 2, "Moderate": 2, "Minor": 3, "Info": 4}
     results.sort(key=lambda x: severity_order.get(x["severity"], 99))
