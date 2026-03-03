@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 import asyncio
 import datetime
+import concurrent.futures
 
 # --- IMPORT LOCAL MODULES ---
 ner_engine = None
@@ -64,17 +65,42 @@ def load_class_metadata():
 
 @app.get("/api/refresh-cache")
 async def refresh_cache():
-    """Manually triggers a reload of metadata and drug database."""
+    """Manually triggers a reload of metadata, drug database, and DDI rules."""
     load_class_metadata()
+    load_ddi_rules_cache()
     if structured_drug_db and hasattr(structured_drug_db, 'db_instance'):
         structured_drug_db.db_instance.load_data()
-    return {"status": "success", "classes_loaded": len(CLASS_MOA)}
+    return {"status": "success", "classes_loaded": len(CLASS_MOA), "ddi_rules_cached": len(DDI_RULES_CACHE)}
 
 # Global cache for the Guide UI
 FULL_CLASS_METADATA_CACHE = []
 
 # Load on startup
 load_class_metadata()
+
+# --- DDI RULES CACHE (Pre-loaded for concurrency) ---
+DDI_RULES_CACHE = {}  # key: (class_a, class_b) sorted -> rule dict
+
+def load_ddi_rules_cache():
+    global DDI_RULES_CACHE
+    if not supabase: return
+    try:
+        print("Loading DDI Rules into memory cache...")
+        res = supabase.table("ddi_rules").select("*").execute()
+        if res.data:
+            DDI_RULES_CACHE = {}
+            for rule in res.data:
+                key = tuple(sorted([rule['class_a'], rule['class_b']]))
+                DDI_RULES_CACHE[key] = rule
+            print(f"SUCCESS: {len(DDI_RULES_CACHE)} DDI rules cached in memory.")
+    except Exception as e:
+        print(f"ERROR loading DDI rules cache: {e}")
+        DDI_RULES_CACHE = {}
+
+load_ddi_rules_cache()
+
+# Thread pool for FDA API calls (non-blocking)
+_fda_executor = concurrent.futures.ThreadPoolExecutor(max_workers=6, thread_name_prefix="fda-api")
 
 # --- MODELS ---
 class ParseRequest(BaseModel):
@@ -176,8 +202,8 @@ def get_drug_info(drug_name: str):
     return (clean_name, "unknown")
 
 
-async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optional[str]:
-    """Queries OpenFDA for drug-specific interaction warnings."""
+def _sync_fda_interaction_warning(drug_name: str, drug_target: str) -> Optional[str]:
+    """Synchronous FDA API call — runs in thread pool to avoid blocking event loop."""
     import urllib.parse
     if not drug_name or drug_name == "unknown": return None
     if not drug_target or drug_target == "unknown": return None
@@ -201,7 +227,6 @@ async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optio
                     sentences = re.split(r'(?<=[.!?])\s+', clean_text)
                     for s in sentences:
                         if drug_target.lower() in s.lower():
-                            # If it's a digestible sentence, return it directly
                             if len(s.split()) < 45 and "table" not in s.lower() and "examples of" not in s.lower():
                                 return s.strip()
                     
@@ -214,6 +239,11 @@ async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optio
     except Exception as e:
         print(f"FDA API Error for {drug_name} + {drug_target}: {e}")
     return None
+
+async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optional[str]:
+    """Async wrapper — offloads synchronous FDA HTTP call to thread pool."""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(_fda_executor, _sync_fda_interaction_warning, drug_name, drug_target)
 
 
 def extract_frequency(text: str) -> str:
@@ -410,14 +440,14 @@ async def check_ddi_endpoint(payload: DDIRequest):
         source = "Heuristic"
         has_local_rule = False
         
-        rule_res = supabase.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
+        # --- FAST: In-memory cache lookup instead of DB query per pair ---
+        cached_rule = DDI_RULES_CACHE.get((c1, c2))
         
-        if rule_res.data:
+        if cached_rule:
             has_local_rule = True
-            rule_data = rule_res.data[0]
-            severity = rule_data["severity"]
-            description = rule_data["description"]
-            advice = rule_data["advice"]
+            severity = cached_rule["severity"]
+            description = cached_rule["description"]
+            advice = cached_rule["advice"]
             source = "Local Knowledge Base"
 
         if not has_local_rule:
