@@ -57,8 +57,10 @@ class DrugDatabase:
             
             self.drugs = []
             for d in all_rows:
-                local_name = d.get('local_term', 'Unknown')
-                generic_candidate = d.get('openfda_term', 'unknown').lower()
+                local_name_raw = d.get('local_term')
+                local_name = local_name_raw if local_name_raw else 'Unknown'
+                generic_candidate_raw = d.get('openfda_term')
+                generic_candidate = generic_candidate_raw.lower() if generic_candidate_raw else 'unknown'
                 
                 # Resolve clinical drug class from our new map
                 # Priority: generic_candidate -> local_name check
