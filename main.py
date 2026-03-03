@@ -7,7 +7,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
-import aiohttp
 import asyncio
 import datetime
 
@@ -942,11 +941,11 @@ async def get_fda_label(drug: str):
     url = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_name}+openfda.brand_name:{q_name})&limit=1"
     
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    return await response.json()
-                return {"error": f"FDA API returned {response.status}", "results": []}
+        import requests
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            return response.json()
+        return {"error": f"FDA API returned {response.status_code}", "results": []}
     except Exception as e:
         return {"error": str(e), "results": []}
 
