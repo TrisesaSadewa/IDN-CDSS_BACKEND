@@ -183,33 +183,33 @@ async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optio
     url = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_name}+openfda.substance_name:{q_name})+AND+drug_interactions:{q_target}&limit=1"
     
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if "results" in data:
-                        label = data["results"][0]
-                        interaction_text = label.get("drug_interactions", [""])[0]
+        import requests
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            if "results" in data:
+                label = data["results"][0]
+                interaction_text = label.get("drug_interactions", [""])[0]
                         
-                        if drug_target.lower() in interaction_text.lower():
-                            # Clean excessive newlines/spaces (common in FDA tables)
-                            clean_text = re.sub(r'\s+', ' ', interaction_text)
-                            
-                            # Extract meaningful sentences rather than massive tables
-                            sentences = re.split(r'(?<=[.!?])\s+', clean_text)
-                            for s in sentences:
-                                if drug_target.lower() in s.lower():
-                                    # If it's a digestible sentence, return it directly
-                                    if len(s.split()) < 45 and "table" not in s.lower() and "examples of" not in s.lower():
-                                        return s.strip()
-                            
-                            # Fallback: Capture a 240-character window around the target drug name
-                            pattern = rf'(.{{0,120}}{re.escape(drug_target)}.{{0,120}})'
-                            match = re.search(pattern, clean_text, re.IGNORECASE)
-                            if match:
-                                return f"...{match.group(1).strip()}..."
-                                
-                            return interaction_text[:250] + "..."
+                if drug_target.lower() in interaction_text.lower():
+                    # Clean excessive newlines/spaces (common in FDA tables)
+                    clean_text = re.sub(r'\s+', ' ', interaction_text)
+                    
+                    # Extract meaningful sentences rather than massive tables
+                    sentences = re.split(r'(?<=[.!?])\s+', clean_text)
+                    for s in sentences:
+                        if drug_target.lower() in s.lower():
+                            # If it's a digestible sentence, return it directly
+                            if len(s.split()) < 45 and "table" not in s.lower() and "examples of" not in s.lower():
+                                return s.strip()
+                    
+                    # Fallback: Capture a 240-character window around the target drug name
+                    pattern = rf'(.{{0,120}}{re.escape(drug_target)}.{{0,120}})'
+                    match = re.search(pattern, clean_text, re.IGNORECASE)
+                    if match:
+                        return f"...{match.group(1).strip()}..."
+                        
+                    return interaction_text[:250] + "..."
     except Exception as e:
         print(f"FDA API Error for {drug_name} + {drug_target}: {e}")
     return None
