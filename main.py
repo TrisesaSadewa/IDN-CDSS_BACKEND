@@ -53,9 +53,7 @@ def load_class_metadata():
         print("Loading Drug Class Metadata from Supabase...")
         res = supabase.table("drug_class_metadata").select("*").execute()
         if res.data:
-            # Simple MoA lookup for backend interaction checks
             CLASS_MOA = {item['class_key']: item['moa_description'] for item in res.data}
-            # Entire object for UI guide consumption
             global FULL_CLASS_METADATA_CACHE
             FULL_CLASS_METADATA_CACHE = res.data
             print(f"SUCCESS: {len(CLASS_MOA)} drug classes metadata loaded.")
@@ -63,6 +61,14 @@ def load_class_metadata():
         print(f"ERROR: Failed to load drug class metadata: {e}")
         CLASS_MOA = {}
         FULL_CLASS_METADATA_CACHE = []
+
+@app.get("/api/refresh-cache")
+async def refresh_cache():
+    """Manually triggers a reload of metadata and drug database."""
+    load_class_metadata()
+    if structured_drug_db and hasattr(structured_drug_db, 'db_instance'):
+        structured_drug_db.db_instance.load_data()
+    return {"status": "success", "classes_loaded": len(CLASS_MOA)}
 
 # Global cache for the Guide UI
 FULL_CLASS_METADATA_CACHE = []
@@ -146,9 +152,6 @@ class PatientCreateRequest(BaseModel):
     consent_notifications: Optional[bool] = False
 
 
-# DATABASE RULE LOOKUPS (Dynamically Fetched)
-# --- HELPERS ---
-
 def get_drug_info(drug_name: str):
     if not drug_name: return ("unknown", "unknown")
     
@@ -179,7 +182,6 @@ async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optio
     q_name = urllib.parse.quote(f'"{drug_name}"')
     q_target = urllib.parse.quote(f'"{drug_target}"')
     
-    # Ensure we actually pull the label FOR drug_name, and it mentions drug_target
     url = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_name}+openfda.substance_name:{q_name})+AND+drug_interactions:{q_target}&limit=1"
     
     try:
@@ -192,10 +194,7 @@ async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optio
                 interaction_text = label.get("drug_interactions", [""])[0]
                         
                 if drug_target.lower() in interaction_text.lower():
-                    # Clean excessive newlines/spaces (common in FDA tables)
                     clean_text = re.sub(r'\s+', ' ', interaction_text)
-                    
-                    # Extract meaningful sentences rather than massive tables
                     sentences = re.split(r'(?<=[.!?])\s+', clean_text)
                     for s in sentences:
                         if drug_target.lower() in s.lower():
@@ -203,7 +202,6 @@ async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optio
                             if len(s.split()) < 45 and "table" not in s.lower() and "examples of" not in s.lower():
                                 return s.strip()
                     
-                    # Fallback: Capture a 240-character window around the target drug name
                     pattern = rf'(.{{0,120}}{re.escape(drug_target)}.{{0,120}})'
                     match = re.search(pattern, clean_text, re.IGNORECASE)
                     if match:
@@ -246,20 +244,16 @@ def extract_dose_text(text: str) -> Optional[str]:
     """Upgraded dosage extraction capable of finding fractionated prescriptions."""
     if not text: return None
     
-    # Isolate the drug name segment
     text_to_search = re.split(r'[:#]', text)[0]
         
-    # Match standard doses and fractions (1/4 tablet, 80 MG)
     match1 = re.search(r'(\d+/\d+|\d+[.,]\d+|\d+)\s*(mg|g|mcg|ml|cc|iu|tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule|drop|drops)\b', text_to_search, re.IGNORECASE)
     if match1:
         return f"{match1.group(1)} {match1.group(2).lower()}"
         
-    # Match reverse fractions (sach 1/2)
     match2 = re.search(r'\b(tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule|drop|drops)\s+(\d+/\d+|\d+[.,]\d+|\d+)', text_to_search, re.IGNORECASE)
     if match2:
         return f"{match2.group(2)} {match2.group(1).lower()}"
         
-    # Deep Fallback: If not found in the name, scan the entire raw line (for things like "3 dd 1 ml")
     match3 = re.search(r'(\d+/\d+|\d+[.,]\d+|\d+)\s*(mg|g|mcg|ml|cc|iu|tab|tablet|tabs|sach|sachet|bungkus|pulv|cap|kapsul|capsule|drop|drops)\b', text, re.IGNORECASE)
     if match3:
         return f"{match3.group(1)} {match3.group(2).lower()}"
@@ -271,7 +265,6 @@ def extract_dose_text(text: str) -> Optional[str]:
     return None
 
 # --- ENDPOINTS ---
-
 @app.post("/api/suggest-alternative")
 async def suggest_alternative(payload: AlternativeRequest):
     if not supabase: return {"alternatives": []}
@@ -322,12 +315,10 @@ def get_administration_slots(frequency: Optional[str]) -> set:
     
     slots = set()
     
-    # 1. SPECIAL CASE: PRN / Anytime Keywords
     anytime_keywords = ["prn", "k/p", "kp", "needed", "whenever", "anytime", "urgent", "imm", "setiap", "kapanpun", "whenever", "as needed"]
     if any(k in freq for k in anytime_keywords):
         return {"ANYTIME"}
 
-    # 2. Dash Pattern (e.g. 1-0-1 or 1-1-1-1)
     dash_m = re.search(r'(\d+)-(\d+)-(\d+)(?:-(\d+))?', freq)
     if dash_m:
         if int(dash_m.group(1)) > 0: slots.add("MORNING")
@@ -336,10 +327,8 @@ def get_administration_slots(frequency: Optional[str]) -> set:
         if dash_m.group(4) and int(dash_m.group(4)) > 0: slots.add("NIGHT")
         if slots: return slots
 
-    # 3. Numeric Pattern: N x M, NddM, N x c M, N.X.M
     norm_freq = freq.replace(' ', '')
     
-    # Common medical abbreviations
     if "tid" in norm_freq or "t.i.d" in norm_freq or "3dd" in norm_freq:
         slots.update(["MORNING", "AFTERNOON", "EVENING"])
     elif "bid" in norm_freq or "b.i.d" in norm_freq or "2dd" in norm_freq:
@@ -348,7 +337,6 @@ def get_administration_slots(frequency: Optional[str]) -> set:
         slots.add("MORNING")
     
     if not slots:
-        # Regex for NxM patterns (capture N)
         numeric_m = re.search(r'(\d+)\s*[xX*Dd]+\s*(?:c|cap|tab|tablet|kapsul)?\s*(\d+)', freq)
         if numeric_m:
             times = int(numeric_m.group(1))
@@ -361,7 +349,6 @@ def get_administration_slots(frequency: Optional[str]) -> set:
             elif times == 1:
                 slots.add("MORNING")
 
-    # 4. Indonesian & English Time Keywords
     if any(k in freq for k in ["pagi", "morning", "am"]): slots.add("MORNING")
     if any(k in freq for k in ["siang", "afternoon", "diner", "lunch", "siang"]): slots.add("AFTERNOON")
     if any(k in freq for k in ["sore", "evening"]): slots.add("EVENING")
@@ -375,7 +362,6 @@ def get_administration_slots(frequency: Optional[str]) -> set:
 async def check_ddi_endpoint(payload: DDIRequest):
     if not supabase: raise HTTPException(status_code=500, detail="Database connection not available")
     
-    # Normalize input into a standard list of {name, frequency, slots}
     med_list = []
     if payload.medications:
         for m in payload.medications:
@@ -398,10 +384,8 @@ async def check_ddi_endpoint(payload: DDIRequest):
     if not med_list or len(med_list) < 2: 
         return {"interactions": [], "safe": True, "timing_safe": True}
     
-    # Check all pairs
     pairs = list(combinations(med_list, 2))
     for ma, mb in pairs:
-        # TIMING FILTER: Only check if they share a timing slot OR one is ANYTIME
         shared_slots = ma["slots"].intersection(mb["slots"])
         is_anytime = "ANYTIME" in ma["slots"] or "ANYTIME" in mb["slots"]
         
@@ -414,7 +398,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
         gen_a, class_a = get_drug_info(da)
         gen_b, class_b = get_drug_info(db)
         
-        # Avoid checking same drug vs same drug (e.g. Paracetamol + Paracetamol)
         if gen_a == gen_b: continue
 
         c1, c2 = sorted([class_a, class_b])
@@ -424,7 +407,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
         source = "Heuristic"
         has_local_rule = False
         
-        # 1. Check Mechanistic Rules in Database
         rule_res = supabase.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
         
         if rule_res.data:
@@ -435,7 +417,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
             advice = rule_data["advice"]
             source = "Local Knowledge Base"
 
-        # 2. Dynamic Enrichment from FDA
         if not has_local_rule:
             fda_warning = await get_fda_interaction_warning(gen_a, gen_b)
             if not fda_warning:
@@ -459,7 +440,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
                     advice = "Monitor closely for adverse reactions or altered efficacy."
 
         if description or has_local_rule:
-            # Advice Enhancement
             if advice == "Monitor BP.":
                 advice = "Monitor blood pressure (maintain target < 140/90 mmHg or appropriate to patient baseline)."
             elif advice == "Routine monitoring.":
@@ -477,7 +457,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
             elif advice == "Monitor potassium levels.":
                 advice = "Monitor serum potassium levels frequently to avoid hypo/hyperkalemic events."
 
-            # Construct slot info for UI
             time_info = "At the same time"
             if shared_slots:
                 time_info = "Same time: " + ", ".join(shared_slots)
@@ -505,7 +484,6 @@ async def parse_prescription_endpoint(payload: ParseRequest):
     try:
         text = payload.text
         
-        # Safely split bulk pasted chunks
         if "|||" in text:
             lines = [l.strip() for l in text.split("|||") if l.strip()]
         elif ";" in text:
@@ -515,7 +493,6 @@ async def parse_prescription_endpoint(payload: ParseRequest):
             
         parsed_drugs = ner_engine.extract_drugs(lines)
         
-        # Force fallback if NER completely misses complex items
         if not parsed_drugs and lines:
             parsed_drugs = [{"original_text": line} for line in lines]
             
@@ -526,8 +503,6 @@ async def parse_prescription_endpoint(payload: ParseRequest):
             
             freq = extract_frequency(orig)
             
-            # --- PRIORITY DOSAGE EXTRACTION ---
-            # Text extraction dominates DB extraction. This fixes "80 MG" being overridden by "None" or "100mg"
             text_dose = extract_dose_text(orig)
             
             if text_dose:
@@ -537,13 +512,11 @@ async def parse_prescription_endpoint(payload: ParseRequest):
             else:
                 dosage = "Unknown dose"
             
-            # --- BRAND EXTRACTION ---
             b_name = d.get('brand_name', 'Unknown')
             if (not b_name or b_name.lower() == 'unknown'):
                 parts = re.split(r'[:#]', orig)
                 b_name = parts[0].replace("ANS ", "").replace("*", "").strip()
                 
-            # --- CLASS OVERRIDE ---
             d_class = str(d.get('class', 'unknown')).strip()
             if not d_class or d_class.lower() in ['unknown', 'unknown class', 'none']:
                 _, d_class = get_drug_info(b_name)
@@ -566,10 +539,8 @@ async def parse_prescription_endpoint(payload: ParseRequest):
 async def get_drug_class_guide():
     """Returns formatted class metadata for the frontend guide UI."""
     if not FULL_CLASS_METADATA_CACHE:
-        # Re-fetch if cache is empty
         load_class_metadata()
     
-    # Format list into dictionary as expected by HTML/JS (mapped by display_name or class_key)
     guide_data = {}
     for item in FULL_CLASS_METADATA_CACHE:
         if item.get('display_name') and item.get('common_drugs'):
@@ -623,11 +594,9 @@ async def recommend_smart(icd10: str, age: Optional[int] = None, weight: Optiona
     if not supabase: return {"recommendations": [], "profile_notes": []}
     try:
         safe_icd10 = icd10.replace("'", "")
-        # First try exact ICD bracket match
         res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%[{safe_icd10}]%").limit(100).execute()
         
         if not res.data:
-            # Fallback to general ICD search
             res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%{safe_icd10}%").limit(100).execute()
             if not res.data:
                 return {"recommendations": [], "profile_notes": []}
@@ -691,13 +660,11 @@ async def search_icd(q: str):
 async def analyze_symptoms(cc: str):
     if not supabase: return {"suggestions": []}
     try:
-        # Search for consultations where subjective mentions this complaint
         res = supabase.table("consultations").select("assessment").ilike("subjective", f"%{cc}%").limit(50).execute()
         
         suggestions = {}
         for row in res.data:
             asmt = row.get("assessment", "")
-            # Pattern: PRIMARY: Diagnosis Name [ICD-CODE]
             match = re.search(r"PRIMARY: (.*?) \[(.*?)\]", asmt)
             if match:
                 diag = match.group(1).strip()
@@ -705,10 +672,8 @@ async def analyze_symptoms(cc: str):
                 key = (diag, code)
                 suggestions[key] = suggestions.get(key, 0) + 1
             else:
-                # Basic cleanup for unstructured entries
                 clean_asmt = asmt.replace("PRIMARY: ", "").split("\n")[0].strip()
                 if clean_asmt and len(clean_asmt) > 3:
-                     # Check if it has something that looks like an ICD code at the end
                      code_match = re.search(r"\[(.*?)\]$", clean_asmt)
                      if code_match:
                          code = code_match.group(1)
@@ -717,7 +682,6 @@ async def analyze_symptoms(cc: str):
                      else:
                          suggestions[(clean_asmt, "Unknown")] = suggestions.get((clean_asmt, "Unknown"), 0) + 1
         
-        # Sort and take top 5
         sorted_suggestions = sorted(suggestions.items(), key=lambda x: x[1], reverse=True)
         return {
             "suggestions": [
@@ -803,7 +767,6 @@ async def get_patient_profile(user_id: str):
 @app.get("/patient/doctors")
 async def get_patient_doctors():
     if not supabase: return []
-    # Fetch profiles with role 'doctor'
     res = supabase.table("profiles").select("id, full_name, specialization").eq("role", "doctor").execute()
     return res.data
 
@@ -811,7 +774,6 @@ async def get_patient_doctors():
 async def get_patient_appointments(patient_id: str):
     if not supabase: return []
     try:
-        # Fetch appointments and join with doctor profiles
         res = supabase.table("appointments") \
             .select("*, doctor:profiles!doctor_id(full_name, specialization)") \
             .eq("patient_id", patient_id) \
@@ -828,7 +790,6 @@ async def book_appointment(data: BookingRequest):
     try:
         scheduled_time = f"{data.date}T{data.time}:00"
         
-        # Get next queue number for that day
         today_res = supabase.table("appointments") \
             .select("queue_number") \
             .gte("scheduled_time", f"{data.date}T00:00:00") \
@@ -857,7 +818,6 @@ async def book_appointment(data: BookingRequest):
 async def create_staff(data: StaffCreateRequest):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # 1. Create User in Auth (Admin Bypass Confirmation)
         new_user = supabase.auth.admin.create_user({
             "email": data.email,
             "password": data.password,
@@ -867,7 +827,6 @@ async def create_staff(data: StaffCreateRequest):
         
         user_id = new_user.user.id
         
-        # 2. Create Profile
         supabase.table("profiles").insert({
             "id": user_id,
             "email": data.email,
@@ -885,7 +844,6 @@ async def create_staff(data: StaffCreateRequest):
 async def create_patient(data: PatientCreateRequest):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        # 1. Create User in Auth
         new_user = supabase.auth.admin.create_user({
             "email": data.email,
             "password": data.password,
@@ -895,10 +853,8 @@ async def create_patient(data: PatientCreateRequest):
         
         user_id = new_user.user.id
         
-        # 2. Generate MRN
         mrn = f"HIS-{datetime.datetime.now().strftime('%Y%m%d')}-{str(abs(hash(data.nik)) % 10000).zfill(4)}"
         
-        # 3. Create Patient Record
         supabase.table("patients").insert({
             "id": user_id,
             "full_name": data.name,
@@ -920,7 +876,6 @@ async def create_patient(data: PatientCreateRequest):
             "consent_notifications": data.consent_notifications
         }).execute()
         
-        # 4. Create Profile entry
         supabase.table("profiles").insert({
             "id": user_id,
             "email": data.email,
