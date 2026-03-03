@@ -61,7 +61,10 @@ class DrugDatabase:
                 generic_candidate = d.get('openfda_term', 'unknown').lower()
                 
                 # Resolve clinical drug class from our new map
+                # Priority: generic_candidate -> local_name check
                 infallible_class = generic_to_class.get(generic_candidate, "unknown")
+                if infallible_class == "unknown":
+                    infallible_class = generic_to_class.get(local_name.lower(), "unknown")
                 
                 self.drugs.append(Drug(
                     brand_name=local_name,
