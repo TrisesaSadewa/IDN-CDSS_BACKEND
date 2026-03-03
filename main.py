@@ -950,6 +950,16 @@ async def get_fda_label(drug: str):
     except Exception as e:
         return {"error": str(e), "results": []}
 
+@app.get("/api/refresh-metadata")
+async def refresh_metadata():
+    """Manually reloads all database metadata into memory."""
+    try:
+        load_class_metadata()
+        structured_drug_db.load_data()
+        return {"status": "success", "message": "Metadata cache refreshed from Supabase."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/")
 def read_root(): return {"status": "active", "version": "11.4 - Master Dose Extraction"}
 
