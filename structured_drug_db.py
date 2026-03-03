@@ -29,8 +29,14 @@ class DrugDatabase:
         """Loads drugs from the Supabase knowledge_map table in batches."""
         try:
             supabase: Client = create_client(self.url, self.key)
-            print("Fetching drug dictionary from Supabase Knowledge Map...")
             
+            # 1. Fetch Generic -> Class mapping
+            print("Fetching Therapeutic Class maps from Supabase...")
+            class_res = supabase.table("generic_classes").select("generic_name, drug_class").execute()
+            generic_to_class = {c['generic_name'].lower(): c['drug_class'].lower() for c in class_res.data}
+            
+            # 2. Fetch Knowledge Map entries
+            print("Fetching drug dictionary from Supabase Knowledge Map...")
             all_rows = []
             page_size = 1000
             offset = 0
@@ -47,24 +53,20 @@ class DrugDatabase:
                     
                 all_rows.extend(rows)
                 offset += page_size
-                
-                # Safety break if it gets too huge, though we expect ~56k
                 if offset > 100000: break 
             
             self.drugs = []
             for d in all_rows:
                 local_name = d.get('local_term', 'Unknown')
-                # openfda_term in this DB often represents the Target Generic or Class
-                class_or_generic = d.get('openfda_term', 'unknown')
+                generic_candidate = d.get('openfda_term', 'unknown').lower()
                 
-                # Check fhir_coding for metadata
-                fhir = d.get('fhir_coding', {})
-                display_generic = fhir.get('display', local_name) if isinstance(fhir, dict) else local_name
+                # Resolve clinical drug class from our new map
+                infallible_class = generic_to_class.get(generic_candidate, "unknown")
                 
                 self.drugs.append(Drug(
                     brand_name=local_name,
-                    generic_name=display_generic,
-                    drug_class=class_or_generic, # Use openfda_term as class for now
+                    generic_name=generic_candidate,
+                    drug_class=infallible_class,
                     dose_mg=None,
                     is_pediatric=False
                 ))
@@ -74,9 +76,10 @@ class DrugDatabase:
                 if drug.brand_name and drug.brand_name.lower() != "unknown":
                     self.index[drug.brand_name.lower()] = drug
                 if drug.generic_name and drug.generic_name.lower() != "unknown":
+                    # Priority for generic names if conflict
                     self.index[drug.generic_name.lower()] = drug
             
-            print(f"SUCCESS: Database loaded from Supabase: {len(self.drugs)} entries active.")
+            print(f"SUCCESS: Database loaded. {len(self.drugs)} entries, {len(generic_to_class)} classes mapped.")
             
         except Exception as e:
             print(f"ERROR: Loading database from Supabase: {e}")
