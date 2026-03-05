@@ -63,12 +63,13 @@ class IndonesianDrugParser:
 
         # 2. DOSAGE & ADMINISTRATIVE PATTERNS (Noise Removal)
         patterns = [
+            r'^ans\s+',                 # Strip inventory prefix
             r'\b\d+\s*x\s*[\d\.,/]+',   # 3 x 1
             r'\b\d+\s*dd\s*[\d\.,/]+',  # 3 dd 1
             r'\bs\s*\d+\s*dd',          # S 3 dd
             r'\bno\s*[xivlc]+',         # No XII
             r'\bno\s*\d+',              # No 10
-            r'\btab\b|\bcaps\b|\bcap\b|\bsyr\b|\bcth\b|\bbungkus\b|\bsachet\b|\bfls\b|\btube\b|\binj\b'
+            r'\btab\b|\bcaps\b|\bcap\b|\bsyr\b|\bcth\b|\bbungkus\b|\bsachet\b|\bfls\b|\btube\b|\binj\b|\bdrops\b|\bdrop\b|\bpaed\b|\bforte\b|\bsir\b|\bsirup\b'
         ]
         
         for p in patterns:
