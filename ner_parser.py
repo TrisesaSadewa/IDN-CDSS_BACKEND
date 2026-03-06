@@ -55,20 +55,22 @@ class IndonesianDrugParser:
         # This boosts Specificity by ensuring these aren't processed as drugs.
         # Fixed: r'^ans\s+' was too broad and swallowed "ANS drug_name" lines.
         equipment_ignore = [
-            r'^jarum\b', r'^spuit\b', r'^infus\b', r'^abocath\b', r'^alkohol\b'
+            r'^jarum\b', r'^spuit\b', r'^infus\b', r'^abocath\b', r'^alkohol\b',
+            r'^rujukan\b', r'^surat rujukan\b', r'^tanpa obat\b', r'^minta rujukan\b',
+            r'^masker\b', r'^perlak\b', r'^kursi roda\b', r'^tongkat\b', r'^underpad\b'
         ]
         for pattern in equipment_ignore:
             if re.search(pattern, text):
-                return "" # Tell parser to ignore this entire line
+                return "" 
 
         # 2. DOSAGE & ADMINISTRATIVE PATTERNS (Noise Removal)
         patterns = [
-            r'^ans\s+',                 # Strip inventory prefix
-            r'\b\d+\s*x\s*[\d\.,/]+',   # 3 x 1
-            r'\b\d+\s*dd\s*[\d\.,/]+',  # 3 dd 1
-            r'\bs\s*\d+\s*dd',          # S 3 dd
-            r'\bno\s*[xivlc]+',         # No XII
-            r'\bno\s*\d+',              # No 10
+            r'^ans\s+',                 
+            r'\b\d+\s*x\s*[\d\.,/]+',   
+            r'\b\d+\s*dd\s*[\d\.,/]+',  
+            r'\bs\s*\d+\s*dd',          
+            r'\bno\s*[xivlc]+',         
+            r'\bno\s*\d+',              
             r'\btab\b|\bcaps\b|\bcap\b|\bsyr\b|\bcth\b|\bbungkus\b|\bsachet\b|\bfls\b|\btube\b|\binj\b|\bdrops\b|\bdrop\b|\bpaed\b|\bforte\b|\bsir\b|\bsirup\b'
         ]
         
