@@ -554,10 +554,21 @@ async def check_ddi_endpoint(payload: DDIRequest):
             return "Potential overlap (PRN/Anytime drug)"
         return "At the same time"
 
+    def _remap_severity(sev):
+        mapping = {
+            "Major": "Major",
+            "Moderate": "Intermediate", 
+            "Intermediate": "Intermediate",
+            "Minor": "Minor",
+            "Info": "Minor"
+        }
+        return mapping.get(sev, sev)
+
     for item in local_results:
+        remapped_sev = _remap_severity(item["severity"])
         results.append({
             "pair": [item["da"].title(), item["db"].title()],
-            "severity": item["severity"],
+            "severity": remapped_sev,
             "description": f"[{_time_label(item['shared_slots'], item['is_anytime'])}] {item['description'] or 'Interaction suspected via class-mechanism logic.'}",
             "advice": _expand_advice(item["advice"]),
             "source": item["source"],
@@ -592,7 +603,7 @@ async def check_ddi_endpoint(payload: DDIRequest):
             "drug_b_moa": CLASS_MOA.get(item["class_b"], "Mechanism unclassified.")
         })
 
-    severity_order = {"Major": 1, "Intermediate": 2, "Moderate": 2, "Minor": 3, "Info": 4}
+    severity_order = {"Major": 1, "Intermediate": 2, "Minor": 3}
     results.sort(key=lambda x: severity_order.get(x["severity"], 99))
     return {"interactions": results, "safe": len(results) == 0}
 
