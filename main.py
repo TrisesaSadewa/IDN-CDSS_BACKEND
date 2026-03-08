@@ -74,13 +74,11 @@ async def refresh_cache():
         structured_drug_db.db_instance.load_data()
     return {"status": "success", "classes_loaded": len(CLASS_MOA), "ddi_rules_cached": len(DDI_RULES_CACHE)}
 
-# Global cache for the Guide UI
 FULL_CLASS_METADATA_CACHE = []
 
-# Load on startup
 load_class_metadata()
 
-# --- DDI RULES CACHE (Pre-loaded for concurrency) ---
+# --- DDI RULES CACHE ---
 DDI_RULES_CACHE = {}
 
 def load_ddi_rules_cache():
@@ -101,25 +99,25 @@ def load_ddi_rules_cache():
 
 load_ddi_rules_cache()
 
-# Thread pool for FDA API calls (non-blocking)
-_fda_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10, thread_name_prefix="fda-api")
+_fda_executor = concurrent.futures.ThreadPoolExecutor(max_workers=5, thread_name_prefix="fda-api")
+_fda_semaphore = asyncio.Semaphore(3) 
 
-# --- FDA RESULT CACHE (avoids duplicate external API calls) ---
-_fda_cache = {}       # key: (drug_a, drug_b) -> {"result": str|None, "ts": float}
-_FDA_CACHE_TTL = 3600  # 1 hour TTL
+# --- FDA RESULT CACHE ---
+_fda_cache = {} 
+_FDA_CACHE_TTL = 43200
 
 def _get_cached_fda(drug_a: str, drug_b: str):
     key = tuple(sorted([drug_a.lower(), drug_b.lower()]))
     entry = _fda_cache.get(key)
     if entry and (time.time() - entry["ts"] < _FDA_CACHE_TTL):
-        return entry["result"], True  # (result, was_cached)
+        return entry["result"], True  
     return None, False
 
 def _set_cached_fda(drug_a: str, drug_b: str, result):
     key = tuple(sorted([drug_a.lower(), drug_b.lower()]))
     _fda_cache[key] = {"result": result, "ts": time.time()}
 
-# --- DRUG INFO CACHE (avoids repeated string parsing) ---
+# --- DRUG INFO CACHE  ---
 _drug_info_cache = {}
 
 # --- MODELS ---
@@ -220,7 +218,6 @@ def get_drug_info(drug_name: str) -> Tuple[str, str]:
         if drug_obj and drug_obj.drug_class and drug_obj.drug_class.lower() != "unknown":
             result = (drug_obj.generic_name.lower(), drug_obj.drug_class.lower())
         else:
-            # Fallback: Check if first word of the name exists in index
             first_word = clean_name.split()[0]
             drug_obj_fallback = structured_drug_db.DRUG_INDEX.get(first_word)
             if drug_obj_fallback and drug_obj_fallback.drug_class and drug_obj_fallback.drug_class.lower() != "unknown":
@@ -233,60 +230,77 @@ def get_drug_info(drug_name: str) -> Tuple[str, str]:
 def _sync_fda_interaction_warning(drug_name: str, drug_target: str) -> Optional[str]:
     """Synchronous FDA API call — runs in thread pool to avoid blocking event loop."""
     import urllib.parse
+    import requests
     if not drug_name or drug_name == "unknown": return None
     if not drug_target or drug_target == "unknown": return None
     
-    q_name = urllib.parse.quote(f'"{drug_name}"')
-    q_target = urllib.parse.quote(f'"{drug_target}"')
+    # Extract primary ingredient for searching if string is complex (e.g., "A, B, C")
+    search_name = drug_name.split(',')[0].strip()
+    search_target = drug_target.split(',')[0].strip()
+    
+    q_name = urllib.parse.quote(f'"{search_name}"')
+    q_target = urllib.parse.quote(f'"{search_target}"')
     
     url = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_name}+openfda.substance_name:{q_name})+AND+drug_interactions:{q_target}&limit=1"
     
-    try:
-        import requests
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            if "results" in data:
-                label = data["results"][0]
-                interaction_text = label.get("drug_interactions", [""])[0]
-                        
-                if drug_target.lower() in interaction_text.lower():
-                    clean_text = re.sub(r'\s+', ' ', interaction_text)
-                    sentences = re.split(r'(?<=[.!?])\s+', clean_text)
-                    for s in sentences:
-                        if drug_target.lower() in s.lower():
-                            if len(s.split()) < 45 and "table" not in s.lower() and "examples of" not in s.lower():
-                                return s.strip()
+    retries = 2
+    for attempt in range(retries + 1):
+        try:
+            response = requests.get(url, timeout=7) 
+            if response.status_code == 200:
+                data = response.json()
+                if "results" in data:
+                    label = data["results"][0]
+                    interaction_text = label.get("drug_interactions", [""])[0]
                     
-                    pattern = rf'(.{{0,120}}{re.escape(drug_target)}.{{0,120}})'
-                    match = re.search(pattern, clean_text, re.IGNORECASE)
-                    if match:
-                        return f"...{match.group(1).strip()}..."
+                    # Fuzzy match on the lower target
+                    low_target = search_target.lower()
+                    if low_target in interaction_text.lower():
+                        clean_text = re.sub(r'\s+', ' ', interaction_text)
+                        sentences = re.split(r'(?<=[.!?])\s+', clean_text)
+                        for s in sentences:
+                            if low_target in s.lower():
+                                if len(s.split()) < 45 and "table" not in s.lower() and "examples of" not in s.lower():
+                                    return s.strip()
                         
-                    return interaction_text[:250] + "..."
-    except Exception as e:
-        print(f"FDA API Error for {drug_name} + {drug_target}: {e}")
+                        pattern = rf'(.{{0,120}}{re.escape(search_target)}.{{0,120}})'
+                        match = re.search(pattern, clean_text, re.IGNORECASE)
+                        if match:
+                            return f"...{match.group(1).strip()}..."
+                            
+                        return interaction_text[:250] + "..."
+            elif response.status_code == 429: 
+                time.sleep(1) 
+                continue
+            elif response.status_code == 404: 
+                return None
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+            if attempt == retries:
+                print(f"FDA Connection/Timeout Error for {drug_name} + {drug_target}: {e}")
+            time.sleep(1) 
+        except Exception as e:
+            if attempt == retries:
+                print(f"FDA API Error for {drug_name} + {drug_target} after {retries} retries: {e}")
+            time.sleep(0.5)
     return None
 
 async def get_fda_interaction_warning(drug_name: str, drug_target: str) -> Optional[str]:
-    """Async wrapper — offloads synchronous FDA HTTP call to thread pool."""
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(_fda_executor, _sync_fda_interaction_warning, drug_name, drug_target)
+    """Async wrapper — offloads synchronous FDA HTTP call to thread pool with concurrency limit."""
+    async with _fda_semaphore:
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(_fda_executor, _sync_fda_interaction_warning, drug_name, drug_target)
 
 
 def extract_frequency(text: str) -> str:
     """Robust extraction of frequencies, capturing # and : delimiters."""
     if not text: return "1 x 1"
     
-    # Splits on either : or #
     parts = re.split(r'[:#]', text)
     if len(parts) >= 3:
         sig_part = parts[-1].strip()
-        # Accept valid signature lengths gracefully
         if len(sig_part) >= 2:
             return sig_part
             
-    # Fallback RegExes
     m = re.search(r'\d+\s*(?:tab|tablet|pulv|bungkus)?\s*/\s*BAB', text, re.IGNORECASE)
     if m: return m.group(0).strip()
     m = re.search(r'(?:s\s*)?\d+\s*dd\s*(?:[a-zA-Z]+\s+)?\d+(?:/\d+)?(?:[.,]\d+)?(?:\s*[a-zA-Z]+)?', text, re.IGNORECASE)
@@ -427,6 +441,11 @@ async def check_ddi_endpoint(payload: DDIRequest):
     if payload.medications:
         for m in payload.medications:
             if m.name:
+                gen, cls = get_drug_info(m.name)
+                # Skip non-clinical items from DDI analysis
+                if cls in ["non-drug", "medical_supply", "administrative"]:
+                    continue
+                    
                 med_list.append({
                     "name": m.name,
                     "frequency": m.frequency or "Anytime",
@@ -435,6 +454,11 @@ async def check_ddi_endpoint(payload: DDIRequest):
     elif payload.drugs:
         for dname in payload.drugs:
             if dname:
+                gen, cls = get_drug_info(dname)
+                # Skip non-drug and medical supply items from DDI analysis
+                if cls in ["non-drug", "medical_supply", "administrative"]:
+                    continue
+                    
                 med_list.append({
                     "name": dname,
                     "frequency": "Anytime",
@@ -447,9 +471,8 @@ async def check_ddi_endpoint(payload: DDIRequest):
     
     pairs = list(combinations(med_list, 2))
 
-    # PHASE 1: Fast in-memory rule matching (no I/O)
     local_results = []
-    fda_needed = []  # pairs that need FDA fallback
+    fda_needed = []  
 
     for ma, mb in pairs:
         shared_slots = ma["slots"].intersection(mb["slots"])
@@ -480,26 +503,23 @@ async def check_ddi_endpoint(payload: DDIRequest):
                 "shared_slots": shared_slots, "is_anytime": is_anytime
             })
         else:
-            # Check FDA cache first before queuing network call
             cached_fda, was_cached = _get_cached_fda(gen_a, gen_b)
             if was_cached:
-                if cached_fda:  # cached non-None result
+                if cached_fda:  
                     fda_needed.append({
                         "da": da, "db": db, "gen_a": gen_a, "gen_b": gen_b,
                         "class_a": class_a, "class_b": class_b,
                         "fda_result": cached_fda,
                         "shared_slots": shared_slots, "is_anytime": is_anytime
                     })
-                # cached None = no interaction found, skip
             else:
                 fda_needed.append({
                     "da": da, "db": db, "gen_a": gen_a, "gen_b": gen_b,
                     "class_a": class_a, "class_b": class_b,
-                    "fda_result": None,  # needs fetch
+                    "fda_result": None,  
                     "shared_slots": shared_slots, "is_anytime": is_anytime
                 })
 
-    # PHASE 2: Parallel FDA lookups for uncached pairs (all at once!)
     items_needing_fetch = [p for p in fda_needed if p["fda_result"] is None]
     if items_needing_fetch:
         async def _fetch_fda_pair(pair_info):
@@ -512,10 +532,8 @@ async def check_ddi_endpoint(payload: DDIRequest):
         
         await asyncio.gather(*[_fetch_fda_pair(p) for p in items_needing_fetch])
 
-    # PHASE 3: Build final results
     results = []
     
-    # Helper to expand advice text
     def _expand_advice(advice):
         advice_map = {
             "Monitor BP.": "Monitor blood pressure (maintain target < 140/90 mmHg or appropriate to patient baseline).",
@@ -536,7 +554,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
             return "Potential overlap (PRN/Anytime drug)"
         return "At the same time"
 
-    # Add local rule results
     for item in local_results:
         results.append({
             "pair": [item["da"].title(), item["db"].title()],
@@ -548,7 +565,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
             "drug_b_moa": CLASS_MOA.get(item["class_b"], "Mechanism unclassified.")
         })
 
-    # Add FDA fallback results
     safe_phrases = ["no clinically significant", "did not affect", "no interaction", "not clinically significant"]
     major_phrases = ["must not be used", "contraindicated", "avoid concurrent", "avoid coadministration", "severe", "fatal", "not recommended"]
 
@@ -595,6 +611,8 @@ async def parse_prescription_endpoint(payload: ParseRequest):
             lines = text.split('\n')
             
         parsed_drugs = ner_engine.extract_drugs(lines)
+        
+        parsed_drugs = [d for d in parsed_drugs if d.get('class') not in ["non-drug", "medical_supply", "administrative"]]
         
         if not parsed_drugs and lines:
             parsed_drugs = [{"original_text": line} for line in lines]
