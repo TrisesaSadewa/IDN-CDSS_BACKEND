@@ -12,6 +12,7 @@ from supabase import create_client, Client
 import asyncio
 import datetime
 import concurrent.futures
+import encryption_utils
 
 # --- IMPORT LOCAL MODULES ---
 ner_engine = None
@@ -829,7 +830,12 @@ async def analyze_symptoms(cc: str):
 async def submit_triage(data: TriageData):
     if not supabase: raise HTTPException(status_code=500, detail="DB Error")
     try:
-        res = supabase.table("triage_notes").insert(data.model_dump(exclude_none=True)).execute()
+        # Encrypt sensitive triage notes
+        payload = data.model_dump(exclude_none=True)
+        sensitive_fields = ["chief_complaint", "pain_location"]
+        encrypted_payload = encryption_utils.encrypt_dict(payload, sensitive_fields)
+        
+        res = supabase.table("triage_notes").insert(encrypted_payload).execute()
         supabase.table("appointments").update({"status": "consultation"}).eq("id", data.appointment_id).execute()
         return {"status": "success", "triage_id": res.data[0]['id']}
     except Exception as e:
@@ -838,7 +844,14 @@ async def submit_triage(data: TriageData):
 @app.get("/nurse/queue")
 async def get_nurse_queue():
     if not supabase: return []
-    return supabase.table("appointments").select("*, patients(*)").in_("status", ["scheduled", "checked_in"]).order("queue_number").execute().data
+    data = supabase.table("appointments").select("*, patients(*)").in_("status", ["scheduled", "checked_in"]).order("queue_number").execute().data
+    
+    # Decrypt patient info for nurse view
+    sensitive_fields = ["nik", "phone_number", "address"]
+    for item in data:
+        if item.get('patients'):
+            item['patients'] = encryption_utils.decrypt_dict(item['patients'], sensitive_fields)
+    return data
 
 @app.post("/doctor/submit-consultation")
 async def submit_consultation(data: ConsultationData):
@@ -847,13 +860,18 @@ async def submit_consultation(data: ConsultationData):
         subjective = f"CC: {data.chief_complaint}\n\nHPI: {data.history_illness}"
         assessment = f"PRIMARY: {data.primary_diagnosis} [{data.icd10_code}]\nNOTES: {data.clinical_notes}"
         
+        # Encrypt Clinical Notes / PHI
+        encrypted_subjective = encryption_utils.encrypt_string(subjective)
+        encrypted_assessment = encryption_utils.encrypt_string(assessment)
+        encrypted_plan = encryption_utils.encrypt_string(data.therapy_instructions)
+        
         consult_payload = {
             "appointment_id": data.appointment_id,
             "doctor_id": data.doctor_id,
-            "subjective": subjective,
+            "subjective": encrypted_subjective,
             "objective": "Recorded in Triage",
-            "assessment": assessment,
-            "plan": data.therapy_instructions,
+            "assessment": encrypted_assessment,
+            "plan": encrypted_plan,
             "prescription_raw_text": json.dumps(data.prescription_items)
         }
         if data.ddi_pharmacy_notes:
@@ -882,25 +900,71 @@ async def get_patient_history(patient_id: str):
             .in_("appointment_id", appt_ids)\
             .order("created_at", desc=True)\
             .execute()
-        return consultations.data
+        
+        # Decrypt results
+        decrypted_results = []
+        for c in consultations.data:
+            c["subjective"] = encryption_utils.decrypt_string(c.get("subjective", ""))
+            c["assessment"] = encryption_utils.decrypt_string(c.get("assessment", ""))
+            c["plan"] = encryption_utils.decrypt_string(c.get("plan", ""))
+            decrypted_results.append(c)
+            
+        return decrypted_results
     except Exception as e:
+        print(f"History Fetch Error: {e}")
         return []
 
 @app.get("/doctor/queue")
 async def get_doctor_queue(doctor_id: str):
     if not supabase: return []
-    return supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("doctor_id", doctor_id).in_("status", ["scheduled", "checked_in", "triage", "consultation"]).order("queue_number").execute().data
+    data = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("doctor_id", doctor_id).in_("status", ["scheduled", "checked_in", "triage", "consultation"]).order("queue_number").execute().data
+    
+    # Decrypt patient and triage data
+    pt_fields = ["nik", "phone_number", "address"]
+    triage_fields = ["chief_complaint", "pain_location"]
+    
+    for item in data:
+        if item.get('patients'):
+            item['patients'] = encryption_utils.decrypt_dict(item['patients'], pt_fields)
+        if item.get('triage_notes') and isinstance(item['triage_notes'], list):
+            for t in item['triage_notes']:
+                encryption_utils.decrypt_dict(t, triage_fields)
+        elif item.get('triage_notes'):
+             encryption_utils.decrypt_dict(item['triage_notes'], triage_fields)
+             
+    return data
 
 @app.get("/doctor/appointment/{appt_id}")
 async def get_appointment_detail(appt_id: str):
     if not supabase: return {}
     res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
-    return res.data
+    data = res.data
+    if not data: return {}
+    
+    # Decrypt data for doctor view
+    if data.get('patients'):
+        data['patients'] = encryption_utils.decrypt_dict(data['patients'], ["nik", "phone_number", "address", "emergency_name", "emergency_phone", "insurance_number"])
+    
+    if data.get('triage_notes'):
+        # triage_notes could be a list or a single object depending on the relationship
+        if isinstance(data['triage_notes'], list):
+            for t in data['triage_notes']:
+                encryption_utils.decrypt_dict(t, ["chief_complaint", "pain_location"])
+        else:
+            encryption_utils.decrypt_dict(data['triage_notes'], ["chief_complaint", "pain_location"])
+            
+    return data
 
 @app.get("/patient/profile")
 async def get_patient_profile(user_id: str):
     res = supabase.table("patients").select("*").eq("id", user_id).execute()
-    return res.data[0] if res.data else {"mrn": "N/A"}
+    if not res.data:
+        return {"mrn": "N/A"}
+    
+    patient = res.data[0]
+    # Decrypt sensitive fields
+    sensitive_fields = ["nik", "phone_number", "address", "emergency_name", "emergency_phone", "insurance_number"]
+    return encryption_utils.decrypt_dict(patient, sensitive_fields)
 
 @app.get("/patient/doctors")
 async def get_patient_doctors():
@@ -990,10 +1054,10 @@ async def create_patient(data: PatientCreateRequest):
         })
         
         user_id = new_user.user.id
-        
         mrn = f"HIS-{datetime.datetime.now().strftime('%Y%m%d')}-{str(abs(hash(data.nik)) % 10000).zfill(4)}"
         
-        supabase.table("patients").insert({
+        # Encrypt sensitive patient data
+        payload = {
             "id": user_id,
             "full_name": data.name,
             "dob": data.dob,
@@ -1012,7 +1076,12 @@ async def create_patient(data: PatientCreateRequest):
             "emergency_phone": data.emergency_phone,
             "consent_data_processing": data.consent_data_processing,
             "consent_notifications": data.consent_notifications
-        }).execute()
+        }
+        
+        sensitive_fields = ["nik", "phone_number", "address", "emergency_name", "emergency_phone", "insurance_number"]
+        encrypted_payload = encryption_utils.encrypt_dict(payload, sensitive_fields)
+        
+        supabase.table("patients").insert(encrypted_payload).execute()
         
         supabase.table("profiles").insert({
             "id": user_id,
