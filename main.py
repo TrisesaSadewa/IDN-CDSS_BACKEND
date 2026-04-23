@@ -13,6 +13,10 @@ import asyncio
 import datetime
 import concurrent.futures
 import encryption_utils
+from dotenv import load_dotenv
+
+# Load environment variables early
+load_dotenv()
 
 # --- IMPORT LOCAL MODULES ---
 ner_engine = None
@@ -27,8 +31,8 @@ except ImportError as e:
     print(f"WARNING: Modules not found: {e}")
 
 # --- CONFIGURATION ---
-SUPABASE_URL = "https://crywwqleinnwoacithmw.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://crywwqleinnwoacithmw.supabase.co")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ")
 
 app = FastAPI(title="Smart HIS Backend", version="11.4 - Master Dose Extraction")
 
@@ -40,11 +44,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception as e:
-    print(f"Supabase Connection Failed: {e}")
-    supabase = None
+supabase = None
+
+def get_supabase() -> Client:
+    """Helper to ensure Supabase client is initialized and returned."""
+    global supabase
+    if supabase:
+        return supabase
+        
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print("CRITICAL: Supabase credentials missing from environment.")
+        return None
+        
+    try:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        return supabase
+    except Exception as e:
+        print(f"Supabase Connection Failed: {e}")
+        return None
+
+# --- INITIALIZATION ---
+supabase = get_supabase()
 
 # --- DYNAMIC METADATA CACHE ---
 CLASS_MOA = {}
@@ -52,10 +72,11 @@ CLASS_MOA = {}
 def load_class_metadata():
     """Fetches drug class metadata (MoA, etc.) from Supabase and caches locally."""
     global CLASS_MOA
-    if not supabase: return
+    client = get_supabase()
+    if not client: return
     try:
         print("Loading Drug Class Metadata from Supabase...")
-        res = supabase.table("drug_class_metadata").select("*").execute()
+        res = client.table("drug_class_metadata").select("*").execute()
         if res.data:
             CLASS_MOA = {item['class_key']: item['moa_description'] for item in res.data}
             global FULL_CLASS_METADATA_CACHE
@@ -68,12 +89,18 @@ def load_class_metadata():
 
 @app.get("/api/refresh-cache")
 async def refresh_cache():
-    """Manually triggers a reload of metadata, drug database, and DDI rules."""
+    """Manually triggers a reload of metadata, drug database, DDI rules, and banned products."""
     load_class_metadata()
     load_ddi_rules_cache()
+    load_banned_products_cache()
     if structured_drug_db and hasattr(structured_drug_db, 'db_instance'):
         structured_drug_db.db_instance.load_data()
-    return {"status": "success", "classes_loaded": len(CLASS_MOA), "ddi_rules_cached": len(DDI_RULES_CACHE)}
+    return {
+        "status": "success",
+        "classes_loaded": len(CLASS_MOA),
+        "ddi_rules_cached": len(DDI_RULES_CACHE),
+        "banned_products_cached": sum(len(v) for v in BANNED_PRODUCTS_CACHE.values())
+    }
 
 FULL_CLASS_METADATA_CACHE = []
 
@@ -84,10 +111,11 @@ DDI_RULES_CACHE = {}
 
 def load_ddi_rules_cache():
     global DDI_RULES_CACHE
-    if not supabase: return
+    client = get_supabase()
+    if not client: return
     try:
         print("Loading DDI Rules into memory cache...")
-        res = supabase.table("ddi_rules").select("*").execute()
+        res = client.table("ddi_rules").select("*").execute()
         if res.data:
             DDI_RULES_CACHE = {}
             for rule in res.data:
@@ -99,6 +127,54 @@ def load_ddi_rules_cache():
         DDI_RULES_CACHE = {}
 
 load_ddi_rules_cache()
+
+# --- BANNED PRODUCTS CACHE (BPOM 22 Dec 2022) ---
+# Structure: {lowercase_name: [list of banned_product records]}
+BANNED_PRODUCTS_CACHE: Dict[str, List[Dict]] = {}
+
+def load_banned_products_cache():
+    """Loads the BPOM-banned syrup/drops list into memory for fast O(1) lookup."""
+    global BANNED_PRODUCTS_CACHE
+    client = get_supabase()
+    if not client: return
+    try:
+        print("Loading BPOM Banned Products into memory cache...")
+        res = client.table("banned_products").select("*").execute()
+        if res.data:
+            BANNED_PRODUCTS_CACHE = {}
+            for item in res.data:
+                key = item['nama_produk'].lower().strip()
+                if key not in BANNED_PRODUCTS_CACHE:
+                    BANNED_PRODUCTS_CACHE[key] = []
+                BANNED_PRODUCTS_CACHE[key].append(item)
+            print(f"SUCCESS: {sum(len(v) for v in BANNED_PRODUCTS_CACHE.values())} banned product entries ({len(BANNED_PRODUCTS_CACHE)} unique names) loaded.")
+    except Exception as e:
+        print(f"ERROR loading banned products cache: {e}")
+        BANNED_PRODUCTS_CACHE = {}
+
+load_banned_products_cache()
+
+def check_banned_products(drug_name: str) -> Optional[Dict]:
+    """Checks if a drug name matches any BPOM-banned product.
+    Uses exact + prefix matching on the cached banned products list.
+    Returns the matching banned record, or None if not banned."""
+    if not drug_name or not BANNED_PRODUCTS_CACHE:
+        return None
+    
+    # Clean name the same way the NER parser does
+    clean = re.sub(r'\s+\d+.*$', '', drug_name).strip().lower()
+    clean = re.sub(r'\s*(tab|tablet|caps|kapsul|syr|sirup|drop|drops|susp|suspensi).*$', '', clean, flags=re.IGNORECASE).strip()
+    
+    # 1. Exact match
+    if clean in BANNED_PRODUCTS_CACHE:
+        return BANNED_PRODUCTS_CACHE[clean][0]
+    
+    # 2. Prefix match (e.g. "afibramol rasa apel" → matches "afibramol rasa apel")
+    for banned_key, records in BANNED_PRODUCTS_CACHE.items():
+        if clean.startswith(banned_key) or banned_key.startswith(clean):
+            return records[0]
+    
+    return None
 
 _fda_executor = concurrent.futures.ThreadPoolExecutor(max_workers=5, thread_name_prefix="fda-api")
 _fda_semaphore = asyncio.Semaphore(3) 
@@ -343,12 +419,13 @@ def extract_dose_text(text: str) -> Optional[str]:
 # --- ENDPOINTS ---
 @app.post("/api/suggest-alternative")
 async def suggest_alternative(payload: AlternativeRequest):
-    if not supabase: return {"alternatives": []}
+    client = get_supabase()
+    if not client: return {"alternatives": []}
     
     gen_a, class_a = get_drug_info(payload.drug_to_replace)
     gen_b, class_b = get_drug_info(payload.interacting_with)
     
-    res_alt = supabase.table("therapeutic_alternatives").select("alternative_class").eq("target_class", class_a).order("priority").execute()
+    res_alt = client.table("therapeutic_alternatives").select("alternative_class").eq("target_class", class_a).order("priority").execute()
     candidate_classes = [r["alternative_class"] for r in res_alt.data] if res_alt.data else []
     
     if not candidate_classes:
@@ -358,7 +435,7 @@ async def suggest_alternative(payload: AlternativeRequest):
     
     for cand_class in candidate_classes:
         c1, c2 = sorted([cand_class, class_b])
-        rule_res = supabase.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
+        rule_res = client.table("ddi_rules").select("*").eq("class_a", c1).eq("class_b", c2).execute()
         
         if not rule_res.data:
             safe_classes.append(cand_class)
@@ -436,9 +513,21 @@ def get_administration_slots(frequency: Optional[str]) -> set:
 
 @app.post("/api/check-ddi")
 async def check_ddi_endpoint(payload: DDIRequest):
-    if not supabase: raise HTTPException(status_code=500, detail="Database connection not available")
+    client = get_supabase()
+    if not client:
+        raise HTTPException(status_code=500, detail="Database connection not available")
+    
+    # Ensure caches are populated if missed during init
+    if not DDI_RULES_CACHE:
+        load_ddi_rules_cache()
+    if not CLASS_MOA:
+        load_class_metadata()
+    if not BANNED_PRODUCTS_CACHE:
+        load_banned_products_cache()
     
     med_list = []
+    banned_alerts = []  # Critical-level alerts for BPOM-banned products
+
     if payload.medications:
         for m in payload.medications:
             if m.name:
@@ -446,6 +535,25 @@ async def check_ddi_endpoint(payload: DDIRequest):
                 # Skip non-clinical items from DDI analysis
                 if cls in ["non-drug", "medical_supply", "administrative"]:
                     continue
+                
+                # --- BANNED PRODUCT CHECK ---
+                banned_rec = check_banned_products(m.name)
+                if banned_rec:
+                    banned_alerts.append({
+                        "pair": [m.name.title(), "BPOM Regulatory Authority"],
+                        "severity": "Critical",
+                        "description": (
+                            f"BPOM REVOKED LICENSE: '{banned_rec['nama_produk']}' ({banned_rec['bentuk_sediaan']}, "
+                            f"{banned_rec['kemasan']}) by {banned_rec['pemilik_izin_edar']} — "
+                            f"NIE {banned_rec['nomor_izin_edar']} was revoked on {banned_rec['ban_date']}. "
+                            "This product is BANNED due to potential contamination with ethylene glycol (EG) or diethylene glycol (DEG)."
+                        ),
+                        "advice": "STOP immediately. Do NOT dispense this product. Replace with an alternative from a non-banned manufacturer. Report to pharmacovigilance.",
+                        "source": "BPOM RI — 22 December 2022 Decree",
+                        "drug_a_moa": "Product recalled due to EG/DEG contamination risk.",
+                        "drug_b_moa": "BPOM Regulatory Action",
+                        "is_banned": True
+                    })
                     
                 med_list.append({
                     "name": m.name,
@@ -459,6 +567,25 @@ async def check_ddi_endpoint(payload: DDIRequest):
                 # Skip non-drug and medical supply items from DDI analysis
                 if cls in ["non-drug", "medical_supply", "administrative"]:
                     continue
+                
+                # --- BANNED PRODUCT CHECK ---
+                banned_rec = check_banned_products(dname)
+                if banned_rec:
+                    banned_alerts.append({
+                        "pair": [dname.title(), "BPOM Regulatory Authority"],
+                        "severity": "Critical",
+                        "description": (
+                            f"BPOM REVOKED LICENSE: '{banned_rec['nama_produk']}' ({banned_rec['bentuk_sediaan']}, "
+                            f"{banned_rec['kemasan']}) by {banned_rec['pemilik_izin_edar']} — "
+                            f"NIE {banned_rec['nomor_izin_edar']} was revoked on {banned_rec['ban_date']}. "
+                            "This product is BANNED due to potential contamination with ethylene glycol (EG) or diethylene glycol (DEG)."
+                        ),
+                        "advice": "STOP immediately. Do NOT dispense this product. Replace with an alternative from a non-banned manufacturer. Report to pharmacovigilance.",
+                        "source": "BPOM RI — 22 December 2022 Decree",
+                        "drug_a_moa": "Product recalled due to EG/DEG contamination risk.",
+                        "drug_b_moa": "BPOM Regulatory Action",
+                        "is_banned": True
+                    })
                     
                 med_list.append({
                     "name": dname,
@@ -466,9 +593,14 @@ async def check_ddi_endpoint(payload: DDIRequest):
                     "slots": {"ANYTIME"}
                 })
 
-    results = []
-    if not med_list or len(med_list) < 2: 
-        return {"interactions": [], "safe": True, "timing_safe": True}
+    # If only banned alerts (no DDI pairs possible), return early with banned alerts
+    if not med_list or len(med_list) < 2:
+        return {
+            "interactions": banned_alerts,
+            "safe": len(banned_alerts) == 0,
+            "timing_safe": True,
+            "banned_count": len(banned_alerts)
+        }
     
     pairs = list(combinations(med_list, 2))
 
@@ -604,9 +736,17 @@ async def check_ddi_endpoint(payload: DDIRequest):
             "drug_b_moa": CLASS_MOA.get(item["class_b"], "Mechanism unclassified.")
         })
 
-    severity_order = {"Major": 1, "Intermediate": 2, "Minor": 3}
+    severity_order = {"Critical": 0, "Major": 1, "Intermediate": 2, "Minor": 3}
     results.sort(key=lambda x: severity_order.get(x["severity"], 99))
-    return {"interactions": results, "safe": len(results) == 0}
+    
+    # Prepend banned alerts (always Critical — already have is_banned=True flag)
+    all_results = banned_alerts + results
+    
+    return {
+        "interactions": all_results,
+        "safe": len(all_results) == 0,
+        "banned_count": len(banned_alerts)
+    }
 
 
 @app.post("/api/parse-prescription")
@@ -655,18 +795,72 @@ async def parse_prescription_endpoint(payload: ParseRequest):
                 _, d_class = get_drug_info(b_name)
                 if d_class.lower() == 'unknown':
                     _, d_class = get_drug_info(orig)
+            
+            # --- BANNED PRODUCT CHECK at parse time ---
+            banned_rec = check_banned_products(b_name)
+            ban_info = None
+            if banned_rec:
+                ban_info = {
+                    "isBanned": True,
+                    "banDate": str(banned_rec.get('ban_date', '2022-12-22')),
+                    "manufacturer": banned_rec.get('pemilik_izin_edar', ''),
+                    "nie": banned_rec.get('nomor_izin_edar', ''),
+                    "reason": "BPOM: Dicabut Izin Edarnya — risiko kontaminasi EG/DEG"
+                }
                 
-            frontend_drugs.append({
+            drug_entry = {
                 "drugName": b_name,
                 "drugClass": d_class,
                 "dosage": dosage,
                 "frequency": freq
-            })
+            }
+            if ban_info:
+                drug_entry["bannedInfo"] = ban_info
+                
+            frontend_drugs.append(drug_entry)
             
         return {"separate_drugs": frontend_drugs, "racikan": []}
     except Exception as e:
         print(f"Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/check-banned")
+async def check_banned_endpoint(drug: str):
+    """Checks whether a single drug name appears in the BPOM banned products list (22 Dec 2022)."""
+    if not BANNED_PRODUCTS_CACHE:
+        load_banned_products_cache()
+    
+    banned_rec = check_banned_products(drug)
+    if not banned_rec:
+        return {"is_banned": False, "drug": drug}
+    
+    return {
+        "is_banned": True,
+        "drug": drug,
+        "nama_produk": banned_rec['nama_produk'],
+        "bentuk_sediaan": banned_rec['bentuk_sediaan'],
+        "kemasan": banned_rec['kemasan'],
+        "pemilik_izin_edar": banned_rec['pemilik_izin_edar'],
+        "nomor_izin_edar": banned_rec['nomor_izin_edar'],
+        "kategori": banned_rec['kategori'],
+        "ban_date": str(banned_rec.get('ban_date', '2022-12-22')),
+        "reason": "BPOM RI Decree (22 December 2022): License revoked due to risk of EG/DEG contamination."
+    }
+
+@app.get("/api/banned-products")
+async def list_banned_products(search: Optional[str] = None):
+    """Returns the full list of BPOM-banned products, optionally filtered by name."""
+    if not BANNED_PRODUCTS_CACHE:
+        load_banned_products_cache()
+    
+    all_records = [rec for records in BANNED_PRODUCTS_CACHE.values() for rec in records]
+    
+    if search:
+        q = search.lower().strip()
+        all_records = [r for r in all_records if q in r['nama_produk'].lower()]
+    
+    all_records.sort(key=lambda x: x['nama_produk'])
+    return {"total": len(all_records), "products": all_records}
 
 @app.get("/api/drug-class-guide")
 async def get_drug_class_guide():
@@ -692,10 +886,11 @@ async def resolve_drug_class(q: str):
 
 @app.get("/api/recommend-drugs")
 async def recommend_drugs(diagnosis: str):
-    if not supabase: return {"recommendations": []}
+    client = get_supabase()
+    if not client: return {"recommendations": []}
     try:
         safe_diag = diagnosis.replace("'", "")
-        res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%{safe_diag}%").limit(100).execute()
+        res = client.table("consultations").select("prescription_raw_text").ilike("assessment", f"%{safe_diag}%").limit(100).execute()
         
         if not res.data:
             return {"recommendations": []}
@@ -724,13 +919,14 @@ async def recommend_drugs(diagnosis: str):
 
 @app.get("/api/recommend-smart")
 async def recommend_smart(icd10: str, age: Optional[int] = None, weight: Optional[float] = None, gender: Optional[str] = None):
-    if not supabase: return {"recommendations": [], "profile_notes": []}
+    client = get_supabase()
+    if not client: return {"recommendations": [], "profile_notes": []}
     try:
         safe_icd10 = icd10.replace("'", "")
-        res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%[{safe_icd10}]%").limit(100).execute()
+        res = client.table("consultations").select("prescription_raw_text").ilike("assessment", f"%[{safe_icd10}]%").limit(100).execute()
         
         if not res.data:
-            res = supabase.table("consultations").select("prescription_raw_text").ilike("assessment", f"%{safe_icd10}%").limit(100).execute()
+            res = client.table("consultations").select("prescription_raw_text").ilike("assessment", f"%{safe_icd10}%").limit(100).execute()
             if not res.data:
                 return {"recommendations": [], "profile_notes": []}
             
@@ -775,10 +971,11 @@ async def recommend_smart(icd10: str, age: Optional[int] = None, weight: Optiona
 
 @app.get("/api/icd/search")
 async def search_icd(q: str):
-    if not supabase: return []
+    client = get_supabase()
+    if not client: return []
     try:
         safe_q = q.replace(",", "") 
-        res = supabase.table("icd10_mit") \
+        res = client.table("icd10_mit") \
             .select("icd10_code,who_full_desc") \
             .or_(f"icd10_code.ilike.%{safe_q}%,who_full_desc.ilike.%{safe_q}%") \
             .limit(20) \
@@ -791,9 +988,10 @@ async def search_icd(q: str):
 
 @app.get("/api/analyze-symptoms")
 async def analyze_symptoms(cc: str):
-    if not supabase: return {"suggestions": []}
+    client = get_supabase()
+    if not client: return {"suggestions": []}
     try:
-        res = supabase.table("consultations").select("assessment").ilike("subjective", f"%{cc}%").limit(50).execute()
+        res = client.table("consultations").select("assessment").ilike("subjective", f"%{cc}%").limit(50).execute()
         
         suggestions = {}
         for row in res.data:
