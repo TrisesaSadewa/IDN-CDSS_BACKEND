@@ -38,6 +38,7 @@ app = FastAPI(title="Smart HIS Backend", version="11.4 - Master Dose Extraction"
 
 origins = [
     "https://idn-cdss.vercel.app",
+    "https://idn-cdss.vercel.app/",
     "http://localhost:3000",
     "http://127.0.0.1:5500",
     "http://localhost:5500",
@@ -1134,34 +1135,42 @@ async def get_doctor_queue(doctor_id: str):
     for item in data:
         if item.get('patients'):
             item['patients'] = encryption_utils.decrypt_dict(item['patients'], pt_fields)
-        if item.get('triage_notes') and isinstance(item['triage_notes'], list):
-            for t in item['triage_notes']:
-                encryption_utils.decrypt_dict(t, triage_fields)
-        elif item.get('triage_notes'):
-             encryption_utils.decrypt_dict(item['triage_notes'], triage_fields)
+        if item.get('triage_notes'):
+            if isinstance(item['triage_notes'], list):
+                item['triage_notes'] = [encryption_utils.decrypt_dict(t, triage_fields) for t in item['triage_notes']]
+            else:
+                item['triage_notes'] = encryption_utils.decrypt_dict(item['triage_notes'], triage_fields)
              
     return data
 
 @app.get("/doctor/appointment/{appt_id}")
 async def get_appointment_detail(appt_id: str):
-    if not supabase: return {}
-    res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
-    data = res.data
-    if not data: return {}
+    if not supabase: 
+        raise HTTPException(status_code=500, detail="Database connection not available")
     
-    # Decrypt data for doctor view
-    if data.get('patients'):
-        data['patients'] = encryption_utils.decrypt_dict(data['patients'], ["nik", "phone_number", "address", "emergency_name", "emergency_phone", "insurance_number"])
-    
-    if data.get('triage_notes'):
-        # triage_notes could be a list or a single object depending on the relationship
-        if isinstance(data['triage_notes'], list):
-            for t in data['triage_notes']:
-                encryption_utils.decrypt_dict(t, ["chief_complaint", "pain_location"])
-        else:
-            encryption_utils.decrypt_dict(data['triage_notes'], ["chief_complaint", "pain_location"])
-            
-    return data
+    try:
+        res = supabase.table("appointments").select("*, patients(*), triage_notes(*)").eq("id", appt_id).single().execute()
+        data = res.data
+        if not data: 
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        
+        # Decrypt data for doctor view
+        if data.get('patients'):
+            data['patients'] = encryption_utils.decrypt_dict(data['patients'], ["nik", "phone_number", "address", "emergency_name", "emergency_phone", "insurance_number"])
+        
+        if data.get('triage_notes'):
+            if isinstance(data['triage_notes'], list):
+                data['triage_notes'] = [encryption_utils.decrypt_dict(t, ["chief_complaint", "pain_location"]) for t in data['triage_notes']]
+            else:
+                data['triage_notes'] = encryption_utils.decrypt_dict(data['triage_notes'], ["chief_complaint", "pain_location"])
+                
+        return data
+    except Exception as e:
+        print(f"Error fetching appointment {appt_id}: {e}")
+        # Handle Supabase 'not found' error which comes as an exception when using .single()
+        if "rows were returned" in str(e) or "PGRST116" in str(e):
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/patient/profile")
 async def get_patient_profile(user_id: str):
