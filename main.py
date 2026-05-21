@@ -79,24 +79,126 @@ supabase = get_supabase()
 
 # --- DYNAMIC METADATA CACHE ---
 CLASS_MOA = {}
+FULL_CLASS_METADATA_CACHE = []
 
 def load_class_metadata():
-    """Fetches drug class metadata (MoA, etc.) from Supabase and caches locally."""
-    global CLASS_MOA
+    """Fetches drug class metadata (MoA, etc.) from Supabase and caches locally, with local fallback."""
+    global CLASS_MOA, FULL_CLASS_METADATA_CACHE
     client = get_supabase()
-    if not client: return
-    try:
-        print("Loading Drug Class Metadata from Supabase...")
-        res = client.table("drug_class_metadata").select("*").execute()
-        if res.data:
-            CLASS_MOA = {item['class_key']: item['moa_description'] for item in res.data}
-            global FULL_CLASS_METADATA_CACHE
-            FULL_CLASS_METADATA_CACHE = res.data
-            print(f"SUCCESS: {len(CLASS_MOA)} drug classes metadata loaded.")
-    except Exception as e:
-        print(f"ERROR: Failed to load drug class metadata: {e}")
-        CLASS_MOA = {}
-        FULL_CLASS_METADATA_CACHE = []
+    loaded_from_supabase = False
+    
+    if client:
+        try:
+            print("Loading Drug Class Metadata from Supabase...")
+            res = client.table("drug_class_metadata").select("*").execute()
+            if res.data:
+                CLASS_MOA = {item['class_key']: item['moa_description'] for item in res.data}
+                FULL_CLASS_METADATA_CACHE = res.data
+                print(f"SUCCESS: {len(CLASS_MOA)} drug classes metadata loaded from Supabase.")
+                loaded_from_supabase = True
+        except Exception as e:
+            print(f"ERROR loading drug class metadata from Supabase: {e}")
+            
+    if not loaded_from_supabase:
+        fallback_path = os.path.join(os.path.dirname(__file__), "drug_class_metadata_fallback.json")
+        if os.path.exists(fallback_path):
+            try:
+                print("Attempting to load Drug Class Metadata from local fallback...")
+                with open(fallback_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                CLASS_MOA = {item['class_key']: item['moa_description'] for item in data}
+                FULL_CLASS_METADATA_CACHE = data
+                print(f"SUCCESS: {len(CLASS_MOA)} drug classes metadata loaded from local fallback.")
+            except Exception as fe:
+                print(f"CRITICAL ERROR loading drug class metadata local fallback: {fe}")
+                CLASS_MOA = {}
+                FULL_CLASS_METADATA_CACHE = []
+
+# --- DDI RULES CACHE ---
+DDI_RULES_CACHE = {}
+
+def load_ddi_rules_cache():
+    global DDI_RULES_CACHE
+    client = get_supabase()
+    loaded_from_supabase = False
+    
+    if client:
+        try:
+            print("Loading DDI Rules into memory cache from Supabase...")
+            res = client.table("ddi_rules").select("*").execute()
+            if res.data:
+                DDI_RULES_CACHE = {}
+                for rule in res.data:
+                    key = tuple(sorted([rule['class_a'], rule['class_b']]))
+                    DDI_RULES_CACHE[key] = rule
+                print(f"SUCCESS: {len(DDI_RULES_CACHE)} DDI rules cached from Supabase.")
+                loaded_from_supabase = True
+        except Exception as e:
+            print(f"ERROR loading DDI rules from Supabase: {e}")
+            
+    if not loaded_from_supabase:
+        fallback_path = os.path.join(os.path.dirname(__file__), "ddi_rules_fallback.json")
+        if os.path.exists(fallback_path):
+            try:
+                print("Attempting to load DDI Rules from local fallback...")
+                with open(fallback_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                DDI_RULES_CACHE = {}
+                for rule in data:
+                    key = tuple(sorted([rule['class_a'], rule['class_b']]))
+                    DDI_RULES_CACHE[key] = rule
+                print(f"SUCCESS: {len(DDI_RULES_CACHE)} DDI rules loaded from local fallback.")
+            except Exception as fe:
+                print(f"CRITICAL ERROR loading DDI rules local fallback: {fe}")
+                DDI_RULES_CACHE = {}
+
+# --- BANNED PRODUCTS CACHE (BPOM 22 Dec 2022) ---
+BANNED_PRODUCTS_CACHE: Dict[str, List[Dict]] = {}
+
+def load_banned_products_cache():
+    """Loads the BPOM-banned syrup/drops list into memory for fast O(1) lookup."""
+    global BANNED_PRODUCTS_CACHE
+    client = get_supabase()
+    loaded_from_supabase = False
+    
+    if client:
+        try:
+            print("Loading BPOM Banned Products into memory cache from Supabase...")
+            res = client.table("banned_products").select("*").execute()
+            if res.data:
+                BANNED_PRODUCTS_CACHE = {}
+                for item in res.data:
+                    key = item['nama_produk'].lower().strip()
+                    if key not in BANNED_PRODUCTS_CACHE:
+                        BANNED_PRODUCTS_CACHE[key] = []
+                    BANNED_PRODUCTS_CACHE[key].append(item)
+                print(f"SUCCESS: {sum(len(v) for v in BANNED_PRODUCTS_CACHE.values())} banned products cached from Supabase.")
+                loaded_from_supabase = True
+        except Exception as e:
+            print(f"ERROR loading banned products from Supabase: {e}")
+            
+    if not loaded_from_supabase:
+        fallback_path = os.path.join(os.path.dirname(__file__), "banned_products_fallback.json")
+        if os.path.exists(fallback_path):
+            try:
+                print("Attempting to load BPOM Banned Products from local fallback...")
+                with open(fallback_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                BANNED_PRODUCTS_CACHE = {}
+                for item in data:
+                    key = item['nama_produk'].lower().strip()
+                    if key not in BANNED_PRODUCTS_CACHE:
+                        BANNED_PRODUCTS_CACHE[key] = []
+                    BANNED_PRODUCTS_CACHE[key].append(item)
+                print(f"SUCCESS: {sum(len(v) for v in BANNED_PRODUCTS_CACHE.values())} banned products loaded from local fallback.")
+            except Exception as fe:
+                print(f"CRITICAL ERROR loading banned products local fallback: {fe}")
+                BANNED_PRODUCTS_CACHE = {}
+
+# Trigger initial loads
+load_class_metadata()
+load_ddi_rules_cache()
+load_banned_products_cache()
 
 @app.get("/api/refresh-cache")
 async def refresh_cache():
@@ -113,61 +215,68 @@ async def refresh_cache():
         "banned_products_cached": sum(len(v) for v in BANNED_PRODUCTS_CACHE.values())
     }
 
-FULL_CLASS_METADATA_CACHE = []
-
-load_class_metadata()
-
-# --- DDI RULES CACHE ---
-DDI_RULES_CACHE = {}
-
-def load_ddi_rules_cache():
-    global DDI_RULES_CACHE
+@app.get("/api/debug-db")
+async def debug_db():
     client = get_supabase()
-    if not client: return
-    try:
-        print("Loading DDI Rules into memory cache...")
-        res = client.table("ddi_rules").select("*").execute()
-        if res.data:
-            DDI_RULES_CACHE = {}
-            for rule in res.data:
-                key = tuple(sorted([rule['class_a'], rule['class_b']]))
-                DDI_RULES_CACHE[key] = rule
-            print(f"SUCCESS: {len(DDI_RULES_CACHE)} DDI rules cached in memory.")
-    except Exception as e:
-        print(f"ERROR loading DDI rules cache: {e}")
-        DDI_RULES_CACHE = {}
-
-load_ddi_rules_cache()
-
-# --- BANNED PRODUCTS CACHE (BPOM 22 Dec 2022) ---
-# Structure: {lowercase_name: [list of banned_product records]}
-BANNED_PRODUCTS_CACHE: Dict[str, List[Dict]] = {}
-
-def load_banned_products_cache():
-    """Loads the BPOM-banned syrup/drops list into memory for fast O(1) lookup."""
-    global BANNED_PRODUCTS_CACHE
-    client = get_supabase()
-    if not client: return
-    try:
-        print("Loading BPOM Banned Products into memory cache...")
-        res = client.table("banned_products").select("*").execute()
-        if res.data:
-            BANNED_PRODUCTS_CACHE = {}
-            for item in res.data:
-                key = item['nama_produk'].lower().strip()
-                if key not in BANNED_PRODUCTS_CACHE:
-                    BANNED_PRODUCTS_CACHE[key] = []
-                BANNED_PRODUCTS_CACHE[key].append(item)
-            print(f"SUCCESS: {sum(len(v) for v in BANNED_PRODUCTS_CACHE.values())} banned product entries ({len(BANNED_PRODUCTS_CACHE)} unique names) loaded.")
-    except Exception as e:
-        print(f"ERROR loading banned products cache: {e}")
-        BANNED_PRODUCTS_CACHE = {}
-
-load_banned_products_cache()
+    status = "ok"
+    errors = []
+    
+    if not client:
+        status = "error"
+        errors.append("Supabase client is None. Check environment variables.")
+    
+    generic_classes_count = 0
+    ddi_rules_count = 0
+    banned_products_count = 0
+    knowledge_map_count = 0
+    
+    if client:
+        try:
+            res = client.table("generic_classes").select("generic_name", count="exact").limit(1).execute()
+            generic_classes_count = res.count if hasattr(res, 'count') else len(res.data)
+        except Exception as e:
+            errors.append(f"generic_classes fetch failed: {str(e)}")
+            status = "error"
+            
+        try:
+            res = client.table("ddi_rules").select("id", count="exact").limit(1).execute()
+            ddi_rules_count = res.count if hasattr(res, 'count') else len(res.data)
+        except Exception as e:
+            errors.append(f"ddi_rules fetch failed: {str(e)}")
+            status = "error"
+            
+        try:
+            res = client.table("banned_products").select("id", count="exact").limit(1).execute()
+            banned_products_count = res.count if hasattr(res, 'count') else len(res.data)
+        except Exception as e:
+            errors.append(f"banned_products fetch failed: {str(e)}")
+            status = "error"
+            
+        try:
+            res = client.table("knowledge_map").select("local_term", count="exact").limit(1).execute()
+            knowledge_map_count = res.count if hasattr(res, 'count') else len(res.data)
+        except Exception as e:
+            errors.append(f"knowledge_map fetch failed: {str(e)}")
+            status = "error"
+            
+    return {
+        "status": status,
+        "supabase_url": SUPABASE_URL,
+        "supabase_key_preview": SUPABASE_KEY[:20] + "..." if SUPABASE_KEY else None,
+        "generic_classes_count": generic_classes_count,
+        "ddi_rules_count": ddi_rules_count,
+        "banned_products_count": banned_products_count,
+        "knowledge_map_count": knowledge_map_count,
+        "errors": errors,
+        "classes_loaded": len(CLASS_MOA),
+        "ddi_rules_cached": len(DDI_RULES_CACHE),
+        "banned_products_cached": sum(len(v) for v in BANNED_PRODUCTS_CACHE.values())
+    }
 
 def check_banned_products(drug_name: str) -> Optional[Dict]:
     """Checks if a drug name matches any BPOM-banned product.
     Uses exact + prefix matching on the cached banned products list.
+    Avoids false positives on generic ingredients by disabling loose prefix matches on them.
     Returns the matching banned record, or None if not banned."""
     if not drug_name or not BANNED_PRODUCTS_CACHE:
         return None
@@ -180,9 +289,21 @@ def check_banned_products(drug_name: str) -> Optional[Dict]:
     if clean in BANNED_PRODUCTS_CACHE:
         return BANNED_PRODUCTS_CACHE[clean][0]
     
+    # List of generic ingredients that should not trigger general category bans
+    GENERIC_INGREDIENTS = {
+        "zinc", "paracetamol", "ibuprofen", "ambroxol", "cetirizine", 
+        "domperidone", "sucralfate", "antasida", "chloramphenicol", 
+        "cotrimoxazole", "pseudoephedrine", "amoxicillin", "ampicillin"
+    }
+    
     # 2. Prefix match (e.g. "afibramol rasa apel" → matches "afibramol rasa apel")
     for banned_key, records in BANNED_PRODUCTS_CACHE.items():
-        if clean.startswith(banned_key) or banned_key.startswith(clean):
+        if clean.startswith(banned_key):
+            return records[0]
+            
+        if banned_key.startswith(clean):
+            if clean in GENERIC_INGREDIENTS:
+                continue
             return records[0]
     
     return None
