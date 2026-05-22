@@ -740,12 +740,6 @@ async def check_ddi_endpoint(payload: DDIRequest):
     fda_needed = []  
 
     for ma, mb in pairs:
-        shared_slots = ma["slots"].intersection(mb["slots"])
-        is_anytime = "ANYTIME" in ma["slots"] or "ANYTIME" in mb["slots"]
-        
-        if not shared_slots and not is_anytime:
-            continue
-            
         da = ma["name"]
         db = mb["name"]
         
@@ -756,6 +750,19 @@ async def check_ddi_endpoint(payload: DDIRequest):
 
         c1, c2 = sorted([class_a, class_b])
         cached_rule = DDI_RULES_CACHE.get((c1, c2))
+        
+        shared_slots = ma["slots"].intersection(mb["slots"])
+        is_anytime = "ANYTIME" in ma["slots"] or "ANYTIME" in mb["slots"]
+        
+        # Systemic, class-level interactions (Major, Intermediate) should never be bypassed by schedule times.
+        is_systemic = False
+        if cached_rule:
+            sev = str(cached_rule.get("severity", "")).title()
+            if sev in ["Major", "Moderate", "Intermediate"]:
+                is_systemic = True
+                
+        if not shared_slots and not is_anytime and not is_systemic:
+            continue
         
         if cached_rule:
             local_results.append({
@@ -817,7 +824,7 @@ async def check_ddi_endpoint(payload: DDIRequest):
             return "Same time: " + ", ".join(shared_slots)
         elif is_anytime:
             return "Potential overlap (PRN/Anytime drug)"
-        return "At the same time"
+        return "Different times"
 
     def _remap_severity(sev):
         mapping = {
