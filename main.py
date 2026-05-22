@@ -757,8 +757,31 @@ async def check_ddi_endpoint(payload: DDIRequest):
         
         if gen_a == gen_b: continue
 
-        c1, c2 = sorted([class_a, class_b])
-        cached_rule = DDI_RULES_CACHE.get((c1, c2))
+        # Expand diuretic classes to ensure we don't miss specific rules
+        # if Supabase categorized them generically.
+        def expand_class(cls_name, gen_name):
+            classes = {cls_name}
+            if cls_name == "diuretic":
+                if gen_name in ["furosemide", "torsemide", "bumetanide"]:
+                    classes.add("loop_diuretic")
+                elif gen_name in ["spironolactone", "eplerenone"]:
+                    classes.add("k_sparing_diuretic")
+                elif gen_name in ["hydrochlorothiazide", "chlorthalidone"]:
+                    classes.add("thiazide_diuretic")
+            return classes
+            
+        classes_a = expand_class(class_a, gen_a)
+        classes_b = expand_class(class_b, gen_b)
+        
+        cached_rule = None
+        for ca in classes_a:
+            for cb in classes_b:
+                key = tuple(sorted([ca, cb]))
+                if key in DDI_RULES_CACHE:
+                    cached_rule = DDI_RULES_CACHE[key]
+                    break
+            if cached_rule:
+                break
         
         shared_slots = ma["slots"].intersection(mb["slots"])
         is_anytime = "ANYTIME" in ma["slots"] or "ANYTIME" in mb["slots"]
