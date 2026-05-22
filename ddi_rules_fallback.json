@@ -1,0 +1,762 @@
+[
+  {
+    "id": "c74ec3b6-10f8-40a0-a79d-d0d2eb7126ff",
+    "class_a": "hemostatic",
+    "class_b": "oral_contraceptive",
+    "severity": "Major",
+    "description": "Additive Thrombogenic Effect: High risk of clots/stroke.",
+    "advice": "Contraindicated."
+  },
+  {
+    "id": "d965c225-fc66-49cf-8760-056b0afbf63c",
+    "class_a": "anticonvulsant",
+    "class_b": "ccb",
+    "severity": "Major",
+    "description": "Metabolic Induction.",
+    "advice": "Monitor BP closely."
+  },
+  {
+    "id": "334fb029-b92c-4f46-a0ab-1d0be34c72cf",
+    "class_a": "psychotropic",
+    "class_b": "triptan",
+    "severity": "Major",
+    "description": "Serotonin Syndrome Risk.",
+    "advice": "Monitor for serotonin toxicity."
+  },
+  {
+    "id": "e7c7daef-4099-48e7-98ba-37e1d8e38e49",
+    "class_a": "opioid",
+    "class_b": "sedative_hypnotic",
+    "severity": "Major",
+    "description": "Additive CNS Depression.",
+    "advice": "Strict monitoring or avoid."
+  },
+  {
+    "id": "b034f4ed-b28a-4e6a-968a-61c66b105a7c",
+    "class_a": "fibrate",
+    "class_b": "statin",
+    "severity": "Major",
+    "description": "Additive Myotoxicity.",
+    "advice": "Avoid if possible; monitor CK levels."
+  },
+  {
+    "id": "8efe3847-0688-4822-a242-86b3b8be845d",
+    "class_a": "anticonvulsant",
+    "class_b": "folate",
+    "severity": "Intermediate",
+    "description": "Pharmacokinetic Interaction.",
+    "advice": "Monitor Phenytoin levels."
+  },
+  {
+    "id": "955a40c7-bda9-42af-92e1-b4b64713ad84",
+    "class_a": "bisphosphonate",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Additive GI Toxicity.",
+    "advice": "Use with caution."
+  },
+  {
+    "id": "b4c63be1-6b42-4f0c-b4ed-89a4217e079a",
+    "class_a": "biguanide",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Renal Risk.",
+    "advice": "Monitor renal function."
+  },
+  {
+    "id": "e04107d6-f372-4a03-b873-8e8fd6095942",
+    "class_a": "nsaid",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Pharmacokinetic displacement.",
+    "advice": "Monitor blood glucose."
+  },
+  {
+    "id": "395e7d63-f417-46fa-a91c-312d160416cf",
+    "class_a": "fibrate",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Renal/Protein Binding.",
+    "advice": "Monitor renal function."
+  },
+  {
+    "id": "54e98a66-9b1a-40b2-b16f-77f5ad947e02",
+    "class_a": "ace-inhibitor",
+    "class_b": "biguanide",
+    "severity": "Intermediate",
+    "description": "Renal competition.",
+    "advice": "Monitor renal function."
+  },
+  {
+    "id": "921f11f4-7664-4d45-871a-83acaac60398",
+    "class_a": "ace-inhibitor",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Metabolic.",
+    "advice": "Monitor blood glucose."
+  },
+  {
+    "id": "b0dd44bb-9585-4fc7-b0e9-befba7e0c968",
+    "class_a": "biguanide",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Additive Hypoglycemia Risk.",
+    "advice": "Standard combo, but monitor glucose."
+  },
+  {
+    "id": "5f9c169c-92e2-4281-865a-86cc67052018",
+    "class_a": "biguanide",
+    "class_b": "ccb",
+    "severity": "Intermediate",
+    "description": "Renal/Metabolic interaction.",
+    "advice": "Monitor status."
+  },
+  {
+    "id": "bf49a7ba-19f9-464c-8809-231eaef92af1",
+    "class_a": "fibrate",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Metabolic.",
+    "advice": "Monitor blood glucose."
+  },
+  {
+    "id": "ae9560fe-4cfc-4b07-8246-9113edad0863",
+    "class_a": "alkalinizing_agent",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Absorption alteration.",
+    "advice": "Separate dosing or monitor."
+  },
+  {
+    "id": "f1a5bfda-679a-43aa-8fe4-c232ac219b4e",
+    "class_a": "ccb",
+    "class_b": "statin",
+    "severity": "Intermediate",
+    "description": "Pharmacokinetic CYP3A4 competition.",
+    "advice": "Monitor for statin toxicity/myopathy."
+  },
+  {
+    "id": "3a6467eb-5200-4797-8920-da6cc5bdd753",
+    "class_a": "beta-blocker",
+    "class_b": "k_sparing_diuretic",
+    "severity": "Intermediate",
+    "description": "Additive Hypotension.",
+    "advice": "Monitor BP."
+  },
+  {
+    "id": "a6f019aa-1f78-4522-b1bd-27e7c38d3845",
+    "class_a": "k_sparing_diuretic",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism & Renal Risk.",
+    "advice": "Monitor renal function and potassium."
+  },
+  {
+    "id": "f879c876-73c0-4768-b35b-b0ec0bd33a31",
+    "class_a": "corticosteroid",
+    "class_b": "loop_diuretic",
+    "severity": "Intermediate",
+    "description": "Electrolyte Imbalance.",
+    "advice": "Monitor potassium levels."
+  },
+  {
+    "id": "d23bd583-943f-4689-83fb-fa503f37bc06",
+    "class_a": "anticoagulant",
+    "class_b": "corticosteroid",
+    "severity": "Intermediate",
+    "description": "GI Risk.",
+    "advice": "Monitor for GI bleeding."
+  },
+  {
+    "id": "346493bb-1ec4-4829-bd4b-7a3348fb0f7d",
+    "class_a": "beta-blocker",
+    "class_b": "cardiac_glycoside",
+    "severity": "Intermediate",
+    "description": "Additive Bradycardia.",
+    "advice": "Monitor heart rate and ECG."
+  },
+  {
+    "id": "5d2a8592-b676-4de3-813f-351aa81ec9a3",
+    "class_a": "antiplatelet",
+    "class_b": "mucosal-protective",
+    "severity": "Minor",
+    "description": "Absorption Interference.",
+    "advice": "Separate dosing by 2 hours."
+  },
+  {
+    "id": "ee5ddcb8-ca82-4897-9f88-6300e787fcec",
+    "class_a": "anticonvulsant",
+    "class_b": "antiplatelet",
+    "severity": "Minor",
+    "description": "Protein Binding Displacement.",
+    "advice": "Monitor for signs of Phenytoin toxicity."
+  },
+  {
+    "id": "2d8a2a31-9bf8-4288-9994-83413330b583",
+    "class_a": "ace-inhibitor",
+    "class_b": "ccb",
+    "severity": "Minor",
+    "description": "Additive Hypotension.",
+    "advice": "Routine monitoring."
+  },
+  {
+    "id": "5b0077e2-5180-4a3e-a735-3d98f955df2a",
+    "class_a": "ace-inhibitor",
+    "class_b": "alkalinizing_agent",
+    "severity": "Minor",
+    "description": "Absorption alteration.",
+    "advice": "Separate dosing."
+  },
+  {
+    "id": "b4654cff-6163-4e4e-afdf-d7a15c5d9ddf",
+    "class_a": "ccb",
+    "class_b": "gabapentinoid",
+    "severity": "Minor",
+    "description": "Additive Edema/CNS effects.",
+    "advice": "Monitor for peripheral edema."
+  },
+  {
+    "id": "b8f14683-cb2e-44cc-b724-13e67b1e8efe",
+    "class_a": "antituberculosis",
+    "class_b": "oral_contraceptive",
+    "severity": "Major",
+    "description": "Metabolic Induction (CYP3A4): Contraceptive failure risk.",
+    "advice": "Use non-hormonal backup method."
+  },
+  {
+    "id": "ad14760f-a407-49c3-809a-c9f2d037527b",
+    "class_a": "antifungal",
+    "class_b": "statin",
+    "severity": "Major",
+    "description": "CYP3A4 Inhibition: High risk of Rhabdomyolysis.",
+    "advice": "Avoid combinations like Simvastatin; monitor for muscle pain."
+  },
+  {
+    "id": "b861691b-615b-4314-9b58-17978f467055",
+    "class_a": "psychotropic",
+    "class_b": "sedative_hypnotic",
+    "severity": "Major",
+    "description": "Severe CNS Depression.",
+    "advice": "Avoid concurrent use."
+  },
+  {
+    "id": "8bb24fa1-c4f4-45fd-92f6-72b51641afc8",
+    "class_a": "antineoplastic",
+    "class_b": "nsaid",
+    "severity": "Major",
+    "description": "Reduced Renal Clearance: Risk of methotrexate toxicity.",
+    "advice": "Contraindicated with High-dose MTX."
+  },
+  {
+    "id": "8ea8c860-3dd3-416e-bac2-1bc1c73e6b4e",
+    "class_a": "antiviral",
+    "class_b": "statin",
+    "severity": "Major",
+    "description": "Pharmacokinetic Interference: Elevated statin levels.",
+    "advice": "Adjust statin dose or switch therapy."
+  },
+  {
+    "id": "1e281a08-9b56-4ab0-b14f-658c51e6929a",
+    "class_a": "antacid",
+    "class_b": "antibiotic",
+    "severity": "Intermediate",
+    "description": "Chelation: Significantly reduced antibiotic absorption.",
+    "advice": "Separate dosing by at least 2 hours."
+  },
+  {
+    "id": "5a263c43-0346-485a-a1fb-6db24df0ae15",
+    "class_a": "antifungal",
+    "class_b": "ppi",
+    "severity": "Intermediate",
+    "description": "pH-dependent absorption reduction.",
+    "advice": "Avoid concurrent use or monitor for failure."
+  },
+  {
+    "id": "fb7f6212-bcfa-42bd-99a9-9997b757d836",
+    "class_a": "corticosteroid",
+    "class_b": "diuretic",
+    "severity": "Intermediate",
+    "description": "Additive Hypokalemia Risk.",
+    "advice": "Monitor serum potassium levels."
+  },
+  {
+    "id": "dc43d796-ee56-47e1-8f0f-483686495f8b",
+    "class_a": "supplement",
+    "class_b": "thyroid",
+    "severity": "Intermediate",
+    "description": "Reduced levothyroxine absorption (Fe/Ca).",
+    "advice": "Separate dosing by 4 hours."
+  },
+  {
+    "id": "5cec88c2-60d4-46e3-a421-e195c7008839",
+    "class_a": "antacid",
+    "class_b": "bisphosphonate",
+    "severity": "Intermediate",
+    "description": "Significantly reduced absorption.",
+    "advice": "Take bisphosphonate 30 mins before any other drug/food."
+  },
+  {
+    "id": "7f0138fa-34e5-4245-a8b7-c4231f156b9f",
+    "class_a": "ace-inhibitor",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: NSAIDs antagonize the renal vasodilatory effects of ACE-inhibitors by inhibiting the synthesis of vasodilating prostaglandins (PGE2/PGI2) normally mediated by COX-1 and COX-2 in the renal afferent arteriole.",
+    "advice": "Monitor blood pressure regularly and assess renal function (Cr, eGFR) if therapy is long-term."
+  },
+  {
+    "id": "337572bf-01e6-4216-bd6e-ec9d6398aed6",
+    "class_a": "beta-blocker",
+    "class_b": "loop_diuretic",
+    "severity": "Intermediate",
+    "description": "Additive Hemodynamic Effects: Combined use can lead to synergistic blood pressure lowering and potential for symptomatic orthostatic hypotension.",
+    "advice": "Monitor blood pressure regularly. Advise the patient to change positions slowly."
+  },
+  {
+    "id": "5f3da8fb-f33a-405a-9605-bbf8472d266b",
+    "class_a": "beta-blocker",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: NSAIDs can diminish the antihypertensive effectiveness of Beta-blockers by inhibiting vasodilatory prostaglandins and promoting sodium retention.",
+    "advice": "Monitor BP."
+  },
+  {
+    "id": "fab97754-d46f-45e2-92b6-da6ef88ff37e",
+    "class_a": "anticoagulant",
+    "class_b": "antiplatelet",
+    "severity": "Major",
+    "description": "Synergistic Bleeding Risk: This combination causes a \"double hit\" on hemostasis. Antiplatelets (Clopidogrel) inhibit primary platelet plug formation, while Anticoagulants (Notisil/Warfarin) inhibit the secondary fibrin \"glue\" lattice. This drastically increases the risk of major internal or GI hemorrhage.",
+    "advice": "Strict monitoring of INR and clinical signs of bleeding (bruising, melena). Avoid concurrent use unless strictly indicated (e.g., dual/triple therapy in stented patients)."
+  },
+  {
+    "id": "fd58ca81-b6dc-493c-9c4a-31734f20ee2d",
+    "class_a": "antiplatelet",
+    "class_b": "beta-blocker",
+    "severity": "Minor",
+    "description": "Additive Hemodynamics.",
+    "advice": "Monitor blood pressure and for signs of dizziness."
+  },
+  {
+    "id": "cc2d61df-6f8a-42cb-be0b-6e64234bb7c1",
+    "class_a": "beta-blocker",
+    "class_b": "mucosal-protective",
+    "severity": "Minor",
+    "description": "Absorption Interference.",
+    "advice": "Separate dosing by at least 2 hours."
+  },
+  {
+    "id": "ce4a0bd8-e770-4c34-95f0-6864cca1c0f5",
+    "class_a": "antiplatelet",
+    "class_b": "nitrate",
+    "severity": "Minor",
+    "description": "Additive Hemodynamics.",
+    "advice": "Monitor for symptomatic hypotension."
+  },
+  {
+    "id": "c8ae812c-6c54-4424-b0bb-cbb884fb3346",
+    "class_a": "nitrate",
+    "class_b": "ppi",
+    "severity": "Minor",
+    "description": "Pharmacokinetic: Possible pH-dependent absorption alteration.",
+    "advice": "Monitor efficacy. No specific dose adjustment usually required."
+  },
+  {
+    "id": "79bd775a-d810-414a-bf0d-a5363d807160",
+    "class_a": "antifungal",
+    "class_b": "h2-blocker",
+    "severity": "Intermediate",
+    "description": "Reduced absorption (pH effect).",
+    "advice": "Space out or monitor."
+  },
+  {
+    "id": "49d9b633-7e74-415b-84f7-1b5972568c1d",
+    "class_a": "opioid",
+    "class_b": "psychotropic",
+    "severity": "Major",
+    "description": "Additive CNS/Respiratory Depression.",
+    "advice": "Monitor strictly or avoid."
+  },
+  {
+    "id": "85806c3f-6b1c-44d3-ab59-8bc903ccaee7",
+    "class_a": "cardiac_glycoside",
+    "class_b": "corticosteroid",
+    "severity": "Intermediate",
+    "description": "Electrolyte Imbalance: Corticosteroids can induce significant potassium depletion (hypokalemia). A hypokalemic state subsequently enhances the sensitivity and binding of Digoxin to the Na+/K+-ATPase pump, precipitating Digoxin toxicity.",
+    "advice": "Monitor serum potassium levels strictly. Consider potassium supplementation and monitor for cardiac arrhythmias or signs of digoxin toxicity if therapy is concurrent."
+  },
+  {
+    "id": "b3959a0f-29f6-4c60-9d8d-9d7efae59df6",
+    "class_a": "arb",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: NSAIDs reduce the antihypertensive and renal vasodilatory effects of ARBs by inhibiting the synthesis of vasodilating prostaglandins, particularly in the afferent renal arteriole.",
+    "advice": "Monitor blood pressure regularly and assess renal function (Cr, eGFR) if therapy is long-term."
+  },
+  {
+    "id": "c22c9dcc-48fc-4354-8a80-6db6ef074a85",
+    "class_a": "beta-blocker",
+    "class_b": "bronchodilator",
+    "severity": "Intermediate",
+    "description": "Direct Pharmacodynamic Antagonism: Concurrent use leads to a direct receptor-level neutralization at the beta-1 and beta-2 receptors, reducing the effectiveness of both the beta-blocker and the bronchodilator (e.g., Albuterol/Salbutamol).",
+    "advice": "Avoid non-selective beta-blockers in patients with asthma/COPD. Monitor for decreased efficacy of bronchodilation or worsened bronchospasms."
+  },
+  {
+    "id": "5e2ebdf3-2537-4d6e-9aa2-950bb46d1c54",
+    "class_a": "biguanide",
+    "class_b": "corticosteroid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: Corticosteroids promote gluconeogenesis and reduce glucose uptake, directly opposing the hypoglycemic actions of oral anti-diabetics (Metformin). This is an antagonistic clinical effect despite acting on different physiological pathways.",
+    "advice": "Monitor blood glucose levels frequently. Dose adjustment of anti-diabetic medications may be required during and after corticosteroid therapy."
+  },
+  {
+    "id": "b5f15d5a-b00f-426c-a3f5-5c81e4b59239",
+    "class_a": "corticosteroid",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: Corticosteroids promote gluconeogenesis and reduce glucose uptake, directly opposing the hypoglycemic actions of oral anti-diabetics (Sulfonylureas). This is an antagonistic clinical effect despite acting on different physiological pathways.",
+    "advice": "Monitor blood glucose levels frequently. Dose adjustment of anti-diabetic medications may be required during and after corticosteroid therapy."
+  },
+  {
+    "id": "2b00e8d4-63d4-4326-af2b-2795ff7880f2",
+    "class_a": "ccb",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: NSAIDs reduce the antihypertensive efficacy of Calcium Channel Blockers (CCBs) by promoting salt/water retention and inhibiting prostaglandin-mediated vasodilation.",
+    "advice": "Monitor BP."
+  },
+  {
+    "id": "668699e1-1509-44ed-8b08-03dfce08bc77",
+    "class_a": "corticosteroid",
+    "class_b": "k_sparing_diuretic",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: Corticosteroids promote sodium/water retention which directly opposes the diuretic and BP-lowering effects of Potassium-Sparing Diuretics.",
+    "advice": "Monitor fluid status."
+  },
+  {
+    "id": "8a192117-3d3b-4b81-bbb4-1bbcb305a6b4",
+    "class_a": "loop_diuretic",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: NSAIDs significantly blunt the diuretic and natriuretic response of Loop Diuretics (e.g., Furosemide) by inhibiting renal prostaglandin synthesis and reducing renal blood flow.",
+    "advice": "Monitor BP and fluid status."
+  },
+  {
+    "id": "268ace50-959e-446f-b087-25eb96ae530e",
+    "class_a": "beta-blocker",
+    "class_b": "corticosteroid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: Corticosteroids can elevate blood pressure via mineralocorticoid effects and salt retention, partially neutralizing the BP-lowering effect of Beta-blockers.",
+    "advice": "Monitor BP."
+  },
+  {
+    "id": "743af2df-dd19-44b9-a6ae-46860ca862ca",
+    "class_a": "cardiac_glycoside",
+    "class_b": "loop_diuretic",
+    "severity": "Intermediate",
+    "description": "Electrolyte Displacement: Loop diuretics cause profound potassium depletion (hypokalemia). Since potassium competes with Digoxin, its absence allows Digoxin to bind excessively to the Na+/K+-ATPase pump, precipitating life-threatening toxicity.",
+    "advice": "Monitor Potassium strictly (Target: 4.0-5.0 mEq/L). Consider potassium supplementation and monitor Digoxin levels."
+  },
+  {
+    "id": "ecfc810f-1718-4984-a2e1-a7d778a10730",
+    "class_a": "beta-blocker",
+    "class_b": "insulin",
+    "severity": "Major",
+    "description": "Critical Risk: Hypoglycemia Masking. Beta-blockers block the \"fight or flight\" sympathetic response (tachycardia, tremors) that naturally alerts a patient to falling blood sugar. This can lead to unheralded, life-threatening hypoglycemic shock.",
+    "advice": "Educate patient to monitor for sweating (cholinergic sign). Perform frequent finger-stick glucose checks."
+  },
+  {
+    "id": "e1567e19-3d48-4205-94b7-398059cb60f4",
+    "class_a": "beta-blocker",
+    "class_b": "sulfonylurea",
+    "severity": "Major",
+    "description": "Critical Risk: Hypoglycemia Masking. Beta-blockers block the \"fight or flight\" sympathetic response (tachycardia, tremors) that naturally alerts a patient to falling blood sugar. This can lead to unheralded, life-threatening hypoglycemic shock.",
+    "advice": "Educate patient to monitor for sweating (cholinergic sign). Perform frequent finger-stick glucose checks."
+  },
+  {
+    "id": "234759e7-d8fd-4ddb-8be6-9e64aefacac5",
+    "class_a": "arb",
+    "class_b": "cardiac_glycoside",
+    "severity": "Intermediate",
+    "description": "Pharmacodynamic Antagonism: ARBs induce mild hyperkalemia. Potassium and Digoxin compete for the Na+/K+-ATPase pump; higher potassium reduces Digoxin binding, mildly decreasing its effect (unlike Thiazides which cause hypokalemia and toxicity).",
+    "advice": "Monitor serum potassium and digoxin levels routinely. Adjust digoxin dose if serum levels are sub-therapeutic."
+  },
+  {
+    "id": "51361c3a-2c13-4964-a8b3-6e4e06eedbb4",
+    "class_a": "anticoagulant",
+    "class_b": "nsaid",
+    "severity": "Major",
+    "description": "Severe Additive Hemostasis Risk: NSAIDs exacerbate anticoagulant effects via non-selective COX-1 inhibition, which reduces Thromboxane A2-mediated platelet function. Combined with the direct gastric mucosal irritation caused by COX-1 inhibition, this creates a high-grade risk for gastrointestinal hemorrhage.",
+    "advice": "Avoid concurrent use. Use alternative analgesics (e.g., Paracetamol) or ensure aggressive gastroprotection (PPI) if absolutely necessary."
+  },
+  {
+    "id": "26dbc39d-e216-4f4f-9664-49fa9785b925",
+    "class_a": "corticosteroid",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Critical GI Toxicity: Synergistic mucosal injury. Corticosteroids deplete protective prostaglandins, while NSAIDs inhibit their production. This combination exponentially increases the risk of peptic ulcers and gastrointestinal perforation.",
+    "advice": "Avoid concurrent administration. If therapy is mandatory, prescribe mandatory gastroprotection (PPI)."
+  },
+  {
+    "id": "e82d368b-5017-4158-afeb-6e66d95d5555",
+    "class_a": "cardiac_glycoside",
+    "class_b": "k_sparing_diuretic",
+    "severity": "Minor",
+    "description": "Spironolactone reduces renal clearance of digoxin, raising serum levels. It also causes hyperkalemia, altering digoxin binding dynamics at the Na+/K+ pump.",
+    "advice": "Monitor serum digoxin levels and potassium closely to prevent toxicity."
+  },
+  {
+    "id": "f0f8baec-c4db-40dd-9f26-f267cbd9d6f9",
+    "class_a": "benzodiazepine",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Benzodiazepines may potentially alter glycemic responses or mask hypoglycemic symptoms.",
+    "advice": "Monitor blood glucose levels frequently."
+  },
+  {
+    "id": "bee30097-ea8b-4c55-b9c0-558431079d00",
+    "class_a": "anticholinergic",
+    "class_b": "sulfonylurea",
+    "severity": "Intermediate",
+    "description": "Anticholinergic agents may delay gastric emptying, potentially affecting the absorption timing and efficacy of oral antidiabetics.",
+    "advice": "Monitor for glycemic variability and adjust dose timing if needed."
+  },
+  {
+    "id": "4c7b13ce-6e94-48d6-b18a-e9f793661e35",
+    "class_a": "analgesic",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Combined use may increase risk of renal side effects and GI baseline irritation.",
+    "advice": "Monitor renal function and gastrointestinal symptoms."
+  },
+  {
+    "id": "47352003-a151-4899-9f9f-5a07b9a5fac3",
+    "class_a": "arb",
+    "class_b": "k_sparing_diuretic",
+    "severity": "Major",
+    "description": "Potentiated Hyperkalemia Risk: Both ARBs and K-sparing diuretics reduce potassium excretion. Concurrent use can lead to life-threatening elevation of serum potassium.",
+    "advice": "Monitor serum potassium and renal function (Cr, eGFR) closely. Avoid combination in patients with baseline K > 5.0 mEq/L."
+  },
+  {
+    "id": "02f474e0-1f57-4b78-b209-e54cf46124f4",
+    "class_a": "arb",
+    "class_b": "loop_diuretic",
+    "severity": "Intermediate",
+    "description": "Renal Impairment & Hypotension Risk: Potential for acute drop in blood pressure and renal perfusion, especially during initiation or if the patient is volume-depleted.",
+    "advice": "Monitor blood pressure and renal function. Ensure adequate hydration during initiation."
+  },
+  {
+    "id": "d9997434-184b-476e-be06-a1bbeecee4b8",
+    "class_a": "arb",
+    "class_b": "corticosteroid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: Corticosteroids promote sodium/water retention, which can neutralize the antihypertensive effectiveness of ARBs.",
+    "advice": "Monitor blood pressure regularly and adjust ARB dosage if necessary."
+  },
+  {
+    "id": "f8619f7e-6107-472f-8f99-80e348fe0b7e",
+    "class_a": "arb",
+    "class_b": "beta-blocker",
+    "severity": "Intermediate",
+    "description": "Additive Hypotension: Both classes lower blood pressure via distinct pathways. While often used together in heart failure, they can cause symptomatic hypotension.",
+    "advice": "Monitor heart rate and blood pressure regularly during titration."
+  },
+  {
+    "id": "6500af9d-863e-4294-97f7-2dea15c87e8f",
+    "class_a": "k_sparing_diuretic",
+    "class_b": "loop_diuretic",
+    "severity": "Intermediate",
+    "description": "Electrolyte Imbalance Risk: While often combined to balance potassium (Loop/Thiazides waste K+, K-sparing retains it), the combination poses a risk for dehydration and orthostatic hypotension.",
+    "advice": "Monitor electrolytes (Na+, K+) and hydration status regularly."
+  },
+  {
+    "id": "bcdf6461-0fd2-419b-9470-ab126ebf7a90",
+    "class_a": "cardiac_glycoside",
+    "class_b": "nsaid",
+    "severity": "Intermediate",
+    "description": "Pharmacokinetic Interaction: NSAIDs can reduce renal perfusion and glomerular filtration, leading to decreased renal clearance of cardiac glycosides and increased risk of digitalis toxicity.",
+    "advice": "Monitor serum digoxin levels and clinical signs of toxicity (nausea, arrhythmias, visual changes). Assess renal function (Cr, eGFR)."
+  },
+  {
+    "id": "caf0b96a-f384-4a3f-82f3-d8526b015306",
+    "class_a": "antiplatelet",
+    "class_b": "corticosteroid",
+    "severity": "Intermediate",
+    "description": "Increased GI Risk: Concurrent use significantly increases the risk of gastrointestinal ulceration and hemorrhage. Corticosteroids may also mask early signs of internal bleeding.",
+    "advice": "Monitor for signs of GI bleeding (melena, hematemesis). Consider PPI prophylaxis if used long-term."
+  },
+  {
+    "id": "5e150e56-61cb-40dc-b45a-783834632e48",
+    "class_a": "anticoagulant",
+    "class_b": "beta-blocker",
+    "severity": "Minor",
+    "description": "Hemodynamic Monitoring: While generally safe, beta-blockers decrease heart rate and cardiac output, which may complicate the clinical picture in patients with significant bleeding events.",
+    "advice": "No major interaction. Routine clinical monitoring of hemodynamics recommended."
+  },
+  {
+    "id": "1801a5d0-6857-447b-9b9c-96f47a0ca42e",
+    "class_a": "ace-inhibitor",
+    "class_b": "arb",
+    "severity": "Major",
+    "description": "Dual RAAS Blockage Risk: Combining ACE inhibitors and ARBs is generally contraindicated due to an increased risk of hypotension, hyperkalemia, and acute renal failure.",
+    "advice": "Avoid concurrent use. Use only one type of RAAS blocker."
+  },
+  {
+    "id": "048f1221-e463-4710-90e5-636c118492fe",
+    "class_a": "ace-inhibitor",
+    "class_b": "k_sparing_diuretic",
+    "severity": "Major",
+    "description": "Severe Hyperkalemia Risk: Synergistic reduction in potassium excretion can lead to critical hyperkalemia.",
+    "advice": "Avoid concurrency if possible. Monitor potassium and Cr weekly."
+  },
+  {
+    "id": "3890a1d7-82d1-40f0-b569-c503addc12cf",
+    "class_a": "ace-inhibitor",
+    "class_b": "cardiac_glycoside",
+    "severity": "Intermediate",
+    "description": "Pharmacodynamic Antagonism: ACE inhibitors cause hyperkalemia which competes with Digoxin at the cardiac ATPase pump.",
+    "advice": "Monitor serum potassium and digoxin levels routinely."
+  },
+  {
+    "id": "f55d2a20-acbb-4de8-b8b0-ce4d5d19a355",
+    "class_a": "ace-inhibitor",
+    "class_b": "loop_diuretic",
+    "severity": "Intermediate",
+    "description": "First-dose Hypotension: ACE inhibitors can cause a precipitous drop in blood pressure when added to a regimen containing loop diuretics.",
+    "advice": "Consider reducing diuretic dose before starting ACE inhibitor."
+  },
+  {
+    "id": "dad19047-d33c-4c86-85e7-5414b58b2228",
+    "class_a": "ace-inhibitor",
+    "class_b": "corticosteroid",
+    "severity": "Intermediate",
+    "description": "Physiologic Antagonism: Corticosteroids cause salt/water retention, antagonizing the effect of ACE inhibitors.",
+    "advice": "Monitor blood pressure regularly."
+  },
+  {
+    "id": "2608bd7e-6465-43e5-9586-5ec0f7bfbc0b",
+    "class_a": "ace-inhibitor",
+    "class_b": "beta-blocker",
+    "severity": "Intermediate",
+    "description": "Additive Hypotension/Bradycardia: Combined effect on BP and cardiac output.",
+    "advice": "Monitor blood pressure and heart rate during titration."
+  },
+  {
+    "id": "8315d81e-f501-4c6b-9f6d-7f3f53396ba7",
+    "class_a": "antiplatelet",
+    "class_b": "nsaid",
+    "severity": "Major",
+    "description": "Pharmacodynamic Competition & Increased GI Risk: NSAIDs (especially Ibuprofen) can competitively inhibit the binding of Aspirin to COX-1, potentially neutralizing Aspirin's cardioprotective antiplatelet effect. Additionally, the combination synergistically increases the risk of severe gastrointestinal ulceration and hemorrhage.",
+    "advice": "Avoid concurrent use if possible. If required for analgesia, take Aspirin at least 30 minutes before or 8 hours after Ibuprofen. Closely monitor for signs of GI bleeding."
+  },
+  {
+    "id": "3aea475e-b216-45e9-9b3a-b8bf69d48ef0",
+    "class_a": "antiplatelet",
+    "class_b": "ppi",
+    "severity": "Minor",
+    "description": "Pharmacokinetic: Gastric pH alteration may slightly affect absorption.",
+    "advice": "Monitor efficacy of antiplatelet therapy. Consider clinical relevance for high-risk patients."
+  },
+  {
+    "id": "6ecd2596-0a16-4187-aec8-91302228cb45",
+    "class_a": "analgesic",
+    "class_b": "ccb",
+    "severity": "Info",
+    "description": "No major interaction, but monitor for synergistic effects in specific scenarios.",
+    "advice": "Routine monitoring."
+  },
+  {
+    "id": "ec10f47b-bbc8-4788-8183-7525a057e980",
+    "class_a": "ccb",
+    "class_b": "diuretic",
+    "severity": "Info",
+    "description": "Additive antihypertensive effect.",
+    "advice": "Monitor blood pressure regularly."
+  },
+  {
+    "id": "4a6572b0-d4ef-464d-8652-b61a705bb5e8",
+    "class_a": "supplement",
+    "class_b": "metronidazole",
+    "severity": "Intermediate",
+    "description": "Supplements (like Zinc) may interfere with the absorption of certain antimicrobials.",
+    "advice": "Separate dosing by 2 hours."
+  },
+  {
+    "id": "566a691a-2b95-4c7f-a60b-9c271a5e2d6e",
+    "class_a": "analgesic",
+    "class_b": "analgesic",
+    "severity": "Moderate",
+    "description": "Duplicate Therapy: Using two drugs from the same therapeutic class.",
+    "advice": "Use only one analgesic unless otherwise indicated by specialist."
+  },
+  {
+    "id": "8bb74a56-520c-4c2b-b627-0c0b628f9ace",
+    "class_a": "analgesic",
+    "class_b": "antibiotic",
+    "severity": "Info",
+    "description": "No clinical interaction expected between these classes.",
+    "advice": "Routine monitoring."
+  },
+  {
+    "id": "0269fc2f-c884-48be-9f55-c887d4acdd29",
+    "class_a": "antibiotic",
+    "class_b": "supplement",
+    "severity": "Intermediate",
+    "description": "Mineral supplements (Zinc, Iron, Calcium) can reduce antibiotic absorption via chelation.",
+    "advice": "Separate dosing by 2 to 4 hours."
+  },
+  {
+    "id": "5dccef13-a0ba-4602-a053-a3fe4159b95e",
+    "class_a": "antacid",
+    "class_b": "h2-blocker",
+    "severity": "Intermediate",
+    "description": "Antacids can reduce the absorption of H2-blockers.",
+    "advice": "Take antacids at least 1 hour before or 2 hours after H2-blockers."
+  },
+  {
+    "id": "fa6b9105-e5be-469c-b681-f9d35822532d",
+    "class_a": "antacid",
+    "class_b": "ppi",
+    "severity": "Minor",
+    "description": "Potential reduction in bioavailability, though clinical significance varies.",
+    "advice": "Staggering doses may be beneficial."
+  },
+  {
+    "id": "a079e49e-1c45-4a95-b55a-223019d28c3e",
+    "class_a": "antacid",
+    "class_b": "mucosal-protective",
+    "severity": "Intermediate",
+    "description": "Antacids can interfere with the binding of mucosal protectants (like Sucralfate) to the gastric mucosa.",
+    "advice": "Separate doses by at least 30-60 minutes."
+  },
+  {
+    "id": "ec157397-a9af-4ef8-9020-ffc9a873d4c9",
+    "class_a": "chloramphenicol",
+    "class_b": "probiotic",
+    "severity": "Intermediate",
+    "description": "Antibiotics can reduce the effectiveness of probiotics by killing the beneficial bacteria.",
+    "advice": "Administer probiotic at least 2 hours after the antibiotic dose."
+  },
+  {
+    "id": "1283403a-bcce-4dd4-b389-bf4747a028f1",
+    "class_a": "chloramphenicol",
+    "class_b": "antispasmodic",
+    "severity": "Info",
+    "description": "No major interaction known, but monitor for altered gastrointestinal motility.",
+    "advice": "Routine monitoring."
+  },
+  {
+    "id": "8f9e2a62-9f70-4b8c-8eb9-f7019c15d6ff",
+    "class_a": "antibiotic",
+    "class_b": "proton_pump_inhibitor",
+    "severity": "Info",
+    "description": "Generally no major clinical interaction. Routine monitoring if prolonged use.",
+    "advice": "Routine monitoring."
+  },
+  {
+    "id": "5b6e1e9a-1d16-4b3a-bc63-8a381b33e048",
+    "class_a": "antibiotic",
+    "class_b": "benzodiazepine",
+    "severity": "Moderate",
+    "description": "Sulfonamides may potentially increase serum levels of certain benzodiazepines through metabolic interference.",
+    "advice": "Monitor for excessive sedation or motor impairment."
+  }
+]

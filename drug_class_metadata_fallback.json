@@ -1,0 +1,333 @@
+[
+  {
+    "id": "99ad2fc1-544e-43de-ad9a-207fe5170bb2",
+    "class_key": "beta-blocker",
+    "moa_description": "Antagonizes beta-adrenergic receptors, reducing cardiac workload and heart rate.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Beta-Blockers",
+    "general_description": "Used to manage abnormal heart rhythms and hypertension.",
+    "common_drugs": [
+      "Bisoprolol",
+      "Carvedilol",
+      "Atenolol",
+      "Propranolol",
+      "Metoprolol"
+    ]
+  },
+  {
+    "id": "98ef2eba-5cb1-4ac5-86ad-0967ebab3bbd",
+    "class_key": "insulin",
+    "moa_description": "Regulates glucose metabolism by binding to insulin receptors, promoting glucose uptake in muscle and adipose tissue and inhibiting hepatic glucose production.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Insulin",
+    "general_description": "Mainstay treatment for diabetes to control blood sugar levels.",
+    "common_drugs": [
+      "Novorapid",
+      "Lantus",
+      "Humalog",
+      "Toujeo",
+      "Actrapid"
+    ]
+  },
+  {
+    "id": "936da2bf-c4e6-4c25-ae5e-30cf6e777cc6",
+    "class_key": "anticoagulant",
+    "moa_description": "Inhibits clotting factors (e.g., Vitamin K-dependent factors) in the coagulation cascade.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Anticoagulants",
+    "general_description": "Prevents blood clots from forming.",
+    "common_drugs": [
+      "Warfarin",
+      "Simarc",
+      "Heparin",
+      "Fondaparinux",
+      "Rivaroxaban"
+    ]
+  },
+  {
+    "id": "47bc6387-3ca1-4455-9121-ca8e734710e8",
+    "class_key": "tpo-agonist",
+    "moa_description": "Increases platelet production by stimulating the thrombopoietin receptor.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "TPO-Agonists",
+    "general_description": "Used for low platelet counts (thrombocytopenia).",
+    "common_drugs": [
+      "Eltrombopag",
+      "Romiplostim",
+      "Avatrombopag"
+    ]
+  },
+  {
+    "id": "35da3510-491d-4281-9c96-3f4d1dda767f",
+    "class_key": "arb",
+    "moa_description": "Blocks angiotensin II receptors, inducing vasodilation and mild hyperkalemia.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "ARBs",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "445773c9-c498-4a4e-a643-fd793d16d2de",
+    "class_key": "antiplatelet",
+    "moa_description": "Inhibits platelet aggregation by blocking receptors like P2Y12 or COX-1.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Antiplatelets",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "7941bc9d-36eb-4f62-8d05-f9feaa8bac04",
+    "class_key": "corticosteroid",
+    "moa_description": "Binds glucocorticoid receptors, broadly suppressing inflammatory pathways.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Corticosteroids",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "e9bec9be-a449-4f2b-b250-4f09aa0fe78b",
+    "class_key": "antihistamine",
+    "moa_description": "Blocks H1-histamine receptors, reducing allergic responses.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Antihistamines",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "3bb66a52-b381-4f03-be0e-dc79f17ca0c8",
+    "class_key": "anticonvulsant",
+    "moa_description": "Stabilizes neuronal membranes by modulating ion channels (sodium, calcium) or enhancing GABAergic inhibition to prevent abnormal electrical discharge.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Anticonvulsants",
+    "general_description": "Prevents seizures by stabilizing neuronal activity.",
+    "common_drugs": [
+      "Phenytoin",
+      "Kutoin",
+      "Valproic Acid",
+      "Carbamazepine",
+      "Levetiracetam"
+    ]
+  },
+  {
+    "id": "ae970683-c618-48ee-ae11-b89250886bb8",
+    "class_key": "statin",
+    "moa_description": "Inhibits HMG-CoA reductase, reducing hepatic cholesterol synthesis.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Statins",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "f9c53129-b158-4cea-b6ee-1b52d0adbe89",
+    "class_key": "ccb",
+    "moa_description": "Blocks voltage-gated calcium channels, causing vasodilation and reducing cardiac contractility.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Calcium Channel Blockers",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "95e3190f-b45b-4678-921e-f151c5ac7dc0",
+    "class_key": "sulfonylurea",
+    "moa_description": "Stimulates pancreatic beta cells to release insulin by closing K-ATP channels.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Sulfonylureas",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "26a34bab-15fc-40df-9570-32757d0ced6e",
+    "class_key": "biguanide",
+    "moa_description": "Decreases hepatic glucose production and increases peripheral insulin sensitivity.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Biguanides",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "b866cd40-93b9-4ff0-8e3e-0eaeaa7cb458",
+    "class_key": "diuretic",
+    "moa_description": "Promotes urine production, reducing blood volume and pressure.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Diuretics",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "676b53fb-1220-4447-8517-9776f04a3da7",
+    "class_key": "loop_diuretic",
+    "moa_description": "Inhibits Na-K-2Cl symporter in Loop of Henle, causing profound diuresis and potassium loss.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Loop Diuretics",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "d100eab4-8c1c-4e94-bbae-562c8aeb8259",
+    "class_key": "k_sparing_diuretic",
+    "moa_description": "Antagonizes aldosterone, causing diuresis while retaining potassium.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "K-Sparing Diuretics",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "825ac163-461c-42e9-ad93-5f1abf0ac02d",
+    "class_key": "nsaid",
+    "moa_description": "Inhibits Cyclooxygenase enzymes. COX-1 (Constitutive): Responsible for gastric mucosal protection and Thromboxane A2-mediated platelet aggregation. COX-2 (Inducible): Expressed at sites of injury to produce inflammatory prostaglandins (PGE2/PGI2). Inhibition of COX-2 provides analgesia, while COX-1 inhibition leads to GI risk and anti-platelet effects.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "NSAIDs",
+    "general_description": "Used for pain relief and reducing inflammation.",
+    "common_drugs": [
+      "Aspirin",
+      "Ibuprofen",
+      "Meloxicam",
+      "Diclofenac",
+      "Naproxen"
+    ]
+  },
+  {
+    "id": "6d886f9c-a81b-49c4-9aff-275e1fcf28d0",
+    "class_key": "cox2_inhibitor",
+    "moa_description": "Preferentially inhibits COX-2 enzymes (Inducible inflammation) with minimal effect on COX-1 (Housekeeping). This preserves gastric mucosal protection and platelet function compared to non-selective NSAIDs, reducing GI bleeding risk but potentially increasing cardiovascular thrombotic risk.",
+    "created_at": "2026-03-03T17:48:07.238598+00:00",
+    "display_name": "COX-2 Selective Inhibitors",
+    "general_description": "Specific pain relief with lower gastrointestinal risk.",
+    "common_drugs": [
+      "Celecoxib",
+      "Etoricoxib",
+      "Parecoxib"
+    ]
+  },
+  {
+    "id": "eddeb39c-0c1b-4aa8-83e7-af14f6583924",
+    "class_key": "cardiac_glycoside",
+    "moa_description": "Inhibits Na+/K+-ATPase pump, increasing intracellular calcium and vagal tone.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "Cardiac Glycosides",
+    "general_description": "Drugs that increase the output force of the heart and decrease its rate of contractions.",
+    "common_drugs": [
+      "Digoxin"
+    ]
+  },
+  {
+    "id": "84467810-2656-4c01-ae32-6b995390f55a",
+    "class_key": "ace-inhibitor",
+    "moa_description": "Inhibits Angiotensin-Converting Enzyme, reducing Angiotensin II production and increasing bradykinin levels.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "ACE-Inhibitors",
+    "general_description": "Widens blood vessels and lowers blood pressure.",
+    "common_drugs": [
+      "Captopril",
+      "Lisinopril",
+      "Enalapril",
+      "Ramipril"
+    ]
+  },
+  {
+    "id": "2e06beab-9e07-4764-a6ed-04c33d81f445",
+    "class_key": "ppi",
+    "moa_description": "Irreversibly binds H+/K+ ATPase pump in parietal cells, halting gastric acid secretion.",
+    "created_at": "2026-03-03T17:19:34.021962+00:00",
+    "display_name": "PPIs",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "43021e14-ecd6-4385-b703-79db48992622",
+    "class_key": "fibrate",
+    "moa_description": "Activates PPAR-alpha receptors, leading to increased clearance of VLDL, decreased triglyceride synthesis, and moderate increases in HDL.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Fibrates",
+    "general_description": "Specific lipid-lowering agents for high triglycerides.",
+    "common_drugs": [
+      "Fenofibrate",
+      "Lipanthyl",
+      "Gemfibrozil"
+    ]
+  },
+  {
+    "id": "16672467-04cf-4a01-be62-68cd1417fbef",
+    "class_key": "folate",
+    "moa_description": "Essential B-vitamin cofactor required for DNA synthesis, methylation, and red blood cell maturation.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Folate",
+    "general_description": "Essential B9 vitamin for cell division and DNA repair.",
+    "common_drugs": [
+      "Folic Acid",
+      "Folavit",
+      "Asam Folat"
+    ]
+  },
+  {
+    "id": "880c49a3-7b22-4431-b632-7e9b8bced2a6",
+    "class_key": "nitrate",
+    "moa_description": "Relaxes vascular smooth muscle, primarily venous, reducing preload and myocardial oxygen demand.",
+    "created_at": "2026-03-03T18:36:17.263968+00:00",
+    "display_name": "Nitrates",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "10a34773-0086-4400-a4b0-2b437d9ff291",
+    "class_key": "mucosal-protective",
+    "moa_description": "Forms a physical barrier over ulcerated or inflamed gastric mucosa, protecting it from acid and pepsin.",
+    "created_at": "2026-03-03T18:36:17.263968+00:00",
+    "display_name": "Mucosal Protectives",
+    "general_description": null,
+    "common_drugs": null
+  },
+  {
+    "id": "12be63f7-6319-4b62-b6d6-d0ad92914059",
+    "class_key": "alkalinizing_agent",
+    "moa_description": "Increases serum and urinary bicarbonate levels, buffering hydrogen ions and raising pH.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Alkalinizing Agents",
+    "general_description": "Used to balance blood pH and neutralize acid.",
+    "common_drugs": [
+      "Sodium Bicarbonate",
+      "Mylon",
+      "Bicnat"
+    ]
+  },
+  {
+    "id": "a25ba81f-26a9-471e-bb12-9c91aee54eac",
+    "class_key": "gabapentinoid",
+    "moa_description": "Binds to the alpha-2-delta subunit of voltage-gated calcium channels, reducing the release of excitatory neurotransmitters.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Gabapentinoids",
+    "general_description": "Targets nerve pain pathway and stabilizes nerve signals.",
+    "common_drugs": [
+      "Gabapentin",
+      "Alpentin",
+      "Neurontin",
+      "Pregabalin"
+    ]
+  },
+  {
+    "id": "65b5ed95-03f6-4a38-9197-7d6705ee056e",
+    "class_key": "antitussive",
+    "moa_description": "Suppresses the cough reflex through central action in the medulla or peripheral action as a demulcent in the throat.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Antitussives",
+    "general_description": "Used to control non-productive coughing.",
+    "common_drugs": [
+      "OBH",
+      "Codeine",
+      "Dextromethorphan"
+    ]
+  },
+  {
+    "id": "5b7c53d5-af51-4dde-a902-c84380fb9525",
+    "class_key": "expectorant",
+    "moa_description": "Increases the volume and reduces the viscosity of respiratory secretions, facilitating their clearance from the airways.",
+    "created_at": "2026-03-03T20:58:03.86914+00:00",
+    "display_name": "Expectorants",
+    "general_description": "Helps loosen mucus to make it easier to clear.",
+    "common_drugs": [
+      "Guaifenesin",
+      "Ammonium Chloride",
+      "Acetylcysteine"
+    ]
+  }
+]
