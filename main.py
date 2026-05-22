@@ -195,10 +195,19 @@ def load_banned_products_cache():
                 print(f"CRITICAL ERROR loading banned products local fallback: {fe}")
                 BANNED_PRODUCTS_CACHE = {}
 
-# Trigger initial loads
-load_class_metadata()
-load_ddi_rules_cache()
-load_banned_products_cache()
+# --- BACKGROUND SYNC ---
+import threading
+
+def _background_initial_load():
+    """Runs the Supabase network fetches in a background thread to avoid blocking FastAPI startup."""
+    print("Background: Starting async Supabase cache sync...")
+    load_class_metadata()
+    load_ddi_rules_cache()
+    load_banned_products_cache()
+    print("Background: Supabase cache sync complete.")
+
+# Trigger initial loads asynchronously
+threading.Thread(target=_background_initial_load, daemon=True, name="MainSupabaseSyncThread").start()
 
 @app.get("/api/refresh-cache")
 async def refresh_cache():
