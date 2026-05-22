@@ -1442,17 +1442,33 @@ async def create_patient(data: PatientCreateRequest):
 
 @app.get("/api/fda-label")
 async def get_fda_label(drug: str):
-    """Fetches full structured label data from OpenFDA."""
+    """Fetches full structured label data from OpenFDA, with fallback to generic name and class."""
     import urllib.parse
+    import requests
+    
+    # 1. Try exact search first (Brand or exact string)
     q_name = urllib.parse.quote(f'"{drug}"')
-    url = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_name}+openfda.brand_name:{q_name})&limit=1"
+    url_exact = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_name}+openfda.brand_name:{q_name})&limit=1"
     
     try:
-        import requests
-        response = requests.get(url, timeout=5)
+        response = requests.get(url_exact, timeout=5)
         if response.status_code == 200:
             return response.json()
-        return {"error": f"FDA API returned {response.status_code}", "results": []}
+            
+        # 2. If 404, map to generic name and try again
+        gen_name, drug_class = get_drug_info(drug)
+        if gen_name and gen_name.lower() != drug.lower():
+            q_gen = urllib.parse.quote(f'"{gen_name}"')
+            url_gen = f"https://api.fda.gov/drug/label.json?search=(openfda.generic_name:{q_gen}+openfda.brand_name:{q_gen})&limit=1"
+            res_gen = requests.get(url_gen, timeout=5)
+            if res_gen.status_code == 200:
+                # Add a metadata tag so frontend knows it was a generic fallback
+                data = res_gen.json()
+                data["_mapped_generic"] = gen_name
+                data["_mapped_class"] = drug_class
+                return data
+                
+        return {"error": f"FDA API returned {response.status_code}", "results": [], "mapped_class": drug_class if 'drug_class' in locals() else None}
     except Exception as e:
         return {"error": str(e), "results": []}
 
