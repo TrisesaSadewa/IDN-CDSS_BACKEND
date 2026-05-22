@@ -19,24 +19,30 @@ class DrugDatabase:
         self.drugs: List[Drug] = []
         self.index: Dict[str, Drug] = {} 
         
-        # SUPABASE CONFIG (Mirroring main.py)
         self.url = "https://crywwqleinnwoacithmw.supabase.co"
         self.key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyeXd3cWxlaW5ud29hY2l0aG13Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODQwODgxMiwiZXhwIjoyMDgzOTg0ODEyfQ.Uk9AFwxRHi7pwgP_lqYIWQ6JD7Ov1d07OzxiHswPNPQ"
         
         self.load_data()
 
     def load_data(self):
-        """Loads drugs from the Supabase knowledge_map table in batches."""
+        """Loads drugs from the Supabase knowledge_map table in batches in the background."""
+        # 1. First, synchronously load the complete local fallback database so we are instantly fully functional
+        self._load_local_fallback()
+        
+        # 2. Trigger background fetch from Supabase to get the absolute latest changes
+        import threading
+        threading.Thread(target=self._fetch_supabase_background, daemon=True).start()
+
+    def _fetch_supabase_background(self):
+        """Asynchronously loads the drug database from Supabase and atomically updates in-place references."""
         try:
             supabase: Client = create_client(self.url, self.key)
             
-            # 1. Fetch Generic -> Class mapping
-            print("Fetching Therapeutic Class maps from Supabase...")
+            print("Background: Fetching Therapeutic Class maps from Supabase...")
             class_res = supabase.table("generic_classes").select("generic_name, drug_class").execute()
             generic_to_class = {c['generic_name'].lower(): c['drug_class'].lower() for c in class_res.data}
             
-            # 2. Fetch Knowledge Map entries
-            print("Fetching drug dictionary from Supabase Knowledge Map...")
+            print("Background: Fetching drug dictionary from Supabase Knowledge Map...")
             all_rows = []
             page_size = 1000
             offset = 0
@@ -55,20 +61,18 @@ class DrugDatabase:
                 offset += page_size
                 if offset > 100000: break 
             
-            self.drugs = []
+            new_drugs = []
             for d in all_rows:
                 local_name_raw = d.get('local_term')
                 local_name = local_name_raw if local_name_raw else 'Unknown'
                 generic_candidate_raw = d.get('openfda_term')
                 generic_candidate = generic_candidate_raw.lower() if generic_candidate_raw else 'unknown'
                 
-                # Resolve clinical drug class from our new map
-                # Priority: generic_candidate -> local_name check
                 infallible_class = generic_to_class.get(generic_candidate, "unknown")
                 if infallible_class == "unknown":
                     infallible_class = generic_to_class.get(local_name.lower(), "unknown")
                 
-                self.drugs.append(Drug(
+                new_drugs.append(Drug(
                     brand_name=local_name,
                     generic_name=generic_candidate,
                     drug_class=infallible_class,
@@ -76,20 +80,39 @@ class DrugDatabase:
                     is_pediatric=False
                 ))
             
-            # Create Fast Lookup Index
-            for drug in self.drugs:
+            new_index = {}
+            for drug in new_drugs:
                 if drug.brand_name and drug.brand_name.lower() != "unknown":
-                    self.index[drug.brand_name.lower()] = drug
+                    new_index[drug.brand_name.lower()] = drug
                 if drug.generic_name and drug.generic_name.lower() != "unknown":
-                    # Priority for generic names if conflict
-                    self.index[drug.generic_name.lower()] = drug
+                    new_index[drug.generic_name.lower()] = drug
             
-            print(f"SUCCESS: Database loaded. {len(self.drugs)} entries, {len(generic_to_class)} classes mapped.")
+            # Atomic update of in-memory references to preserve imported objects
+            self.drugs.clear()
+            self.drugs.extend(new_drugs)
+            
+            self.index.clear()
+            self.index.update(new_index)
+            
+            print(f"SUCCESS: Background database updated. {len(self.drugs)} entries, {len(generic_to_class)} classes mapped.")
+            
+            # Rebuild NER parser's BRAND_MAP to incorporate the updated background entries
+            try:
+                import ner_parser
+                if ner_parser.parser:
+                    print("Background: Rebuilding NER Map...")
+                    ner_parser.parser.BRAND_MAP.clear()
+                    ner_parser.parser.MAX_WORD_LENGTH = 0
+                    for drug in self.drugs:
+                        if not hasattr(drug, 'brand_name'):
+                            continue
+                        ner_parser.parser._map_drug(drug)
+                    print(f"SUCCESS: Background NER Map rebuilt with {len(ner_parser.parser.BRAND_MAP)} brands.")
+            except Exception as pe:
+                print(f"Background: Rebuilding NER Map warning: {pe}")
             
         except Exception as e:
-            print(f"ERROR: Loading database from Supabase: {e}")
-            print("Attempting to fallback to local drug_database.json...")
-            self._load_local_fallback()
+            print(f"ERROR: Background loading database from Supabase: {e}")
 
     def _load_local_fallback(self):
         json_path = os.path.join(os.path.dirname(__file__), 'drug_database.json')
