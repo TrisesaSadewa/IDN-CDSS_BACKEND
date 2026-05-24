@@ -757,8 +757,10 @@ async def check_ddi_endpoint(payload: DDIRequest):
         
         if gen_a == gen_b: continue
 
+        # Expand diuretic classes to ensure we don't miss specific rules
+        # if Supabase categorized them generically.
         def expand_class(cls_name, gen_name):
-            # Normalize spaces to underscores and force lowercase
+            # Normalize spaces to underscores to handle Supabase vs local discrepancies
             c = cls_name.replace(" ", "_").lower()
             g = gen_name.lower()
             classes = {c, cls_name}
