@@ -760,16 +760,22 @@ async def check_ddi_endpoint(payload: DDIRequest):
         # Expand diuretic classes to ensure we don't miss specific rules
         # if Supabase categorized them generically.
         def expand_class(cls_name, gen_name):
-            classes = {cls_name}
-            if cls_name == "diuretic":
-                if "furosemide" in gen_name or "torsemide" in gen_name or "bumetanide" in gen_name:
+            # Normalize spaces to underscores to handle Supabase vs local discrepancies
+            c = cls_name.replace(" ", "_").lower()
+            g = gen_name.lower()
+            classes = {c, cls_name}
+            
+            if c == "diuretic" or "diuretic" in c:
+                if "furosemide" in g or "torsemide" in g or "bumetanide" in g:
                     classes.add("loop_diuretic")
-                elif "spironolacton" in gen_name or "eplerenone" in gen_name:
+                elif "spironolacton" in g or "eplerenone" in g:
                     classes.add("k_sparing_diuretic")
-                elif "hydrochlorothiazide" in gen_name or "chlorthalidone" in gen_name:
+                elif "hydrochlorothiazide" in g or "chlorthalidone" in g:
                     classes.add("thiazide_diuretic")
-            elif cls_name == "glycoside":
+            
+            if c == "glycoside" or c == "cardiac_glycoside":
                 classes.add("cardiac_glycoside")
+                
             return classes
             
         classes_a = expand_class(class_a, gen_a)
