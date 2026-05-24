@@ -762,12 +762,14 @@ async def check_ddi_endpoint(payload: DDIRequest):
         def expand_class(cls_name, gen_name):
             classes = {cls_name}
             if cls_name == "diuretic":
-                if gen_name in ["furosemide", "torsemide", "bumetanide"]:
+                if "furosemide" in gen_name or "torsemide" in gen_name or "bumetanide" in gen_name:
                     classes.add("loop_diuretic")
-                elif gen_name in ["spironolactone", "eplerenone"]:
+                elif "spironolacton" in gen_name or "eplerenone" in gen_name:
                     classes.add("k_sparing_diuretic")
-                elif gen_name in ["hydrochlorothiazide", "chlorthalidone"]:
+                elif "hydrochlorothiazide" in gen_name or "chlorthalidone" in gen_name:
                     classes.add("thiazide_diuretic")
+            elif cls_name == "glycoside":
+                classes.add("cardiac_glycoside")
             return classes
             
         classes_a = expand_class(class_a, gen_a)
