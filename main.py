@@ -757,7 +757,7 @@ async def check_ddi_endpoint(payload: DDIRequest):
         
         if gen_a == gen_b: continue
 
-                def expand_class(cls_name, gen_name):
+        def expand_class(cls_name, gen_name):
             # Normalize spaces to underscores and force lowercase
             c = cls_name.replace(" ", "_").lower()
             g = gen_name.lower()
